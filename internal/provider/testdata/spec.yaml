@@ -1,0 +1,14 @@
+openapi: 3.0.3
+info:
+  title: Empty v0 API
+  description: An empty specification for an API
+  version: 0.0.0
+servers:
+  - url: "https://api.example.com/v0"
+paths:
+  /health:
+    get:
+      description: Returns a 200 if the API is healthy.
+      responses:
+        "200":
+          description: A healthy response.
