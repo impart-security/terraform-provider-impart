@@ -5,7 +5,7 @@ A Terraform provider to manage Impart resources.
 
 ## Installation
 
-- Login to https://console.impartsecurity.net/. Under manage secretion click integrations => impart inspector and create an access token.
+- Login to https://console.impartsecurity.net/. Under manage section click Settings => Access Tokens => New API access token. Select scopes: read:org_api_access_tokens and scopes for resources will be managed by terraform.
 - Set environment variable `IMPART_TOKEN`
 - Set the following provider configuration
 
@@ -147,7 +147,3 @@ Create launch configuration with -debug argument and IMPART_TOKEN env variable:
 ```
 export TF_REATTACH_PROVIDERS='{"registry.terraform.io/impart-security/impart":{"Protocol":"grpc","ProtocolVersion":6,"Pid":26776,"Test":true,"Addr":{"Network":"unix","String":"/tmp/plugin460798854"}}}'
 ```
-
-
-
-
