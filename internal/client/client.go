@@ -53,6 +53,8 @@ type APIClient struct {
 
 	ApiBindingsApi ApiBindingsApi
 
+	LogBindingsAPI LogBindingsAPI
+
 	RulesScriptsApi RulesScriptsApi
 
 	SpecsApi SpecsApi
@@ -80,6 +82,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.RulesScriptsApi = (*RulesScriptsApiService)(&c.common)
 	c.SpecsApi = (*SpecsApiService)(&c.common)
 	c.UserApi = (*UserApiService)(&c.common)
+	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)
 
 	return c
 }

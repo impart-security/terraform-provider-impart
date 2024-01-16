@@ -72,7 +72,7 @@ func (d *specDataSource) Schema(_ context.Context, _ datasource.SchemaRequest, r
 
 // Read refreshes the Terraform state with the latest data.
 func (d *specDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Debug(ctx, "Preparing to read spec data source")
+	tflog.Debug(ctx, "Preparing to read the spec data source")
 	var state specDataSourceModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
@@ -85,7 +85,7 @@ func (d *specDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to read specification",
+			"Unable to read the specification",
 			message,
 		)
 		return
@@ -99,5 +99,5 @@ func (d *specDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	// Set state
 	resp.Diagnostics.Append(resp.State.Set(ctx, &state)...)
-	tflog.Debug(ctx, "Finished reading spec data source", map[string]any{"success": true})
+	tflog.Debug(ctx, "Finished reading the specification data source", map[string]any{"success": true})
 }

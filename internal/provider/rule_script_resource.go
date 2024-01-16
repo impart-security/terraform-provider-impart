@@ -53,7 +53,7 @@ func (r *ruleScriptResource) Configure(ctx context.Context, req resource.Configu
 
 	client, ok := req.ProviderData.(*impartAPIClient)
 	if !ok {
-		tflog.Error(ctx, "Unable to prepare client")
+		tflog.Error(ctx, "Unable to prepare the client")
 		return
 	}
 	r.client = client
@@ -110,7 +110,7 @@ func (r *ruleScriptResource) ImportState(ctx context.Context, req resource.Impor
 
 // Create a new resource.
 func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Preparing to create rule script resource")
+	tflog.Debug(ctx, "Preparing to create the rule script resource")
 	// Retrieve values from plan
 	var plan ruleScriptResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -122,7 +122,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	rule, err := os.ReadFile(plan.SourceFile.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to read rule script source file",
+			"Unable to read the rule script source file",
 			err.Error(),
 		)
 		return
@@ -145,7 +145,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	ruleRequest := r.client.RulesScriptsApi.CreateRulesScript(ctx, r.client.OrgID).
 		RulesScriptPostBody(rulesScriptPostBody)
 
-	ruleResponse, httpResp, err := ruleRequest.Execute()
+	ruleResponse, _, err := ruleRequest.Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -153,7 +153,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to create rule script",
+			"Unable to create the rule script",
 			message,
 		)
 		return
@@ -165,23 +165,18 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.Description = types.StringValue(ruleResponse.Description)
 	plan.Disabled = types.BoolValue(ruleResponse.Disabled)
 
-	//if source hash was not set users indicated they are not interested in tracking file content
-	if !plan.SourceHash.IsNull() {
-		plan.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
-	}
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Created rule script resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Created the rule script resource", map[string]any{"success": true})
 }
 
 // Read resource information.
 func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Preparing to read rule script resource")
+	tflog.Debug(ctx, "Preparing to read the rule script resource")
 	// Get current state
 	var state ruleScriptResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -206,7 +201,7 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to read rule",
+			"Unable to read the rule script",
 			message,
 		)
 		return
@@ -223,7 +218,21 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	// track hash only if user originally set it
 	if !currentHash.IsNull() {
-		state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
+		bytes, err := base64.StdEncoding.DecodeString(ruleResponse.Src)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to base64 decode the rule script",
+				err.Error(),
+			)
+		}
+		hash, err := calculateSha256(string(bytes))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to calculate sha256",
+				err.Error(),
+			)
+		}
+		state.SourceHash = types.StringValue(hash)
 	}
 
 	// Set refreshed state
@@ -232,15 +241,14 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Finished reading rule script resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Finished reading the rule script resource", map[string]any{"success": true})
 }
 
 func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Preparing to update rule script resource")
+	tflog.Debug(ctx, "Preparing to update the rule script resource")
 	// Retrieve values from plan
 	var plan ruleScriptResourceModel
 	diags := req.Plan.Get(ctx, &plan)
-	currentHash := plan.SourceHash
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -249,7 +257,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 	rule, err := os.ReadFile(plan.SourceFile.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to read rule script source file",
+			"Unable to read the rule script source file",
 			err.Error(),
 		)
 		return
@@ -271,7 +279,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		RulesScriptPostBody(rulesScriptPostBody)
 
 	// update rule
-	ruleResponse, httpResp, err := ruleRequest.Execute()
+	ruleResponse, _, err := ruleRequest.Execute()
 
 	if err != nil {
 		message := err.Error()
@@ -280,26 +288,23 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to update rule script",
+			"Unable to update the rule script",
 			message,
 		)
 		return
 	}
 
-	// Overwrite rules with refreshed state
+	// Overwrite the rules with refreshed state
 	state := ruleScriptResourceModel{
 		ID:         types.StringValue(ruleResponse.Id),
 		Name:       types.StringValue(ruleResponse.Name),
 		SourceFile: plan.SourceFile,
 		Disabled:   types.BoolValue(ruleResponse.Disabled),
+		SourceHash: plan.SourceHash,
 	}
 
 	if !plan.Description.IsNull() {
 		state.Description = types.StringValue(ruleResponse.Description)
-	}
-
-	if !currentHash.IsNull() {
-		state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
 	}
 
 	// Set refreshed state
@@ -308,12 +313,12 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Updated rule script resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Updated the rule script resource", map[string]any{"success": true})
 }
 
 func (r *ruleScriptResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Preparing to delete rule script resource")
-	// Retrieve values from state
+	tflog.Debug(ctx, "Preparing to delete the rule script resource")
+	// Retrieve values from the state
 	var state ruleScriptResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
@@ -321,7 +326,7 @@ func (r *ruleScriptResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	// delete rule
+	// delete the rule
 	_, err := r.client.RulesScriptsApi.DeleteRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		message := err.Error()
@@ -330,11 +335,11 @@ func (r *ruleScriptResource) Delete(ctx context.Context, req resource.DeleteRequ
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to delete rule script",
+			"Unable to delete the rule script",
 			message,
 		)
 		return
 	}
 
-	tflog.Debug(ctx, "Deleted rule script resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Deleted the rule script resource", map[string]any{"success": true})
 }

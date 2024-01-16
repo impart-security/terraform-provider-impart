@@ -29,5 +29,3 @@ data "impart_spec" "example" {
 ### Read-Only
 
 - `name` (String) The name for this specification.
-
-

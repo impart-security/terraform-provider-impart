@@ -40,5 +40,3 @@ resource "impart_rule_script" "example" {
 ### Read-Only
 
 - `id` (String) Identifier for the rule script.
-
-

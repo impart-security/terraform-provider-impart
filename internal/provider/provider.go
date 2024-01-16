@@ -182,7 +182,8 @@ func (p *impartProvider) DataSources(_ context.Context) []func() datasource.Data
 func (p *impartProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewSpecResource,
-		NewBindingResource,
+		NewApiBindingResource,
 		NewRuleScriptResource,
+		NewLogBindingResource,
 	}
 }

@@ -51,7 +51,7 @@ func (r *specResource) Configure(ctx context.Context, req resource.ConfigureRequ
 
 	client, ok := req.ProviderData.(*impartAPIClient)
 	if !ok {
-		tflog.Error(ctx, "Unable to prepare client")
+		tflog.Error(ctx, "Unable to prepare the client")
 		return
 	}
 	r.client = client
@@ -98,7 +98,7 @@ func (r *specResource) ImportState(ctx context.Context, req resource.ImportState
 
 // Create a new resource.
 func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Preparing to create specification resource")
+	tflog.Debug(ctx, "Preparing to create the specification resource")
 	// Retrieve values from plan
 	var plan specResourceModel
 	diags := req.Plan.Get(ctx, &plan)
@@ -111,7 +111,7 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	spec, err := os.ReadFile(plan.SourceFile.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to read specification source file",
+			"Unable to read the specification source file",
 			err.Error(),
 		)
 		return
@@ -126,7 +126,7 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 			Spec: &specb64,
 		})
 
-	specResponse, httpResp, err := specRequest.Execute()
+	specResponse, _, err := specRequest.Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -134,7 +134,7 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to create specification",
+			"Unable to create the specification",
 			message,
 		)
 		return
@@ -144,11 +144,6 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	plan.ID = types.StringValue(specResponse.Id)
 	plan.Name = types.StringValue(specResponse.Name)
 
-	//if source hash was not set users indicated they are not interested in tracking file content
-	if !plan.SourceHash.IsNull() {
-		plan.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
-	}
-
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
 
@@ -156,12 +151,12 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Created specification resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Created the specification resource", map[string]any{"success": true})
 }
 
 // Read resource information.
 func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Preparing to read specification resource")
+	tflog.Debug(ctx, "Preparing to read the specification resource")
 	// Get current state
 	var state specResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -186,7 +181,7 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to read specification",
+			"Unable to read the specification",
 			message,
 		)
 		return
@@ -197,11 +192,27 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		ID:         types.StringValue(specResponse.Id),
 		Name:       types.StringValue(specResponse.Name),
 		SourceFile: state.SourceFile,
+		SourceHash: state.SourceHash,
 	}
 
 	// track hash only if user originally set it
 	if !currentHash.IsNull() {
-		state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
+		//state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
+		bytes, err := base64.StdEncoding.DecodeString(specResponse.Spec)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to base64 decode the specification",
+				err.Error(),
+			)
+		}
+		hash, err := calculateSha256(string(bytes))
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to calculate sha256",
+				err.Error(),
+			)
+		}
+		state.SourceHash = types.StringValue(hash)
 	}
 
 	// Set refreshed state
@@ -210,15 +221,14 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Finished reading specification resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Finished reading the specification resource", map[string]any{"success": true})
 }
 
 func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Preparing to update specification resource")
+	tflog.Debug(ctx, "Preparing to update the specification resource")
 	// Retrieve values from plan
 	var plan specResourceModel
 	diags := req.Plan.Get(ctx, &plan)
-	currentHash := plan.SourceHash
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -228,7 +238,7 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	spec, err := os.ReadFile(plan.SourceFile.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to read specification source file",
+			"Unable to read the specification source file",
 			err.Error(),
 		)
 		return
@@ -242,7 +252,7 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		})
 
 	// update specification
-	specResponse, httpResp, err := specRequest.Execute()
+	specResponse, _, err := specRequest.Execute()
 
 	if err != nil {
 		message := err.Error()
@@ -251,7 +261,7 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to update specification",
+			"Unable to update the specification",
 			message,
 		)
 		return
@@ -262,10 +272,7 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		ID:         types.StringValue(specResponse.Id),
 		Name:       types.StringValue(specResponse.Name),
 		SourceFile: types.StringValue(plan.SourceFile.ValueString()),
-	}
-
-	if !currentHash.IsNull() {
-		plan.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
+		SourceHash: plan.SourceHash,
 	}
 
 	// Set refreshed state
@@ -274,11 +281,11 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Updated specification resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Updated the specification resource", map[string]any{"success": true})
 }
 
 func (r *specResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Preparing to delete specification resource")
+	tflog.Debug(ctx, "Preparing to delete the specification resource")
 	// Retrieve values from state
 	var state specResourceModel
 	diags := req.State.Get(ctx, &state)
@@ -296,11 +303,11 @@ func (r *specResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to delete specification",
+			"Unable to delete the specification",
 			message,
 		)
 		return
 	}
 
-	tflog.Debug(ctx, "Deleted specification resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Deleted the specification resource", map[string]any{"success": true})
 }
