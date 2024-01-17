@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.2.1] - 2024-01-16
+
+### Changed
+
+- Generate examples for log and api bindings
+
 ## [0.2.0] - 2024-01-16
 
 ### Changed
@@ -27,4 +33,5 @@
 ### Added
 
 - Initial release
+
 
