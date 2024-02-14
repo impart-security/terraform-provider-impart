@@ -186,7 +186,7 @@ func parameterAddToHeaderOrQuery(headerOrQueryParams interface{}, keyPrefix stri
 				return
 			}
 			var lenIndValue = indValue.Len()
-			for i := 0; i < lenIndValue; i++ {
+			for i := range lenIndValue {
 				var arrayValue = indValue.Index(i)
 				parameterAddToHeaderOrQuery(headerOrQueryParams, keyPrefix, arrayValue.Interface(), collectionType)
 			}

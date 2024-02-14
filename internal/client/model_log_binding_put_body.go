@@ -25,7 +25,8 @@ type LogBindingPutBody struct {
 	Name        string `json:"name"`
 	SpecId      string `json:"spec_id"`
 	LogstreamId string `json:"logstream_id"`
-	GrokPattern string `json:"grok_pattern"`
+	Pattern     string `json:"pattern"`
+	PatternType string `json:"pattern_type"`
 }
 
 type _LogBindingPutBody LogBindingPutBody
@@ -34,12 +35,13 @@ type _LogBindingPutBody LogBindingPutBody
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLogBindingPutBody(name string, specId string, logstreamId string, grokPattern string) *LogBindingPutBody {
+func NewLogBindingPutBody(name string, specId string, logstreamId string, pattern string, patternType string) *LogBindingPutBody {
 	this := LogBindingPutBody{}
 	this.Name = name
 	this.SpecId = specId
 	this.LogstreamId = logstreamId
-	this.GrokPattern = grokPattern
+	this.Pattern = pattern
+	this.PatternType = patternType
 	return &this
 }
 
@@ -123,28 +125,52 @@ func (o *LogBindingPutBody) SetLogstreamId(v string) {
 	o.LogstreamId = v
 }
 
-// GetGrokPattern returns the GrokPattern field value
-func (o *LogBindingPutBody) GetGrokPattern() string {
+// GetPattern returns the Pattern field value
+func (o *LogBindingPutBody) GetPattern() string {
 	if o == nil {
 		var ret string
 		return ret
 	}
 
-	return o.GrokPattern
+	return o.Pattern
 }
 
-// GetGrokPatternOk returns a tuple with the GrokPattern field value
+// GetPatternOk returns a tuple with the Pattern field value
 // and a boolean to check if the value has been set.
-func (o *LogBindingPutBody) GetGrokPatternOk() (*string, bool) {
+func (o *LogBindingPutBody) GetPatternOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.GrokPattern, true
+	return &o.Pattern, true
 }
 
-// SetGrokPattern sets field value
-func (o *LogBindingPutBody) SetGrokPattern(v string) {
-	o.GrokPattern = v
+// SetPattern sets field value
+func (o *LogBindingPutBody) SetPattern(v string) {
+	o.Pattern = v
+}
+
+// GetPatternType returns the PatternType field value
+func (o *LogBindingPutBody) GetPatternType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.PatternType
+}
+
+// GetPatternTypeOk returns a tuple with the PatternType field value
+// and a boolean to check if the value has been set.
+func (o *LogBindingPutBody) GetPatternTypeOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.PatternType, true
+}
+
+// SetPatternType sets field value
+func (o *LogBindingPutBody) SetPatternType(v string) {
+	o.PatternType = v
 }
 
 func (o LogBindingPutBody) MarshalJSON() ([]byte, error) {
@@ -160,7 +186,8 @@ func (o LogBindingPutBody) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	toSerialize["spec_id"] = o.SpecId
 	toSerialize["logstream_id"] = o.LogstreamId
-	toSerialize["grok_pattern"] = o.GrokPattern
+	toSerialize["pattern"] = o.Pattern
+	toSerialize["pattern_type"] = o.PatternType
 	return toSerialize, nil
 }
 
@@ -172,7 +199,8 @@ func (o *LogBindingPutBody) UnmarshalJSON(data []byte) (err error) {
 		"name",
 		"spec_id",
 		"logstream_id",
-		"grok_pattern",
+		"pattern",
+		"pattern_type",
 	}
 
 	allProperties := make(map[string]interface{})

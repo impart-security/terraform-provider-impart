@@ -16,7 +16,8 @@ Manage a log binding.
 # Create a new log binding
 resource "impart_log_binding" "example" {
   name         = "log_binding_example"
-  grok_pattern = <<EOF
+  pattern_type = "grok"
+  pattern      = <<EOF
 %%{HTTPDATE:timestamp} "(?:%%{WORD:http_method}|-) (?:%%{GREEDYDATA:request}|-) (?:HTTP/%%{NUMBER:httpversion}|-( )?)" (?:%%{NUMBER:response_code}|-)
   EOF
   logstream_id = "logstream_id"
@@ -28,8 +29,9 @@ resource "impart_log_binding" "example" {
 
 ### Required
 
-- `grok_pattern` (String) The base_path for this log binding.
 - `name` (String) The name for this log binding.
+- `pattern` (String) The grok/json pattern for this log binding.
+- `pattern_type` (String) The pattern type for this log binding. Accepted values: grok, json
 - `spec_id` (String) The specification id.
 
 ### Optional

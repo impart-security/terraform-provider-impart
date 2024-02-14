@@ -29,7 +29,8 @@ resource "impart_spec" "test" {
 resource "impart_log_binding" "test" {
   name         = "terraform_test"
   spec_id      = resource.impart_spec.test.id
-  grok_pattern = <<EOF
+  pattern_type = "grok"
+  pattern = <<EOF
 %s
   EOF
   logstream_id = "logstream"
@@ -37,7 +38,8 @@ resource "impart_log_binding" "test" {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_log_binding.test", "name", "terraform_test"),
 					resource.TestCheckResourceAttr("impart_log_binding.test", "logstream_id", "logstream"),
-					resource.TestCheckResourceAttr("impart_log_binding.test", "grok_pattern", fmt.Sprintf("%s\n", grokPattern)),
+					resource.TestCheckResourceAttr("impart_log_binding.test", "pattern_type", "grok"),
+					resource.TestCheckResourceAttr("impart_log_binding.test", "pattern", fmt.Sprintf("%s\n", grokPattern)),
 					// Verify dynamic values have any impart_log_binding set in the state.
 					resource.TestCheckResourceAttrSet("impart_log_binding.test", "spec_id"),
 					resource.TestCheckResourceAttrSet("impart_log_binding.test", "id"),
@@ -53,14 +55,16 @@ resource "impart_spec" "test" {
 resource "impart_log_binding" "test" {
   name      = "terraform_test_updated"
   spec_id   = resource.impart_spec.test.id
-  grok_pattern = <<EOF
+  pattern_type = "grok"
+  pattern = <<EOF
 %s
   EOF
   logstream_id = "updated_logstream"
 }`, strings.Replace(updatedGrokPattern, "%", "%%", -1)),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_log_binding.test", "name", "terraform_test_updated"),
-					resource.TestCheckResourceAttr("impart_log_binding.test", "grok_pattern", fmt.Sprintf("%s\n", updatedGrokPattern)),
+					resource.TestCheckResourceAttr("impart_log_binding.test", "pattern_type", "grok"),
+					resource.TestCheckResourceAttr("impart_log_binding.test", "pattern", fmt.Sprintf("%s\n", updatedGrokPattern)),
 					resource.TestCheckResourceAttr("impart_log_binding.test", "logstream_id", "updated_logstream"),
 					// Verify dynamic values have any value set in the state.
 					resource.TestCheckResourceAttrSet("impart_log_binding.test", "spec_id"),

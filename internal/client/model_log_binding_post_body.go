@@ -25,7 +25,8 @@ type LogBindingPostBody struct {
 	Name        string  `json:"name"`
 	SpecId      string  `json:"spec_id"`
 	LogstreamId *string `json:"logstream_id,omitempty"`
-	GrokPattern string  `json:"grok_pattern"`
+	Pattern     string  `json:"pattern"`
+	PatternType string  `json:"pattern_type"`
 }
 
 type _LogBindingPostBody LogBindingPostBody
@@ -34,11 +35,12 @@ type _LogBindingPostBody LogBindingPostBody
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLogBindingPostBody(name string, specId string, grokPattern string) *LogBindingPostBody {
+func NewLogBindingPostBody(name string, specId string, pattern string, patternType string) *LogBindingPostBody {
 	this := LogBindingPostBody{}
 	this.Name = name
 	this.SpecId = specId
-	this.GrokPattern = grokPattern
+	this.Pattern = pattern
+	this.PatternType = patternType
 	return &this
 }
 
@@ -130,28 +132,52 @@ func (o *LogBindingPostBody) SetLogstreamId(v string) {
 	o.LogstreamId = &v
 }
 
-// GetGrokPattern returns the GrokPattern field value
-func (o *LogBindingPostBody) GetGrokPattern() string {
+// GetPattern returns the Pattern field value
+func (o *LogBindingPostBody) GetPattern() string {
 	if o == nil {
 		var ret string
 		return ret
 	}
 
-	return o.GrokPattern
+	return o.Pattern
 }
 
-// GetGrokPatternOk returns a tuple with the GrokPattern field value
+// GetPatternOk returns a tuple with the Pattern field value
 // and a boolean to check if the value has been set.
-func (o *LogBindingPostBody) GetGrokPatternOk() (*string, bool) {
+func (o *LogBindingPostBody) GetPatternOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.GrokPattern, true
+	return &o.Pattern, true
 }
 
-// SetGrokPattern sets field value
-func (o *LogBindingPostBody) SetGrokPattern(v string) {
-	o.GrokPattern = v
+// SetPattern sets field value
+func (o *LogBindingPostBody) SetPattern(v string) {
+	o.Pattern = v
+}
+
+// GetPatternType returns the PatternType field value
+func (o *LogBindingPostBody) GetPatternType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.PatternType
+}
+
+// GetPatternTypeOk returns a tuple with the PatternType field value
+// and a boolean to check if the value has been set.
+func (o *LogBindingPostBody) GetPatternTypeOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.PatternType, true
+}
+
+// SetPatternType sets field value
+func (o *LogBindingPostBody) SetPatternType(v string) {
+	o.PatternType = v
 }
 
 func (o LogBindingPostBody) MarshalJSON() ([]byte, error) {
@@ -169,7 +195,8 @@ func (o LogBindingPostBody) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.LogstreamId) {
 		toSerialize["logstream_id"] = o.LogstreamId
 	}
-	toSerialize["grok_pattern"] = o.GrokPattern
+	toSerialize["pattern"] = o.Pattern
+	toSerialize["pattern_type"] = o.PatternType
 	return toSerialize, nil
 }
 
@@ -180,7 +207,8 @@ func (o *LogBindingPostBody) UnmarshalJSON(data []byte) (err error) {
 	requiredProperties := []string{
 		"name",
 		"spec_id",
-		"grok_pattern",
+		"pattern",
+		"pattern_type",
 	}
 
 	allProperties := make(map[string]interface{})

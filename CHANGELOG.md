@@ -1,5 +1,12 @@
-
 # Changelog
+
+## [0.3.0] - 2024-02-14
+
+### Changed
+
+- Add json support for the log binding configuration
+- Add pattern_type field
+- Rename grok_pattern to pattern
 
 ## [0.2.1] - 2024-01-16
 
@@ -33,5 +40,3 @@
 ### Added
 
 - Initial release
-
-
