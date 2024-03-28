@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.0] - 2024-03-28
+
+- Add impart_connector Terraform data source
+- Add impart_notification_template Terraform resource
+- Add impart_monitor Terraform resource
+
 ## [0.3.0] - 2024-02-14
 
 ### Changed

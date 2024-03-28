@@ -175,6 +175,7 @@ func (p *impartProvider) Configure(ctx context.Context, req provider.ConfigureRe
 func (p *impartProvider) DataSources(_ context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		NewSpecDataSource,
+		NewConnectorDataSource,
 	}
 }
 
@@ -185,5 +186,7 @@ func (p *impartProvider) Resources(_ context.Context) []func() resource.Resource
 		NewApiBindingResource,
 		NewRuleScriptResource,
 		NewLogBindingResource,
+		NewNotificationTemplateResource,
+		NewMonitorResource,
 	}
 }

@@ -21,6 +21,7 @@ resource "impart_log_binding" "example" {
 %%{HTTPDATE:timestamp} "(?:%%{WORD:http_method}|-) (?:%%{GREEDYDATA:request}|-) (?:HTTP/%%{NUMBER:httpversion}|-( )?)" (?:%%{NUMBER:response_code}|-)
   EOF
   logstream_id = "logstream_id"
+  spec_id      = resource.impart_spec.example.id
 }
 ```
 

@@ -60,6 +60,12 @@ type APIClient struct {
 	SpecsApi SpecsApi
 
 	UserApi UserApi
+
+	NotificationTemplatesAPI NotificationTemplatesAPI
+
+	ConnectorsAPI ConnectorsAPI
+
+	EventMonitorsAPI EventMonitorsAPI
 }
 
 type service struct {
@@ -83,6 +89,9 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.SpecsApi = (*SpecsApiService)(&c.common)
 	c.UserApi = (*UserApiService)(&c.common)
 	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)
+	c.NotificationTemplatesAPI = (*NotificationTemplatesAPIService)(&c.common)
+	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
+	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
 
 	return c
 }
