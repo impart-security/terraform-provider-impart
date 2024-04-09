@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.0] - 2024-04-09
+
+- Add impart_rule_script_dependencies resource
+
 ## [0.4.0] - 2024-03-28
 
 - Add impart_connector Terraform data source

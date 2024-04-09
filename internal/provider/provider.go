@@ -188,5 +188,6 @@ func (p *impartProvider) Resources(_ context.Context) []func() resource.Resource
 		NewLogBindingResource,
 		NewNotificationTemplateResource,
 		NewMonitorResource,
+		NewRuleScriptDependenciesResource,
 	}
 }
