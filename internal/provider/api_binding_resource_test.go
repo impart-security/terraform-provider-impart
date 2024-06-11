@@ -7,8 +7,6 @@ import (
 )
 
 func TestAccApiBindingResource(t *testing.T) {
-	// Skipping for now until we find out why api bindings are not being generated correctly during tests
-	t.Skip()
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -42,7 +40,7 @@ resource "impart_api_binding" "test" {
 			},
 			// ImportState testing
 			{
-				ResourceName:      "impart_spec.test",
+				ResourceName:      "impart_api_binding.test",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -64,9 +62,9 @@ resource "impart_api_binding" "test" {
 									`,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_api_binding.test", "name", "terraform_test_updated"),
-					resource.TestCheckResourceAttr("impart_api_binding.test", "port", "444"),
-					resource.TestCheckResourceAttr("impart_api_binding.test", "hostname", "example.net"),
-					resource.TestCheckResourceAttr("impart_api_binding.test", "base_path", "/"),
+					resource.TestCheckResourceAttr("impart_api_binding.test", "port", "445"),
+					resource.TestCheckResourceAttr("impart_api_binding.test", "hostname", "example2.net"),
+					resource.TestCheckResourceAttr("impart_api_binding.test", "base_path", "/example"),
 					// Verify dynamic values have any value set in the state.
 					resource.TestCheckResourceAttrSet("impart_api_binding.test", "spec_id"),
 					resource.TestCheckResourceAttrSet("impart_api_binding.test", "id"),

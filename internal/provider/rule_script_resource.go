@@ -295,15 +295,21 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		return
 	}
 
-	rule, err := os.ReadFile(plan.SourceFile.ValueString())
-	if err != nil {
-		resp.Diagnostics.AddError(
-			"Unable to read the rule script source file",
-			err.Error(),
-		)
-		return
+	var ruleBytes []byte
+	if !plan.SourceFile.IsNull() {
+		bytes, err := os.ReadFile(plan.SourceFile.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to read the rule script source file",
+				err.Error(),
+			)
+			return
+		}
+		ruleBytes = bytes
+	} else {
+		ruleBytes = []byte(plan.Content.ValueString())
 	}
-	ruleb64 := base64.StdEncoding.EncodeToString(rule)
+	ruleb64 := base64.StdEncoding.EncodeToString(ruleBytes)
 
 	rulesScriptPostBody := openapiclient.RulesScriptPostBody{
 		Name:     plan.Name.ValueString(),
@@ -346,6 +352,19 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	if !plan.Description.IsNull() {
 		state.Description = types.StringValue(ruleResponse.Description)
+	}
+
+	// track only if content was set
+	if !plan.Content.IsNull() {
+		bytes, err := base64.StdEncoding.DecodeString(ruleResponse.Src)
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to base64 decode the rule script",
+				err.Error(),
+			)
+		}
+
+		state.Content = types.StringValue(string(bytes))
 	}
 
 	// Set refreshed state

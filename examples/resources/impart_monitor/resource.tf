@@ -2,7 +2,7 @@
 resource "impart_monitor" "test_event" {
   name                      = "terraform_event_monitor"
   description               = "test event monitor"
-  notification_template_ids = [resource.impart_notification_template.test.id]
+  notification_template_ids = ["<notification_template_id>"]
   conditions = [
     {
       threshold   = 1,
@@ -23,7 +23,7 @@ resource "impart_monitor" "test_event" {
 resource "impart_monitor" "test_metric" {
   name                      = "terraform_event_monitor"
   description               = "test event monitor"
-  notification_template_ids = [resource.impart_notification_template.test.id]
+  notification_template_ids = ["<notification_template_id>"]
   conditions = [
     {
       threshold   = 1,
