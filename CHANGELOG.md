@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0] - 2024-06-11
+
+### Added
+
+- impart_list to manage lists
+- impart_api_binding disabled attribute
+
 ## [0.5.0] - 2024-04-09
 
 - Add impart_rule_script_dependencies resource

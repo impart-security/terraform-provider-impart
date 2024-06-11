@@ -12,7 +12,9 @@ Contact: support@impart.security
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the ApiBindingPostBody type satisfies the MappedNullable interface at compile time
@@ -21,6 +23,7 @@ var _ MappedNullable = &ApiBindingPostBody{}
 // ApiBindingPostBody struct for ApiBindingPostBody
 type ApiBindingPostBody struct {
 	Name           string   `json:"name"`
+	Disabled       *bool    `json:"disabled,omitempty"`
 	SpecId         string   `json:"spec_id"`
 	Hostname       string   `json:"hostname"`
 	Port           int32    `json:"port"`
@@ -34,6 +37,8 @@ type ApiBindingPostBody struct {
 	ForwardedId    []string `json:"forwarded_id,omitempty"`
 }
 
+type _ApiBindingPostBody ApiBindingPostBody
+
 // NewApiBindingPostBody instantiates a new ApiBindingPostBody object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
@@ -41,6 +46,8 @@ type ApiBindingPostBody struct {
 func NewApiBindingPostBody(name string, specId string, hostname string, port int32, basePath string) *ApiBindingPostBody {
 	this := ApiBindingPostBody{}
 	this.Name = name
+	var disabled bool = false
+	this.Disabled = &disabled
 	this.SpecId = specId
 	this.Hostname = hostname
 	this.Port = port
@@ -53,6 +60,8 @@ func NewApiBindingPostBody(name string, specId string, hostname string, port int
 // but it doesn't guarantee that properties required by API are set
 func NewApiBindingPostBodyWithDefaults() *ApiBindingPostBody {
 	this := ApiBindingPostBody{}
+	var disabled bool = false
+	this.Disabled = &disabled
 	return &this
 }
 
@@ -78,6 +87,38 @@ func (o *ApiBindingPostBody) GetNameOk() (*string, bool) {
 // SetName sets field value
 func (o *ApiBindingPostBody) SetName(v string) {
 	o.Name = v
+}
+
+// GetDisabled returns the Disabled field value if set, zero value otherwise.
+func (o *ApiBindingPostBody) GetDisabled() bool {
+	if o == nil || IsNil(o.Disabled) {
+		var ret bool
+		return ret
+	}
+	return *o.Disabled
+}
+
+// GetDisabledOk returns a tuple with the Disabled field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ApiBindingPostBody) GetDisabledOk() (*bool, bool) {
+	if o == nil || IsNil(o.Disabled) {
+		return nil, false
+	}
+	return o.Disabled, true
+}
+
+// HasDisabled returns a boolean if a field has been set.
+func (o *ApiBindingPostBody) HasDisabled() bool {
+	if o != nil && !IsNil(o.Disabled) {
+		return true
+	}
+
+	return false
+}
+
+// SetDisabled gets a reference to the given bool and assigns it to the Disabled field.
+func (o *ApiBindingPostBody) SetDisabled(v bool) {
+	o.Disabled = &v
 }
 
 // GetSpecId returns the SpecId field value
@@ -411,6 +452,9 @@ func (o ApiBindingPostBody) MarshalJSON() ([]byte, error) {
 func (o ApiBindingPostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["name"] = o.Name
+	if !IsNil(o.Disabled) {
+		toSerialize["disabled"] = o.Disabled
+	}
 	toSerialize["spec_id"] = o.SpecId
 	toSerialize["hostname"] = o.Hostname
 	toSerialize["port"] = o.Port
@@ -437,6 +481,47 @@ func (o ApiBindingPostBody) ToMap() (map[string]interface{}, error) {
 		toSerialize["forwarded_id"] = o.ForwardedId
 	}
 	return toSerialize, nil
+}
+
+func (o *ApiBindingPostBody) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"name",
+		"spec_id",
+		"hostname",
+		"port",
+		"base_path",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varApiBindingPostBody := _ApiBindingPostBody{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varApiBindingPostBody)
+
+	if err != nil {
+		return err
+	}
+
+	*o = ApiBindingPostBody(varApiBindingPostBody)
+
+	return err
 }
 
 type NullableApiBindingPostBody struct {

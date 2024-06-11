@@ -41,6 +41,7 @@ type apiBindingResourceModel struct {
 	Hostname       types.String `tfsdk:"hostname"`
 	Port           types.Int64  `tfsdk:"port"`
 	BasePath       types.String `tfsdk:"base_path"`
+	Disabled       types.Bool   `tfsdk:"disabled"`
 	UpstreamOrigin types.String `tfsdk:"upstream_origin"`
 	Hops           types.Int64  `tfsdk:"hops"`
 	UseForwarded   types.Bool   `tfsdk:"use_forwarded"`
@@ -105,6 +106,10 @@ func (r *apiBindingResource) Schema(_ context.Context, _ resource.SchemaRequest,
 				Description: "The upstream_origin for this api binding.",
 				Optional:    true,
 			},
+			"disabled": schema.BoolAttribute{
+				Description: "The disabled for this api binding.",
+				Optional:    true,
+			},
 			"hops": schema.Int64Attribute{
 				Description: "The hops for this api binding.",
 				Optional:    true,
@@ -167,6 +172,11 @@ func (r *apiBindingResource) Create(ctx context.Context, req resource.CreateRequ
 		ForwardedProto: plan.ForwardedProto,
 	}
 
+	if !plan.Disabled.IsNull() {
+		disabled := plan.Disabled.ValueBool()
+		postBody.Disabled = &disabled
+	}
+
 	if !plan.Hops.IsNull() {
 		hops := int32(plan.Hops.ValueInt64())
 		postBody.Hops = &hops
@@ -177,7 +187,7 @@ func (r *apiBindingResource) Create(ctx context.Context, req resource.CreateRequ
 		postBody.UseForwarded = &useForwarded
 	}
 
-	bindingResponse, _, err := r.client.ApiBindingsApi.CreateAPIBinding(ctx, r.client.OrgID).ApiBindingPostBody(postBody).Execute()
+	bindingResponse, _, err := r.client.ApiBindingsAPI.CreateAPIBinding(ctx, r.client.OrgID).ApiBindingPostBody(postBody).Execute()
 
 	if err != nil {
 		message := err.Error()
@@ -204,6 +214,9 @@ func (r *apiBindingResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.ForwardedID = bindingResponse.ForwardedId
 	plan.ForwardedProto = bindingResponse.ForwardedProto
 
+	if !plan.Disabled.IsNull() || bindingResponse.Disabled {
+		plan.Disabled = types.BoolValue(bindingResponse.Disabled)
+	}
 	if bindingResponse.UpstreamOrigin != "" {
 		plan.UpstreamOrigin = types.StringValue(bindingResponse.UpstreamOrigin)
 	}
@@ -234,7 +247,7 @@ func (r *apiBindingResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	bindingResponse, httpResp, err := r.client.ApiBindingsApi.GetAPIBinding(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	bindingResponse, httpResp, err := r.client.ApiBindingsAPI.GetAPIBinding(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {
@@ -266,6 +279,9 @@ func (r *apiBindingResource) Read(ctx context.Context, req resource.ReadRequest,
 	state.ForwardedID = bindingResponse.ForwardedId
 	state.ForwardedProto = bindingResponse.ForwardedProto
 
+	if !state.Disabled.IsNull() || bindingResponse.Disabled {
+		state.Disabled = types.BoolValue(bindingResponse.Disabled)
+	}
 	if bindingResponse.UpstreamOrigin != "" {
 		state.UpstreamOrigin = types.StringValue(bindingResponse.UpstreamOrigin)
 	}
@@ -310,6 +326,11 @@ func (r *apiBindingResource) Update(ctx context.Context, req resource.UpdateRequ
 		ForwardedProto: plan.ForwardedProto,
 	}
 
+	if !plan.Disabled.IsNull() {
+		disabled := plan.Disabled.ValueBool()
+		postBody.Disabled = &disabled
+	}
+
 	if !plan.Hops.IsNull() {
 		hops := int32(plan.Hops.ValueInt64())
 		postBody.Hops = &hops
@@ -320,11 +341,11 @@ func (r *apiBindingResource) Update(ctx context.Context, req resource.UpdateRequ
 		postBody.UseForwarded = &useForwarded
 	}
 
-	specRequest := r.client.ApiBindingsApi.UpdateAPIBinding(ctx, r.client.OrgID, plan.ID.ValueString()).
+	bindingReauest := r.client.ApiBindingsAPI.UpdateAPIBinding(ctx, r.client.OrgID, plan.ID.ValueString()).
 		ApiBindingPostBody(postBody)
 
-	// update specification
-	bindingResponse, _, err := specRequest.Execute()
+	// Update the api binding
+	bindingResponse, _, err := bindingReauest.Execute()
 
 	if err != nil {
 		message := err.Error()
@@ -353,6 +374,9 @@ func (r *apiBindingResource) Update(ctx context.Context, req resource.UpdateRequ
 		ForwardedProto: bindingResponse.ForwardedProto,
 	}
 
+	if !plan.Disabled.IsNull() || bindingResponse.Disabled {
+		state.Disabled = types.BoolValue(bindingResponse.Disabled)
+	}
 	if !plan.UpstreamOrigin.IsNull() || bindingResponse.UpstreamOrigin != "" {
 		state.UpstreamOrigin = types.StringValue(bindingResponse.UpstreamOrigin)
 	}
@@ -382,8 +406,8 @@ func (r *apiBindingResource) Delete(ctx context.Context, req resource.DeleteRequ
 		return
 	}
 
-	// delete specification
-	_, err := r.client.ApiBindingsApi.DeleteAPIBinding(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	// Delete the api binding
+	_, err := r.client.ApiBindingsAPI.DeleteAPIBinding(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

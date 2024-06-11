@@ -43,6 +43,7 @@ type ruleScriptResourceModel struct {
 	Disabled    types.Bool   `tfsdk:"disabled"`
 	SourceFile  types.String `tfsdk:"source_file"`
 	SourceHash  types.String `tfsdk:"source_hash"`
+	Content     types.String `tfsdk:"content"`
 }
 
 // Configure adds the provider configured client to the resource.
@@ -93,11 +94,16 @@ func (r *ruleScriptResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 			"source_file": schema.StringAttribute{
 				Description: "The rule source file.",
-				Required:    true,
+				Optional:    true,
 			},
 
 			"source_hash": schema.StringAttribute{
 				Description: "The rule source hash.",
+				Optional:    true,
+			},
+
+			"content": schema.StringAttribute{
+				Description: "The rule body content.",
 				Optional:    true,
 			},
 		},
@@ -119,16 +125,46 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 		return
 	}
 
-	rule, err := os.ReadFile(plan.SourceFile.ValueString())
-	if err != nil {
+	if plan.SourceFile.IsNull() && plan.Content.IsNull() {
 		resp.Diagnostics.AddError(
-			"Unable to read the rule script source file",
-			err.Error(),
+			"Configuration Error: Missing Required Argument",
+			"Either 'source_file' or 'content' must be set.",
 		)
 		return
 	}
 
-	ruleb64 := base64.StdEncoding.EncodeToString(rule)
+	if !plan.SourceFile.IsNull() && !plan.Content.IsNull() {
+		resp.Diagnostics.AddError(
+			"Configuration Error: Conflicting Arguments",
+			"Both 'source_file' and 'content' cannot be set at the same time.",
+		)
+		return
+	}
+
+	if plan.SourceFile.IsNull() && !plan.SourceHash.IsNull() {
+		resp.Diagnostics.AddError(
+			"Configuration Error: Conflicting Arguments",
+			"Both 'source_hash' can only be set when `source_file` is set.",
+		)
+		return
+	}
+
+	var ruleBytes []byte
+	if !plan.SourceFile.IsNull() {
+		bytes, err := os.ReadFile(plan.SourceFile.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to read the rule script source file",
+				err.Error(),
+			)
+			return
+		}
+		ruleBytes = bytes
+	} else {
+		ruleBytes = []byte(plan.Content.ValueString())
+	}
+
+	ruleb64 := base64.StdEncoding.EncodeToString(ruleBytes)
 
 	rulesScriptPostBody := openapiclient.RulesScriptPostBody{
 		Name:     plan.Name.ValueString(),
@@ -185,8 +221,6 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	currentHash := state.SourceHash
-
 	ruleResponse, httpResp, err := r.client.RulesScriptsApi.GetRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
@@ -208,7 +242,7 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// Map response body to model
-	state = ruleScriptResourceModel{
+	newState := ruleScriptResourceModel{
 		ID:          types.StringValue(ruleResponse.Id),
 		Name:        types.StringValue(ruleResponse.Name),
 		SourceFile:  state.SourceFile,
@@ -216,8 +250,8 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 		Disabled:    types.BoolValue(ruleResponse.Disabled),
 	}
 
-	// track hash only if user originally set it
-	if !currentHash.IsNull() {
+	// track hash only if user originally set source_hash or content
+	if !state.SourceHash.IsNull() || !state.Content.IsNull() {
 		bytes, err := base64.StdEncoding.DecodeString(ruleResponse.Src)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -232,11 +266,18 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 				err.Error(),
 			)
 		}
-		state.SourceHash = types.StringValue(hash)
+
+		if !state.SourceHash.IsNull() {
+			newState.SourceHash = types.StringValue(hash)
+		}
+
+		if !state.Content.IsNull() {
+			newState.Content = types.StringValue(string(bytes))
+		}
 	}
 
 	// Set refreshed state
-	diags = resp.State.Set(ctx, &state)
+	diags = resp.State.Set(ctx, &newState)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -342,4 +383,37 @@ func (r *ruleScriptResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	tflog.Debug(ctx, "Deleted the rule script resource", map[string]any{"success": true})
+}
+
+func (r *ruleScriptResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var plan ruleScriptResourceModel
+	diags := req.Config.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	if plan.SourceFile.IsNull() && plan.Content.IsNull() {
+		resp.Diagnostics.AddError(
+			"Configuration Error: Missing Required Argument",
+			"Either 'source_file' or 'content' must be set.",
+		)
+		return
+	}
+
+	if !plan.SourceFile.IsNull() && !plan.Content.IsNull() {
+		resp.Diagnostics.AddError(
+			"Configuration Error: Conflicting Arguments",
+			"Both 'source_file' and 'content' cannot be set at the same time.",
+		)
+		return
+	}
+
+	if plan.SourceFile.IsNull() && !plan.SourceHash.IsNull() {
+		resp.Diagnostics.AddError(
+			"Configuration Error: Conflicting Arguments",
+			"Both 'source_hash' can only be set when `source_file` is set.",
+		)
+		return
+	}
 }

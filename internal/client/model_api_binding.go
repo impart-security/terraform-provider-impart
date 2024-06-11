@@ -12,7 +12,9 @@ Contact: support@impart.security
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -25,6 +27,8 @@ type ApiBinding struct {
 	Id string `json:"id"`
 	// The name of an API binding.
 	Name string `json:"name"`
+	// Whether the API binding is disabled.
+	Disabled bool `json:"disabled"`
 	// The spec ID associated with an API binding.
 	SpecId string `json:"spec_id"`
 	// The hostname for an API Binding.
@@ -55,14 +59,17 @@ type ApiBinding struct {
 	ForwardedId []string `json:"forwarded_id"`
 }
 
+type _ApiBinding ApiBinding
+
 // NewApiBinding instantiates a new ApiBinding object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewApiBinding(id string, name string, specId string, hostname string, port int32, basePath string, upstreamOrigin string, observedAt NullableTime, createdBy string, createdAt time.Time, hops int32, useForwarded bool, forwardedFor []string, forwardedHost []string, forwardedProto []string, forwardedId []string) *ApiBinding {
+func NewApiBinding(id string, name string, disabled bool, specId string, hostname string, port int32, basePath string, upstreamOrigin string, observedAt NullableTime, createdBy string, createdAt time.Time, hops int32, useForwarded bool, forwardedFor []string, forwardedHost []string, forwardedProto []string, forwardedId []string) *ApiBinding {
 	this := ApiBinding{}
 	this.Id = id
 	this.Name = name
+	this.Disabled = disabled
 	this.SpecId = specId
 	this.Hostname = hostname
 	this.Port = port
@@ -134,6 +141,30 @@ func (o *ApiBinding) GetNameOk() (*string, bool) {
 // SetName sets field value
 func (o *ApiBinding) SetName(v string) {
 	o.Name = v
+}
+
+// GetDisabled returns the Disabled field value
+func (o *ApiBinding) GetDisabled() bool {
+	if o == nil {
+		var ret bool
+		return ret
+	}
+
+	return o.Disabled
+}
+
+// GetDisabledOk returns a tuple with the Disabled field value
+// and a boolean to check if the value has been set.
+func (o *ApiBinding) GetDisabledOk() (*bool, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Disabled, true
+}
+
+// SetDisabled sets field value
+func (o *ApiBinding) SetDisabled(v bool) {
+	o.Disabled = v
 }
 
 // GetSpecId returns the SpecId field value
@@ -486,6 +517,7 @@ func (o ApiBinding) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["id"] = o.Id
 	toSerialize["name"] = o.Name
+	toSerialize["disabled"] = o.Disabled
 	toSerialize["spec_id"] = o.SpecId
 	toSerialize["hostname"] = o.Hostname
 	toSerialize["port"] = o.Port
@@ -501,6 +533,59 @@ func (o ApiBinding) ToMap() (map[string]interface{}, error) {
 	toSerialize["forwarded_proto"] = o.ForwardedProto
 	toSerialize["forwarded_id"] = o.ForwardedId
 	return toSerialize, nil
+}
+
+func (o *ApiBinding) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"id",
+		"name",
+		"disabled",
+		"spec_id",
+		"hostname",
+		"port",
+		"base_path",
+		"upstream_origin",
+		"observed_at",
+		"created_by",
+		"created_at",
+		"hops",
+		"use_forwarded",
+		"forwarded_for",
+		"forwarded_host",
+		"forwarded_proto",
+		"forwarded_id",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varApiBinding := _ApiBinding{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varApiBinding)
+
+	if err != nil {
+		return err
+	}
+
+	*o = ApiBinding(varApiBinding)
+
+	return err
 }
 
 type NullableApiBinding struct {

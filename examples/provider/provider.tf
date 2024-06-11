@@ -32,6 +32,26 @@ resource "impart_spec" "example" {
   # }
 }
 
+# Create a new list
+resource "impart_list" "example" {
+  name = "list_example"
+  kind = "string"
+}
+
+# Create a new rule script
+resource "impart_rule_script" "example" {
+  name        = "example"
+  disabled    = false
+  description = "Rule description"
+  content     = <<EOF
+import { List } from "asruleslib";
+
+// Reference the list
+let list = new List("${resource.impart_list.example.id}");
+...
+  EOF
+}
+
 # Create a new notification template
 resource "impart_notification_template" "test" {
   name         = "terraform_notification_template"

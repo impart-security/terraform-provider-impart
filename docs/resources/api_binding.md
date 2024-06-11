@@ -36,6 +36,7 @@ resource "impart_api_binding" "example" {
 
 ### Optional
 
+- `disabled` (Boolean) The disabled for this api binding.
 - `forwarded_for` (List of String) The forwarded_for for this api binding.
 - `forwarded_host` (List of String) The forwarded_host for this api binding.
 - `forwarded_id` (List of String) The forwarded_id for this api binding.

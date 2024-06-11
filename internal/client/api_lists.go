@@ -20,117 +20,146 @@ import (
 	"strings"
 )
 
-type ApiBindingsAPI interface {
+type ListsAPI interface {
 
 	/*
-		CreateAPIBinding Create an API binding
+		CreateList Create a list
 
-		Creates an API binding for an organization.
+		Creates a list for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@return ApiCreateAPIBindingRequest
+		@return ApiCreateListRequest
 	*/
-	CreateAPIBinding(ctx context.Context, orgId string) ApiCreateAPIBindingRequest
+	CreateList(ctx context.Context, orgId string) ApiCreateListRequest
 
-	// CreateAPIBindingExecute executes the request
-	//  @return ApiBinding
-	CreateAPIBindingExecute(r ApiCreateAPIBindingRequest) (*ApiBinding, *http.Response, error)
+	// CreateListExecute executes the request
+	//  @return List
+	CreateListExecute(r ApiCreateListRequest) (*List, *http.Response, error)
 
 	/*
-		DeleteAPIBinding Delete an API binding
+		DeleteList Delete a list
 
-		Deletes an API binding from an organization.
+		Deletes a list from an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param apiBindingId API Binding ID
-		@return ApiDeleteAPIBindingRequest
+		@param listId List ID
+		@return ApiDeleteListRequest
 	*/
-	DeleteAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiDeleteAPIBindingRequest
+	DeleteList(ctx context.Context, orgId string, listId string) ApiDeleteListRequest
 
-	// DeleteAPIBindingExecute executes the request
-	DeleteAPIBindingExecute(r ApiDeleteAPIBindingRequest) (*http.Response, error)
+	// DeleteListExecute executes the request
+	DeleteListExecute(r ApiDeleteListRequest) (*http.Response, error)
 
 	/*
-		GetAPIBinding Get an API binding
+		GetList Get a list
 
-		Gets an API binding for an organization.
+		Gets a list for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param apiBindingId API Binding ID
-		@return ApiGetAPIBindingRequest
+		@param listId List ID
+		@return ApiGetListRequest
 	*/
-	GetAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiGetAPIBindingRequest
+	GetList(ctx context.Context, orgId string, listId string) ApiGetListRequest
 
-	// GetAPIBindingExecute executes the request
-	//  @return ApiBinding
-	GetAPIBindingExecute(r ApiGetAPIBindingRequest) (*ApiBinding, *http.Response, error)
+	// GetListExecute executes the request
+	//  @return List
+	GetListExecute(r ApiGetListRequest) (*List, *http.Response, error)
 
 	/*
-		GetAPIBindings Get API bindings
+		GetListOptions Get list options
 
-		Gets a list of API bindings for an organization.
+		Gets options for a list.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@return ApiGetAPIBindingsRequest
+		@param listId List ID
+		@return ApiGetListOptionsRequest
 	*/
-	GetAPIBindings(ctx context.Context, orgId string) ApiGetAPIBindingsRequest
+	GetListOptions(ctx context.Context, orgId string, listId string) ApiGetListOptionsRequest
 
-	// GetAPIBindingsExecute executes the request
-	//  @return ApiBindings
-	GetAPIBindingsExecute(r ApiGetAPIBindingsRequest) (*ApiBindings, *http.Response, error)
+	// GetListOptionsExecute executes the request
+	GetListOptionsExecute(r ApiGetListOptionsRequest) (*http.Response, error)
 
 	/*
-		UpdateAPIBinding Update an API binding
+		GetLists Get lists
 
-		Updates an API binding for an organization.
+		Gets a list of lists for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param apiBindingId API Binding ID
-		@return ApiUpdateAPIBindingRequest
+		@return ApiGetListsRequest
 	*/
-	UpdateAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiUpdateAPIBindingRequest
+	GetLists(ctx context.Context, orgId string) ApiGetListsRequest
 
-	// UpdateAPIBindingExecute executes the request
-	//  @return ApiBinding
-	UpdateAPIBindingExecute(r ApiUpdateAPIBindingRequest) (*ApiBinding, *http.Response, error)
+	// GetListsExecute executes the request
+	//  @return Lists
+	GetListsExecute(r ApiGetListsRequest) (*Lists, *http.Response, error)
+
+	/*
+		GetListsOptions Get list options
+
+		Gets options for a list.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@return ApiGetListsOptionsRequest
+	*/
+	GetListsOptions(ctx context.Context, orgId string) ApiGetListsOptionsRequest
+
+	// GetListsOptionsExecute executes the request
+	GetListsOptionsExecute(r ApiGetListsOptionsRequest) (*http.Response, error)
+
+	/*
+		UpdateList Update a list
+
+		Updates a list for an organization.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@param listId List ID
+		@return ApiUpdateListRequest
+	*/
+	UpdateList(ctx context.Context, orgId string, listId string) ApiUpdateListRequest
+
+	// UpdateListExecute executes the request
+	//  @return List
+	UpdateListExecute(r ApiUpdateListRequest) (*List, *http.Response, error)
 }
 
-// ApiBindingsAPIService ApiBindingsAPI service
-type ApiBindingsAPIService service
+// ListsAPIService ListsAPI service
+type ListsAPIService service
 
-type ApiCreateAPIBindingRequest struct {
-	ctx                context.Context
-	ApiService         ApiBindingsAPI
-	orgId              string
-	apiBindingPostBody *ApiBindingPostBody
+type ApiCreateListRequest struct {
+	ctx          context.Context
+	ApiService   ListsAPI
+	orgId        string
+	listPostBody *ListPostBody
 }
 
-// Request body for creating an API binding.
-func (r ApiCreateAPIBindingRequest) ApiBindingPostBody(apiBindingPostBody ApiBindingPostBody) ApiCreateAPIBindingRequest {
-	r.apiBindingPostBody = &apiBindingPostBody
+// Request body for creating a list.
+func (r ApiCreateListRequest) ListPostBody(listPostBody ListPostBody) ApiCreateListRequest {
+	r.listPostBody = &listPostBody
 	return r
 }
 
-func (r ApiCreateAPIBindingRequest) Execute() (*ApiBinding, *http.Response, error) {
-	return r.ApiService.CreateAPIBindingExecute(r)
+func (r ApiCreateListRequest) Execute() (*List, *http.Response, error) {
+	return r.ApiService.CreateListExecute(r)
 }
 
 /*
-CreateAPIBinding Create an API binding
+CreateList Create a list
 
-Creates an API binding for an organization.
+Creates a list for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@return ApiCreateAPIBindingRequest
+	@return ApiCreateListRequest
 */
-func (a *ApiBindingsAPIService) CreateAPIBinding(ctx context.Context, orgId string) ApiCreateAPIBindingRequest {
-	return ApiCreateAPIBindingRequest{
+func (a *ListsAPIService) CreateList(ctx context.Context, orgId string) ApiCreateListRequest {
+	return ApiCreateListRequest{
 		ApiService: a,
 		ctx:        ctx,
 		orgId:      orgId,
@@ -139,21 +168,21 @@ func (a *ApiBindingsAPIService) CreateAPIBinding(ctx context.Context, orgId stri
 
 // Execute executes the request
 //
-//	@return ApiBinding
-func (a *ApiBindingsAPIService) CreateAPIBindingExecute(r ApiCreateAPIBindingRequest) (*ApiBinding, *http.Response, error) {
+//	@return List
+func (a *ListsAPIService) CreateListExecute(r ApiCreateListRequest) (*List, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ApiBinding
+		localVarReturnValue *List
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiBindingsAPIService.CreateAPIBinding")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.CreateList")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/api_bindings"
+	localVarPath := localBasePath + "/orgs/{org_id}/lists"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -162,8 +191,8 @@ func (a *ApiBindingsAPIService) CreateAPIBindingExecute(r ApiCreateAPIBindingReq
 	if strlen(r.orgId) > 36 {
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
-	if r.apiBindingPostBody == nil {
-		return localVarReturnValue, nil, reportError("apiBindingPostBody is required and must be specified")
+	if r.listPostBody == nil {
+		return localVarReturnValue, nil, reportError("listPostBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -184,7 +213,7 @@ func (a *ApiBindingsAPIService) CreateAPIBindingExecute(r ApiCreateAPIBindingReq
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.apiBindingPostBody
+	localVarPostBody = r.listPostBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -254,52 +283,59 @@ func (a *ApiBindingsAPIService) CreateAPIBindingExecute(r ApiCreateAPIBindingReq
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiDeleteAPIBindingRequest struct {
-	ctx          context.Context
-	ApiService   ApiBindingsAPI
-	orgId        string
-	apiBindingId string
+type ApiDeleteListRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
+	listId     string
+	ifMatch    *string
 }
 
-func (r ApiDeleteAPIBindingRequest) Execute() (*http.Response, error) {
-	return r.ApiService.DeleteAPIBindingExecute(r)
+// If Match for ETag lock checks.
+func (r ApiDeleteListRequest) IfMatch(ifMatch string) ApiDeleteListRequest {
+	r.ifMatch = &ifMatch
+	return r
+}
+
+func (r ApiDeleteListRequest) Execute() (*http.Response, error) {
+	return r.ApiService.DeleteListExecute(r)
 }
 
 /*
-DeleteAPIBinding Delete an API binding
+DeleteList Delete a list
 
-Deletes an API binding from an organization.
+Deletes a list from an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@param apiBindingId API Binding ID
-	@return ApiDeleteAPIBindingRequest
+	@param listId List ID
+	@return ApiDeleteListRequest
 */
-func (a *ApiBindingsAPIService) DeleteAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiDeleteAPIBindingRequest {
-	return ApiDeleteAPIBindingRequest{
-		ApiService:   a,
-		ctx:          ctx,
-		orgId:        orgId,
-		apiBindingId: apiBindingId,
+func (a *ListsAPIService) DeleteList(ctx context.Context, orgId string, listId string) ApiDeleteListRequest {
+	return ApiDeleteListRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
 	}
 }
 
 // Execute executes the request
-func (a *ApiBindingsAPIService) DeleteAPIBindingExecute(r ApiDeleteAPIBindingRequest) (*http.Response, error) {
+func (a *ListsAPIService) DeleteListExecute(r ApiDeleteListRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiBindingsAPIService.DeleteAPIBinding")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.DeleteList")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/api_bindings/{api_binding_id}"
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"api_binding_id"+"}", url.PathEscape(parameterValueToString(r.apiBindingId, "apiBindingId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -307,8 +343,291 @@ func (a *ApiBindingsAPIService) DeleteAPIBindingExecute(r ApiDeleteAPIBindingReq
 	if strlen(r.orgId) > 36 {
 		return nil, reportError("orgId must have less than 36 elements")
 	}
-	if strlen(r.apiBindingId) > 36 {
-		return nil, reportError("apiBindingId must have less than 36 elements")
+	if strlen(r.listId) > 36 {
+		return nil, reportError("listId must have less than 36 elements")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.ifMatch != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "If-Match", r.ifMatch, "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type ApiGetListRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
+	listId     string
+}
+
+func (r ApiGetListRequest) Execute() (*List, *http.Response, error) {
+	return r.ApiService.GetListExecute(r)
+}
+
+/*
+GetList Get a list
+
+Gets a list for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiGetListRequest
+*/
+func (a *ListsAPIService) GetList(ctx context.Context, orgId string, listId string) ApiGetListRequest {
+	return ApiGetListRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return List
+func (a *ListsAPIService) GetListExecute(r ApiGetListRequest) (*List, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *List
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.GetList")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.listId) > 36 {
+		return localVarReturnValue, nil, reportError("listId must have less than 36 elements")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetListOptionsRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
+	listId     string
+}
+
+func (r ApiGetListOptionsRequest) Execute() (*http.Response, error) {
+	return r.ApiService.GetListOptionsExecute(r)
+}
+
+/*
+GetListOptions Get list options
+
+Gets options for a list.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiGetListOptionsRequest
+*/
+func (a *ListsAPIService) GetListOptions(ctx context.Context, orgId string, listId string) ApiGetListOptionsRequest {
+	return ApiGetListOptionsRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
+	}
+}
+
+// Execute executes the request
+func (a *ListsAPIService) GetListOptionsExecute(r ApiGetListOptionsRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodOptions
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.GetListOptions")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.listId) > 36 {
+		return nil, reportError("listId must have less than 36 elements")
 	}
 
 	// to determine the Content-Type header
@@ -388,201 +707,55 @@ func (a *ApiBindingsAPIService) DeleteAPIBindingExecute(r ApiDeleteAPIBindingReq
 	return localVarHTTPResponse, nil
 }
 
-type ApiGetAPIBindingRequest struct {
-	ctx          context.Context
-	ApiService   ApiBindingsAPI
-	orgId        string
-	apiBindingId string
-}
-
-func (r ApiGetAPIBindingRequest) Execute() (*ApiBinding, *http.Response, error) {
-	return r.ApiService.GetAPIBindingExecute(r)
-}
-
-/*
-GetAPIBinding Get an API binding
-
-Gets an API binding for an organization.
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param orgId Organization ID
-	@param apiBindingId API Binding ID
-	@return ApiGetAPIBindingRequest
-*/
-func (a *ApiBindingsAPIService) GetAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiGetAPIBindingRequest {
-	return ApiGetAPIBindingRequest{
-		ApiService:   a,
-		ctx:          ctx,
-		orgId:        orgId,
-		apiBindingId: apiBindingId,
-	}
-}
-
-// Execute executes the request
-//
-//	@return ApiBinding
-func (a *ApiBindingsAPIService) GetAPIBindingExecute(r ApiGetAPIBindingRequest) (*ApiBinding, *http.Response, error) {
-	var (
-		localVarHTTPMethod  = http.MethodGet
-		localVarPostBody    interface{}
-		formFiles           []formFile
-		localVarReturnValue *ApiBinding
-	)
-
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiBindingsAPIService.GetAPIBinding")
-	if err != nil {
-		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
-	}
-
-	localVarPath := localBasePath + "/orgs/{org_id}/api_bindings/{api_binding_id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"api_binding_id"+"}", url.PathEscape(parameterValueToString(r.apiBindingId, "apiBindingId")), -1)
-
-	localVarHeaderParams := make(map[string]string)
-	localVarQueryParams := url.Values{}
-	localVarFormParams := url.Values{}
-	if strlen(r.orgId) > 36 {
-		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
-	}
-	if strlen(r.apiBindingId) > 36 {
-		return localVarReturnValue, nil, reportError("apiBindingId must have less than 36 elements")
-	}
-
-	// to determine the Content-Type header
-	localVarHTTPContentTypes := []string{}
-
-	// set Content-Type header
-	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
-	if localVarHTTPContentType != "" {
-		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
-	}
-
-	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
-
-	// set Accept header
-	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
-	if localVarHTTPHeaderAccept != "" {
-		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
-	}
-	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
-	if err != nil {
-		return localVarReturnValue, nil, err
-	}
-
-	localVarHTTPResponse, err := a.client.callAPI(req)
-	if err != nil || localVarHTTPResponse == nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
-	localVarHTTPResponse.Body.Close()
-	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
-	if err != nil {
-		return localVarReturnValue, localVarHTTPResponse, err
-	}
-
-	if localVarHTTPResponse.StatusCode >= 300 {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: localVarHTTPResponse.Status,
-		}
-		if localVarHTTPResponse.StatusCode == 401 {
-			var v ProblemResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 500 {
-			var v ProblemResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
-			var v ProblemResponse
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-	if err != nil {
-		newErr := &GenericOpenAPIError{
-			body:  localVarBody,
-			error: err.Error(),
-		}
-		return localVarReturnValue, localVarHTTPResponse, newErr
-	}
-
-	return localVarReturnValue, localVarHTTPResponse, nil
-}
-
-type ApiGetAPIBindingsRequest struct {
-	ctx          context.Context
-	ApiService   ApiBindingsAPI
-	orgId        string
-	collectionId *[]string
-	specId       *[]string
-	page         *int32
-	maxResults   *int32
-}
-
-// Collection ID
-func (r ApiGetAPIBindingsRequest) CollectionId(collectionId []string) ApiGetAPIBindingsRequest {
-	r.collectionId = &collectionId
-	return r
-}
-
-// Spec ID
-func (r ApiGetAPIBindingsRequest) SpecId(specId []string) ApiGetAPIBindingsRequest {
-	r.specId = &specId
-	return r
+type ApiGetListsRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
+	page       *int32
+	kind       *string
+	subkind    *string
+	maxResults *int32
 }
 
 // The page of results to return
-func (r ApiGetAPIBindingsRequest) Page(page int32) ApiGetAPIBindingsRequest {
+func (r ApiGetListsRequest) Page(page int32) ApiGetListsRequest {
 	r.page = &page
 	return r
 }
 
+// The list kind to query for
+func (r ApiGetListsRequest) Kind(kind string) ApiGetListsRequest {
+	r.kind = &kind
+	return r
+}
+
+// The list subkind to query for
+func (r ApiGetListsRequest) Subkind(subkind string) ApiGetListsRequest {
+	r.subkind = &subkind
+	return r
+}
+
 // The max number of results to return
-func (r ApiGetAPIBindingsRequest) MaxResults(maxResults int32) ApiGetAPIBindingsRequest {
+func (r ApiGetListsRequest) MaxResults(maxResults int32) ApiGetListsRequest {
 	r.maxResults = &maxResults
 	return r
 }
 
-func (r ApiGetAPIBindingsRequest) Execute() (*ApiBindings, *http.Response, error) {
-	return r.ApiService.GetAPIBindingsExecute(r)
+func (r ApiGetListsRequest) Execute() (*Lists, *http.Response, error) {
+	return r.ApiService.GetListsExecute(r)
 }
 
 /*
-GetAPIBindings Get API bindings
+GetLists Get lists
 
-Gets a list of API bindings for an organization.
+Gets a list of lists for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@return ApiGetAPIBindingsRequest
+	@return ApiGetListsRequest
 */
-func (a *ApiBindingsAPIService) GetAPIBindings(ctx context.Context, orgId string) ApiGetAPIBindingsRequest {
-	return ApiGetAPIBindingsRequest{
+func (a *ListsAPIService) GetLists(ctx context.Context, orgId string) ApiGetListsRequest {
+	return ApiGetListsRequest{
 		ApiService: a,
 		ctx:        ctx,
 		orgId:      orgId,
@@ -591,21 +764,21 @@ func (a *ApiBindingsAPIService) GetAPIBindings(ctx context.Context, orgId string
 
 // Execute executes the request
 //
-//	@return ApiBindings
-func (a *ApiBindingsAPIService) GetAPIBindingsExecute(r ApiGetAPIBindingsRequest) (*ApiBindings, *http.Response, error) {
+//	@return Lists
+func (a *ListsAPIService) GetListsExecute(r ApiGetListsRequest) (*Lists, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ApiBindings
+		localVarReturnValue *Lists
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiBindingsAPIService.GetAPIBindings")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.GetLists")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/api_bindings"
+	localVarPath := localBasePath + "/orgs/{org_id}/lists"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -615,17 +788,17 @@ func (a *ApiBindingsAPIService) GetAPIBindingsExecute(r ApiGetAPIBindingsRequest
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
 
-	if r.collectionId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "collection_id", r.collectionId, "csv")
-	}
-	if r.specId != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "spec_id", r.specId, "csv")
-	}
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "")
 	} else {
 		var defaultValue int32 = 0
 		r.page = &defaultValue
+	}
+	if r.kind != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "kind", r.kind, "")
+	}
+	if r.subkind != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "subkind", r.subkind, "")
 	}
 	if r.maxResults != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "max_results", r.maxResults, "")
@@ -719,69 +892,196 @@ func (a *ApiBindingsAPIService) GetAPIBindingsExecute(r ApiGetAPIBindingsRequest
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiGetObservedHostRequest struct {
-	ctx            context.Context
-	ApiService     ApiBindingsAPI
-	orgId          string
-	observedHostId string
+type ApiGetListsOptionsRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
 }
 
-type ApiUpdateAPIBindingRequest struct {
-	ctx                context.Context
-	ApiService         ApiBindingsAPI
-	orgId              string
-	apiBindingId       string
-	apiBindingPostBody *ApiBindingPostBody
-}
-
-// Request body for creating an API binding.
-func (r ApiUpdateAPIBindingRequest) ApiBindingPostBody(apiBindingPostBody ApiBindingPostBody) ApiUpdateAPIBindingRequest {
-	r.apiBindingPostBody = &apiBindingPostBody
-	return r
-}
-
-func (r ApiUpdateAPIBindingRequest) Execute() (*ApiBinding, *http.Response, error) {
-	return r.ApiService.UpdateAPIBindingExecute(r)
+func (r ApiGetListsOptionsRequest) Execute() (*http.Response, error) {
+	return r.ApiService.GetListsOptionsExecute(r)
 }
 
 /*
-UpdateAPIBinding Update an API binding
+GetListsOptions Get list options
 
-Updates an API binding for an organization.
+Gets options for a list.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@param apiBindingId API Binding ID
-	@return ApiUpdateAPIBindingRequest
+	@return ApiGetListsOptionsRequest
 */
-func (a *ApiBindingsAPIService) UpdateAPIBinding(ctx context.Context, orgId string, apiBindingId string) ApiUpdateAPIBindingRequest {
-	return ApiUpdateAPIBindingRequest{
-		ApiService:   a,
-		ctx:          ctx,
-		orgId:        orgId,
-		apiBindingId: apiBindingId,
+func (a *ListsAPIService) GetListsOptions(ctx context.Context, orgId string) ApiGetListsOptionsRequest {
+	return ApiGetListsOptionsRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+	}
+}
+
+// Execute executes the request
+func (a *ListsAPIService) GetListsOptionsExecute(r ApiGetListsOptionsRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodOptions
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.GetListsOptions")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return nil, reportError("orgId must have less than 36 elements")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type ApiUpdateListRequest struct {
+	ctx           context.Context
+	ApiService    ListsAPI
+	orgId         string
+	listId        string
+	listPatchBody *ListPatchBody
+	ifMatch       *string
+}
+
+// Request body for patching a list.
+func (r ApiUpdateListRequest) ListPatchBody(listPatchBody ListPatchBody) ApiUpdateListRequest {
+	r.listPatchBody = &listPatchBody
+	return r
+}
+
+// If Match for ETag lock checks.
+func (r ApiUpdateListRequest) IfMatch(ifMatch string) ApiUpdateListRequest {
+	r.ifMatch = &ifMatch
+	return r
+}
+
+func (r ApiUpdateListRequest) Execute() (*List, *http.Response, error) {
+	return r.ApiService.UpdateListExecute(r)
+}
+
+/*
+UpdateList Update a list
+
+Updates a list for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiUpdateListRequest
+*/
+func (a *ListsAPIService) UpdateList(ctx context.Context, orgId string, listId string) ApiUpdateListRequest {
+	return ApiUpdateListRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
 	}
 }
 
 // Execute executes the request
 //
-//	@return ApiBinding
-func (a *ApiBindingsAPIService) UpdateAPIBindingExecute(r ApiUpdateAPIBindingRequest) (*ApiBinding, *http.Response, error) {
+//	@return List
+func (a *ListsAPIService) UpdateListExecute(r ApiUpdateListRequest) (*List, *http.Response, error) {
 	var (
-		localVarHTTPMethod  = http.MethodPut
+		localVarHTTPMethod  = http.MethodPatch
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *ApiBinding
+		localVarReturnValue *List
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ApiBindingsAPIService.UpdateAPIBinding")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.UpdateList")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/api_bindings/{api_binding_id}"
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"api_binding_id"+"}", url.PathEscape(parameterValueToString(r.apiBindingId, "apiBindingId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -789,11 +1089,11 @@ func (a *ApiBindingsAPIService) UpdateAPIBindingExecute(r ApiUpdateAPIBindingReq
 	if strlen(r.orgId) > 36 {
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
-	if strlen(r.apiBindingId) > 36 {
-		return localVarReturnValue, nil, reportError("apiBindingId must have less than 36 elements")
+	if strlen(r.listId) > 36 {
+		return localVarReturnValue, nil, reportError("listId must have less than 36 elements")
 	}
-	if r.apiBindingPostBody == nil {
-		return localVarReturnValue, nil, reportError("apiBindingPostBody is required and must be specified")
+	if r.listPatchBody == nil {
+		return localVarReturnValue, nil, reportError("listPatchBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -813,8 +1113,11 @@ func (a *ApiBindingsAPIService) UpdateAPIBindingExecute(r ApiUpdateAPIBindingReq
 	if localVarHTTPHeaderAccept != "" {
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
+	if r.ifMatch != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "If-Match", r.ifMatch, "")
+	}
 	// body params
-	localVarPostBody = r.apiBindingPostBody
+	localVarPostBody = r.listPatchBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
