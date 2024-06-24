@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/netip"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"go4.org/netipx"
 
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
 )
@@ -121,6 +123,9 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Validators: []validator.List{
 					uniqueValue(),
 				},
+				PlanModifiers: []planmodifier.List{
+					ReplaceWhenStartTrackingItems(),
+				},
 			},
 		},
 	}
@@ -209,17 +214,9 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 	if listResponse.Subkind != nil {
 		plan.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
-	if len(listResponse.Items) > 0 {
-		valueElements := make([]listItemModel, len(listResponse.Items))
-		for i, v := range listResponse.Items {
-			valueElements[i] = listItemModel{
-				Value: types.StringValue(v.Value),
-			}
-			if !v.GetExpiration().IsZero() {
-				valueElements[i].Expiration = types.StringValue(v.GetExpiration().Format(time.RFC3339))
-			}
-		}
-		plan.Items = valueElements
+
+	if plan.Items != nil && len(listResponse.Items) > 0 {
+		applyResponseToState(listResponse, &plan)
 	}
 
 	// Set state to fully populated data
@@ -270,17 +267,10 @@ func (r *ListResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		state.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
 
-	if len(listResponse.Items) > 0 {
-		valueElements := make([]listItemModel, len(listResponse.Items))
-		for i, v := range listResponse.Items {
-			valueElements[i] = listItemModel{
-				Value: types.StringValue(v.Value),
-			}
-			if !v.GetExpiration().IsZero() {
-				valueElements[i].Expiration = types.StringValue(v.GetExpiration().Format(time.RFC3339))
-			}
-		}
-		state.Items = valueElements
+	// Because we cannot pull config to check here
+	// ReplaceWhenStartTrackingItems plan modifier is used to relacea list resource when items goes from null to set
+	if state.Items != nil {
+		applyResponseToState(listResponse, &state)
 	}
 
 	// Set refreshed state
@@ -344,27 +334,18 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	// Overwrite the list with refreshed state
 	newState := listResourceModel{
-		ID:   types.StringValue(listResponse.Id),
-		Name: types.StringValue(listResponse.Name),
-		Kind: types.StringValue(string(listResponse.Kind)),
+		ID:    types.StringValue(listResponse.Id),
+		Name:  types.StringValue(listResponse.Name),
+		Kind:  types.StringValue(string(listResponse.Kind)),
+		Items: plan.Items,
 	}
 
 	if listResponse.Subkind != nil {
 		newState.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
 
-	if len(listResponse.Items) > 0 {
-		valueElements := make([]listItemModel, len(listResponse.Items))
-		for i, v := range listResponse.Items {
-			valueElements[i] = listItemModel{
-				Value: types.StringValue(v.Value),
-			}
-
-			if !v.GetExpiration().IsZero() {
-				valueElements[i].Expiration = types.StringValue(v.GetExpiration().Format(time.RFC3339))
-			}
-		}
-		newState.Items = valueElements
+	if plan.Items != nil {
+		applyResponseToState(listResponse, &newState)
 	}
 
 	// Set the refreshed state
@@ -498,4 +479,78 @@ func compareStringValues(a, b types.String) bool {
 	}
 	// Compare actual values
 	return a.ValueString() == b.ValueString()
+}
+
+func applyResponseToState(listResponse *openapiclient.List, state *listResourceModel) {
+	responseItemsMap := make(map[string]openapiclient.ListItemsInner)
+	for _, item := range listResponse.Items {
+		responseItemsMap[item.Value] = item
+	}
+
+	valueElements := make([]listItemModel, len(listResponse.Items))
+	pos := 0
+	for _, item := range state.Items {
+		normalized := getListItemRepresentation(state.Kind.ValueString(), item.Value.ValueString())
+		val, ok := responseItemsMap[normalized]
+
+		if ok {
+			valueElements[pos] = item
+			delete(responseItemsMap, val.Value)
+			if !val.GetExpiration().IsZero() {
+				valueElements[pos].Expiration = types.StringValue(val.GetExpiration().Format(time.RFC3339))
+			}
+			pos++
+		}
+	}
+
+	// Append new items
+	for _, v := range responseItemsMap {
+		valueElements[pos] = listItemModel{
+			Value: types.StringValue(v.Value),
+		}
+		if !v.GetExpiration().IsZero() {
+			valueElements[pos].Expiration = types.StringValue(v.GetExpiration().Format(time.RFC3339))
+		}
+		pos++
+	}
+
+	state.Items = valueElements
+}
+
+func getListItemRepresentation(kind string, item string) string {
+	if kind == "ip" {
+		ipRange, ok := parsePrefixRangeOrAddr(item)
+		if ok {
+			return ipRange.String()
+		}
+	}
+
+	return item
+}
+
+func parsePrefixRangeOrAddr(s string) (ipRange netipx.IPRange, ok bool) {
+	switch {
+	case strings.IndexByte(s, '-') > 0:
+		var err error
+		ipRange, err = netipx.ParseIPRange(s)
+		if err != nil || !ipRange.IsValid() {
+			return ipRange, false
+		}
+
+		return ipRange, true
+	case strings.LastIndexByte(s, '/') > 0:
+		prefix, err := netip.ParsePrefix(s)
+		if err != nil || !prefix.IsValid() {
+			return ipRange, false
+		}
+
+		return netipx.RangeOfPrefix(prefix), true
+	default:
+		addr, err := netip.ParseAddr(s)
+		if err != nil || !addr.IsValid() {
+			return ipRange, false
+		}
+
+		return netipx.IPRangeFrom(addr, addr), true
+	}
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.2] - 2024-06-24
+
+### Fixed
+
+- Handle list ordering
+- Ip list state
+- Ignore items when not set
+
 ## [0.6.1] - 2024-06-11
 
 ### Fixed
