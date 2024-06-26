@@ -9,10 +9,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-type uniqueValueValidator struct{}
+type uniqueValueValidator struct {
+	attName string
+}
 
 func (v uniqueValueValidator) Description(ctx context.Context) string {
-	return "Ensure that all 'value' attributes in the list are unique."
+	return "Ensure that a value for specified attribute in the list are unique."
 }
 
 func (v uniqueValueValidator) MarkdownDescription(ctx context.Context) string {
@@ -33,7 +35,7 @@ func (v uniqueValueValidator) ValidateList(ctx context.Context, req validator.Li
 
 	valueSet := make(map[string]struct{})
 	for _, item := range list {
-		valueAttr := item.Attributes()["value"]
+		valueAttr := item.Attributes()[v.attName]
 		if valueAttr.IsNull() || valueAttr.IsUnknown() {
 			continue
 		}
@@ -43,15 +45,15 @@ func (v uniqueValueValidator) ValidateList(ctx context.Context, req validator.Li
 		if !ok {
 			resp.Diagnostics.AddError(
 				"Unexpected Type",
-				fmt.Sprintf("Unxpected 'value' type '%T'. This is likely a bug in terraform provider.\nSource: %s", valueString, req.Path.String()),
+				fmt.Sprintf("Unxpected %q type '%T'. This is likely a bug in terraform provider.\nSource: %s", valueAttr, valueString, req.Path.String()),
 			)
 			return
 		}
 
 		if _, exists := valueSet[valueString.ValueString()]; exists {
 			resp.Diagnostics.AddError(
-				"Duplicate 'value' Attribute",
-				fmt.Sprintf("The 'value' attribute '%s' is not unique.\nSource: %s", valueString.ValueString(), req.Path.String()),
+				fmt.Sprintf("Duplicate %q Attribute", v.attName),
+				fmt.Sprintf("The %q attribute '%s' is not unique.\nSource: %s", v.attName, valueString.ValueString(), req.Path.String()),
 			)
 			return
 		}
@@ -59,6 +61,8 @@ func (v uniqueValueValidator) ValidateList(ctx context.Context, req validator.Li
 	}
 }
 
-func uniqueValue() validator.List {
-	return uniqueValueValidator{}
+func uniqueValue(attName string) validator.List {
+	return uniqueValueValidator{
+		attName: attName,
+	}
 }

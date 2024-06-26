@@ -3,10 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -79,6 +79,9 @@ func (r *ruleScriptDependenciesResource) Schema(_ context.Context, _ resource.Sc
 						},
 					},
 				},
+				Validators: []validator.List{
+					uniqueValue("rule_script_id"),
+				},
 			},
 		},
 	}
@@ -96,10 +99,12 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 	}
 
 	if len(plan.Dependencies) == 0 {
-		resp.Diagnostics.AddError(
-			"Unable to create the rule script dependencies",
-			"Dependencies must be present and not empty",
-		)
+		// Allow to create empty dependencies resources so users can see the diff
+		diags = resp.State.Set(ctx, plan)
+		resp.Diagnostics.Append(diags...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
 		return
 	}
 
@@ -129,16 +134,17 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 		return
 	}
 
-	responseDependencies := make([]ruleScriptDependsOn, len(ruleDependenciesResponse))
+	responseMap := make(map[string]map[string]bool)
 	for i := range ruleDependenciesResponse {
-		responseDependencies[i] = ruleScriptDependsOn{
-			RuleScriptID:            types.StringValue(ruleDependenciesResponse[i].RuleId),
-			DependsOnRulesScriptIDs: ruleDependenciesResponse[i].Dependencies,
+		depsMap := make(map[string]bool)
+		for j := range ruleDependenciesResponse[i].Dependencies {
+			depsMap[ruleDependenciesResponse[i].Dependencies[j]] = false
 		}
+
+		responseMap[ruleDependenciesResponse[i].RuleId] = depsMap
 	}
 
-	// Map response body to model
-	plan.Dependencies = responseDependencies
+	applyDependencyResponseToState(responseMap, &plan)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -160,7 +166,12 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	ruleDependenciesResponse, _, err := r.client.RulesScriptsApi.GetRulesScripts(ctx, r.client.OrgID).Execute()
+	rulesScriptReq := r.client.RulesScriptsApi.GetRulesScripts(ctx, r.client.OrgID).
+		ExcludeSrc(true).
+		ExcludeRevisions(true).
+		Type_("custom")
+
+	ruleDependenciesResponse, _, err := rulesScriptReq.Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -174,26 +185,16 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	containedIDs := make([]string, len(state.Dependencies))
-	for i := range state.Dependencies {
-		containedIDs[i] = state.Dependencies[i].RuleScriptID.ValueString()
-	}
-
-	dependenciesResp := []ruleScriptDependsOn{}
+	responseMap := make(map[string]map[string]bool)
 	for i := range ruleDependenciesResponse.Items {
-		if slices.Contains(containedIDs, ruleDependenciesResponse.Items[i].Id) {
-			dependenciesResp = append(dependenciesResp, ruleScriptDependsOn{
-				RuleScriptID:            types.StringValue(ruleDependenciesResponse.Items[i].Id),
-				DependsOnRulesScriptIDs: ruleDependenciesResponse.Items[i].Dependencies,
-			})
+		depsMap := make(map[string]bool)
+		for j := range ruleDependenciesResponse.Items[i].Dependencies {
+			depsMap[ruleDependenciesResponse.Items[i].Dependencies[j]] = false
 		}
-
+		responseMap[ruleDependenciesResponse.Items[i].Id] = depsMap
 	}
 
-	// Map response body to model
-	state = ruleScriptDependenciesResourceModel{
-		Dependencies: dependenciesResp,
-	}
+	applyDependencyResponseToState(responseMap, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -209,6 +210,13 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 	// Retrieve values from plan
 	var plan ruleScriptDependenciesResourceModel
 	diags := req.Plan.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	var state ruleScriptDependenciesResourceModel
+	diags = req.Plan.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -247,21 +255,22 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 		return
 	}
 
-	responseDependencies := make([]ruleScriptDependsOn, len(ruleDependenciesResponse))
+	responseMap := make(map[string]map[string]bool)
 	for i := range ruleDependenciesResponse {
-		responseDependencies[i] = ruleScriptDependsOn{
-			RuleScriptID:            types.StringValue(ruleDependenciesResponse[i].RuleId),
-			DependsOnRulesScriptIDs: ruleDependenciesResponse[i].Dependencies,
+		depsMap := make(map[string]bool)
+		for j := range ruleDependenciesResponse[i].Dependencies {
+			depsMap[ruleDependenciesResponse[i].Dependencies[j]] = false
 		}
+		responseMap[ruleDependenciesResponse[i].RuleId] = depsMap
 	}
 
-	// Overwrite the rules with refreshed state
-	state := ruleScriptDependenciesResourceModel{
-		Dependencies: responseDependencies,
+	newState := ruleScriptDependenciesResourceModel{
+		Dependencies: plan.Dependencies,
 	}
+	applyDependencyResponseToState(responseMap, &newState)
 
 	// Set refreshed state
-	diags = resp.State.Set(ctx, state)
+	diags = resp.State.Set(ctx, newState)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -303,7 +312,7 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 	ruleDependenciesRequest := r.client.RulesDependenciesAPI.UpdateRulesDependencies(ctx, r.client.OrgID).
 		RulesDependenciesPutBodyInner(rulesScriptPutBody)
 
-	// delete the rule
+	// Delete the rule
 	_, _, err = ruleDependenciesRequest.Execute()
 	if err != nil {
 		message := err.Error()
@@ -319,4 +328,58 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 	}
 
 	tflog.Debug(ctx, "Deleted the rule script dependencies resource", map[string]any{"success": true})
+}
+
+func applyDependencyResponseToState(responseItemsMap map[string]map[string]bool,
+	state *ruleScriptDependenciesResourceModel) {
+
+	dependenciesState := []ruleScriptDependsOn{}
+
+	for i := range state.Dependencies {
+		stateRuleID := state.Dependencies[i].RuleScriptID.ValueString()
+		if deps, ok := responseItemsMap[stateRuleID]; ok {
+			ruleIDs := []string{}
+			newRuleIDs := []string{}
+
+			for j := range state.Dependencies[i].DependsOnRulesScriptIDs {
+				ruleID := state.Dependencies[i].DependsOnRulesScriptIDs[j]
+
+				if _, ok = deps[ruleID]; ok {
+					ruleIDs = append(ruleIDs, ruleID)
+					deps[ruleID] = true
+				}
+			}
+
+			// Append new rule dependencies which are not in the state
+			for k, v := range deps {
+				if !v {
+					newRuleIDs = append(newRuleIDs, k)
+				}
+			}
+
+			dependenciesState = append(dependenciesState, ruleScriptDependsOn{
+				RuleScriptID:            state.Dependencies[i].RuleScriptID,
+				DependsOnRulesScriptIDs: append(ruleIDs, newRuleIDs...),
+			})
+			delete(responseItemsMap, stateRuleID)
+		}
+	}
+
+	// Add new dependencies
+	for ruleID, depsMap := range responseItemsMap {
+		// Skip adding empty array since dependencies are not in the state
+		if len(depsMap) == 0 {
+			continue
+		}
+		deps := make([]string, 0, len(depsMap))
+		for key := range depsMap {
+			deps = append(deps, key)
+		}
+		dependenciesState = append(dependenciesState, ruleScriptDependsOn{
+			RuleScriptID:            types.StringValue(ruleID),
+			DependsOnRulesScriptIDs: deps,
+		})
+	}
+
+	state.Dependencies = dependenciesState
 }

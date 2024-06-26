@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.3] - 2024-06-25
+
+### Fixed
+
+- Unnecessary diff for list of ips
+- Rule script dependencies plan
+
 ## [0.6.2] - 2024-06-24
 
 ### Fixed

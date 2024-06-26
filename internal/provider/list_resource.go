@@ -121,7 +121,7 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 				Optional: true,
 				Validators: []validator.List{
-					uniqueValue(),
+					uniqueValue("value"),
 				},
 				PlanModifiers: []planmodifier.List{
 					ReplaceWhenStartTrackingItems(),
@@ -216,7 +216,7 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	if plan.Items != nil && len(listResponse.Items) > 0 {
-		applyResponseToState(listResponse, &plan)
+		applyListResponseToState(listResponse, &plan)
 	}
 
 	// Set state to fully populated data
@@ -270,7 +270,7 @@ func (r *ListResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	// Because we cannot pull config to check here
 	// ReplaceWhenStartTrackingItems plan modifier is used to relacea list resource when items goes from null to set
 	if state.Items != nil {
-		applyResponseToState(listResponse, &state)
+		applyListResponseToState(listResponse, &state)
 	}
 
 	// Set refreshed state
@@ -345,7 +345,7 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	if plan.Items != nil {
-		applyResponseToState(listResponse, &newState)
+		applyListResponseToState(listResponse, &newState)
 	}
 
 	// Set the refreshed state
@@ -481,7 +481,7 @@ func compareStringValues(a, b types.String) bool {
 	return a.ValueString() == b.ValueString()
 }
 
-func applyResponseToState(listResponse *openapiclient.List, state *listResourceModel) {
+func applyListResponseToState(listResponse *openapiclient.List, state *listResourceModel) {
 	responseItemsMap := make(map[string]openapiclient.ListItemsInner)
 	for _, item := range listResponse.Items {
 		responseItemsMap[item.Value] = item
@@ -521,36 +521,30 @@ func getListItemRepresentation(kind string, item string) string {
 	if kind == "ip" {
 		ipRange, ok := parsePrefixRangeOrAddr(item)
 		if ok {
-			return ipRange.String()
+			return ipRange
 		}
 	}
-
 	return item
 }
 
-func parsePrefixRangeOrAddr(s string) (ipRange netipx.IPRange, ok bool) {
+func parsePrefixRangeOrAddr(s string) (string, bool) {
 	switch {
 	case strings.IndexByte(s, '-') > 0:
 		var err error
-		ipRange, err = netipx.ParseIPRange(s)
+		ipRange, err := netipx.ParseIPRange(s)
 		if err != nil || !ipRange.IsValid() {
-			return ipRange, false
+			return "", false
 		}
 
-		return ipRange, true
+		return ipRange.String(), true
 	case strings.LastIndexByte(s, '/') > 0:
 		prefix, err := netip.ParsePrefix(s)
 		if err != nil || !prefix.IsValid() {
-			return ipRange, false
+			return "", false
 		}
 
-		return netipx.RangeOfPrefix(prefix), true
+		return netipx.RangeOfPrefix(prefix).String(), true
 	default:
-		addr, err := netip.ParseAddr(s)
-		if err != nil || !addr.IsValid() {
-			return ipRange, false
-		}
-
-		return netipx.IPRangeFrom(addr, addr), true
+		return s, true
 	}
 }
