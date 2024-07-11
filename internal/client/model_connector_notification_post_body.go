@@ -167,7 +167,7 @@ func (o *ConnectorNotificationPostBody) UnmarshalJSON(data []byte) (err error) {
 	varConnectorNotificationPostBody := _ConnectorNotificationPostBody{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varConnectorNotificationPostBody)
 
 	if err != nil {

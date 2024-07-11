@@ -368,7 +368,7 @@ func (o *InspectorResMsgResponse) UnmarshalJSON(data []byte) (err error) {
 	varInspectorResMsgResponse := _InspectorResMsgResponse{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varInspectorResMsgResponse)
 
 	if err != nil {

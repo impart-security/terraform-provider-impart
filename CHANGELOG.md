@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.4] - 2024-07-10
+
+### Changed
+
+- Ignore api new fields fields
+- Updated dependencies
+
 ## [0.6.3] - 2024-06-25
 
 ### Fixed

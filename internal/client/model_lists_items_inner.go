@@ -261,7 +261,7 @@ func (o *ListsItemsInner) UnmarshalJSON(data []byte) (err error) {
 	varListsItemsInner := _ListsItemsInner{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varListsItemsInner)
 
 	if err != nil {

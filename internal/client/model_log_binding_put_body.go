@@ -220,7 +220,7 @@ func (o *LogBindingPutBody) UnmarshalJSON(data []byte) (err error) {
 	varLogBindingPutBody := _LogBindingPutBody{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varLogBindingPutBody)
 
 	if err != nil {

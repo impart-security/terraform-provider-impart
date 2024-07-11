@@ -290,7 +290,7 @@ func (o *List) UnmarshalJSON(data []byte) (err error) {
 	varList := _List{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varList)
 
 	if err != nil {

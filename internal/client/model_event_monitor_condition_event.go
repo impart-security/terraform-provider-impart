@@ -331,7 +331,7 @@ func (o *EventMonitorConditionEvent) UnmarshalJSON(data []byte) (err error) {
 	varEventMonitorConditionEvent := _EventMonitorConditionEvent{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varEventMonitorConditionEvent)
 
 	if err != nil {

@@ -313,7 +313,7 @@ func (o *LogBinding) UnmarshalJSON(data []byte) (err error) {
 	varLogBinding := _LogBinding{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varLogBinding)
 
 	if err != nil {

@@ -137,7 +137,7 @@ func (o *ConnectorTypes) UnmarshalJSON(data []byte) (err error) {
 	varConnectorTypes := _ConnectorTypes{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varConnectorTypes)
 
 	if err != nil {

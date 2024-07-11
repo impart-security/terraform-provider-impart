@@ -167,7 +167,7 @@ func (o *RulesTestOutputInner) UnmarshalJSON(data []byte) (err error) {
 	varRulesTestOutputInner := _RulesTestOutputInner{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRulesTestOutputInner)
 
 	if err != nil {

@@ -576,7 +576,7 @@ func (o *ApiBinding) UnmarshalJSON(data []byte) (err error) {
 	varApiBinding := _ApiBinding{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varApiBinding)
 
 	if err != nil {

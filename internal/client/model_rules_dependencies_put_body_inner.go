@@ -138,7 +138,7 @@ func (o *RulesDependenciesPutBodyInner) UnmarshalJSON(data []byte) (err error) {
 	varRulesDependenciesPutBodyInner := _RulesDependenciesPutBodyInner{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRulesDependenciesPutBodyInner)
 
 	if err != nil {

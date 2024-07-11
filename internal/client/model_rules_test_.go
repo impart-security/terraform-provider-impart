@@ -193,7 +193,7 @@ func (o *RulesTest) UnmarshalJSON(data []byte) (err error) {
 	varRulesTest := _RulesTest{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRulesTest)
 
 	if err != nil {

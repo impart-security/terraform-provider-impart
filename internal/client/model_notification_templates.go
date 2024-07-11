@@ -137,7 +137,7 @@ func (o *NotificationTemplates) UnmarshalJSON(data []byte) (err error) {
 	varNotificationTemplates := _NotificationTemplates{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varNotificationTemplates)
 
 	if err != nil {

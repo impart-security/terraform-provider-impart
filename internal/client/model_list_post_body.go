@@ -210,7 +210,7 @@ func (o *ListPostBody) UnmarshalJSON(data []byte) (err error) {
 	varListPostBody := _ListPostBody{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varListPostBody)
 
 	if err != nil {

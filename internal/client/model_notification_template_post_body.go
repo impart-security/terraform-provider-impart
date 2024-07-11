@@ -225,7 +225,7 @@ func (o *NotificationTemplatePostBody) UnmarshalJSON(data []byte) (err error) {
 	varNotificationTemplatePostBody := _NotificationTemplatePostBody{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varNotificationTemplatePostBody)
 
 	if err != nil {

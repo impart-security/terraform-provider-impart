@@ -166,7 +166,7 @@ func (o *Revision) UnmarshalJSON(data []byte) (err error) {
 	varRevision := _Revision{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRevision)
 
 	if err != nil {

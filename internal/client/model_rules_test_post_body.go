@@ -208,7 +208,7 @@ func (o *RulesTestPostBody) UnmarshalJSON(data []byte) (err error) {
 	varRulesTestPostBody := _RulesTestPostBody{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRulesTestPostBody)
 
 	if err != nil {

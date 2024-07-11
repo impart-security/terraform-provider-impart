@@ -164,7 +164,7 @@ func (o *CompilationDiagnosticRange) UnmarshalJSON(data []byte) (err error) {
 	varCompilationDiagnosticRange := _CompilationDiagnosticRange{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varCompilationDiagnosticRange)
 
 	if err != nil {

@@ -137,7 +137,7 @@ func (o *EventMonitors) UnmarshalJSON(data []byte) (err error) {
 	varEventMonitors := _EventMonitors{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varEventMonitors)
 
 	if err != nil {

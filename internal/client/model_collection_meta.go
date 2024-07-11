@@ -138,7 +138,7 @@ func (o *CollectionMeta) UnmarshalJSON(data []byte) (err error) {
 	varCollectionMeta := _CollectionMeta{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varCollectionMeta)
 
 	if err != nil {

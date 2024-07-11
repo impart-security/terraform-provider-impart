@@ -136,7 +136,7 @@ func (o *RulesScripts) UnmarshalJSON(data []byte) (err error) {
 	varRulesScripts := _RulesScripts{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varRulesScripts)
 
 	if err != nil {

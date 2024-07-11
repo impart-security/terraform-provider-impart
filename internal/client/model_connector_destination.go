@@ -138,7 +138,7 @@ func (o *ConnectorDestination) UnmarshalJSON(data []byte) (err error) {
 	varConnectorDestination := _ConnectorDestination{}
 
 	decoder := json.NewDecoder(bytes.NewReader(data))
-	decoder.DisallowUnknownFields()
+
 	err = decoder.Decode(&varConnectorDestination)
 
 	if err != nil {
