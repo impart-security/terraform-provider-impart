@@ -12,7 +12,6 @@ Contact: support@impart.security
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -30,9 +29,11 @@ type ListsItemsInner struct {
 	// User ID of the user that created the list.
 	CreatedBy string `json:"created_by"`
 	// The date the list was created.
-	CreatedAt time.Time    `json:"created_at"`
-	Kind      ListKind     `json:"kind"`
-	Subkind   *ListSubkind `json:"subkind,omitempty"`
+	CreatedAt            time.Time          `json:"created_at"`
+	Kind                 ListKind           `json:"kind"`
+	Subkind              *ListSubkind       `json:"subkind,omitempty"`
+	Functionality        *ListFunctionality `json:"functionality,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ListsItemsInner ListsItemsInner
@@ -48,6 +49,8 @@ func NewListsItemsInner(id string, name string, createdBy string, createdAt time
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.Kind = kind
+	var functionality ListFunctionality = ADD_REMOVE
+	this.Functionality = &functionality
 	return &this
 }
 
@@ -56,6 +59,8 @@ func NewListsItemsInner(id string, name string, createdBy string, createdAt time
 // but it doesn't guarantee that properties required by API are set
 func NewListsItemsInnerWithDefaults() *ListsItemsInner {
 	this := ListsItemsInner{}
+	var functionality ListFunctionality = ADD_REMOVE
+	this.Functionality = &functionality
 	return &this
 }
 
@@ -211,6 +216,38 @@ func (o *ListsItemsInner) SetSubkind(v ListSubkind) {
 	o.Subkind = &v
 }
 
+// GetFunctionality returns the Functionality field value if set, zero value otherwise.
+func (o *ListsItemsInner) GetFunctionality() ListFunctionality {
+	if o == nil || IsNil(o.Functionality) {
+		var ret ListFunctionality
+		return ret
+	}
+	return *o.Functionality
+}
+
+// GetFunctionalityOk returns a tuple with the Functionality field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ListsItemsInner) GetFunctionalityOk() (*ListFunctionality, bool) {
+	if o == nil || IsNil(o.Functionality) {
+		return nil, false
+	}
+	return o.Functionality, true
+}
+
+// HasFunctionality returns a boolean if a field has been set.
+func (o *ListsItemsInner) HasFunctionality() bool {
+	if o != nil && !IsNil(o.Functionality) {
+		return true
+	}
+
+	return false
+}
+
+// SetFunctionality gets a reference to the given ListFunctionality and assigns it to the Functionality field.
+func (o *ListsItemsInner) SetFunctionality(v ListFunctionality) {
+	o.Functionality = &v
+}
+
 func (o ListsItemsInner) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -229,6 +266,14 @@ func (o ListsItemsInner) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Subkind) {
 		toSerialize["subkind"] = o.Subkind
 	}
+	if !IsNil(o.Functionality) {
+		toSerialize["functionality"] = o.Functionality
+	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 
@@ -260,15 +305,26 @@ func (o *ListsItemsInner) UnmarshalJSON(data []byte) (err error) {
 
 	varListsItemsInner := _ListsItemsInner{}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
-
-	err = decoder.Decode(&varListsItemsInner)
+	err = json.Unmarshal(data, &varListsItemsInner)
 
 	if err != nil {
 		return err
 	}
 
 	*o = ListsItemsInner(varListsItemsInner)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "id")
+		delete(additionalProperties, "name")
+		delete(additionalProperties, "created_by")
+		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "kind")
+		delete(additionalProperties, "subkind")
+		delete(additionalProperties, "functionality")
+		o.AdditionalProperties = additionalProperties
+	}
 
 	return err
 }

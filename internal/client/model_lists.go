@@ -12,7 +12,6 @@ Contact: support@impart.security
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -23,8 +22,9 @@ var _ MappedNullable = &Lists{}
 // Lists struct for Lists
 type Lists struct {
 	// A list of lists.
-	Items []ListsItemsInner `json:"items"`
-	Meta  CollectionMeta    `json:"meta"`
+	Items                []ListsItemsInner `json:"items"`
+	Meta                 CollectionMeta    `json:"meta"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _Lists Lists
@@ -108,6 +108,11 @@ func (o Lists) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["items"] = o.Items
 	toSerialize["meta"] = o.Meta
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 
@@ -136,15 +141,21 @@ func (o *Lists) UnmarshalJSON(data []byte) (err error) {
 
 	varLists := _Lists{}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
-
-	err = decoder.Decode(&varLists)
+	err = json.Unmarshal(data, &varLists)
 
 	if err != nil {
 		return err
 	}
 
 	*o = Lists(varLists)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "items")
+		delete(additionalProperties, "meta")
+		o.AdditionalProperties = additionalProperties
+	}
 
 	return err
 }

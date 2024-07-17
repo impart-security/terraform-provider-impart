@@ -15,7 +15,7 @@ func TestAccSpecDataSource(t *testing.T) {
 resource "impart_spec" "test" {
   name        = "terraform_test"
   source_file = "./testdata/spec.yaml"
-  source_hash = "4f501b53775586d59458a5d1c3eda6e1ef195d746895dd37b93db033f378e04c"
+  source_hash = "9bf6af660fcce87f4909073928d8bb051fafb6f6bb3245322de871d3c316e2a4"
 }
 
 data "impart_spec" "test" {

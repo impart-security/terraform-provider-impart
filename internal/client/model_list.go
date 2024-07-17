@@ -12,7 +12,6 @@ Contact: support@impart.security
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -30,11 +29,13 @@ type List struct {
 	// User ID of the user that created the list.
 	CreatedBy string `json:"created_by"`
 	// The date the list was created.
-	CreatedAt time.Time    `json:"created_at"`
-	Kind      ListKind     `json:"kind"`
-	Subkind   *ListSubkind `json:"subkind,omitempty"`
+	CreatedAt     time.Time         `json:"created_at"`
+	Kind          ListKind          `json:"kind"`
+	Subkind       *ListSubkind      `json:"subkind,omitempty"`
+	Functionality ListFunctionality `json:"functionality"`
 	// The items in the list.
-	Items []ListItemsInner `json:"items"`
+	Items                []ListItemsInner `json:"items"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _List List
@@ -43,13 +44,14 @@ type _List List
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewList(id string, name string, createdBy string, createdAt time.Time, kind ListKind, items []ListItemsInner) *List {
+func NewList(id string, name string, createdBy string, createdAt time.Time, kind ListKind, functionality ListFunctionality, items []ListItemsInner) *List {
 	this := List{}
 	this.Id = id
 	this.Name = name
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.Kind = kind
+	this.Functionality = functionality
 	this.Items = items
 	return &this
 }
@@ -59,6 +61,8 @@ func NewList(id string, name string, createdBy string, createdAt time.Time, kind
 // but it doesn't guarantee that properties required by API are set
 func NewListWithDefaults() *List {
 	this := List{}
+	var functionality ListFunctionality = ADD_REMOVE
+	this.Functionality = functionality
 	return &this
 }
 
@@ -214,6 +218,30 @@ func (o *List) SetSubkind(v ListSubkind) {
 	o.Subkind = &v
 }
 
+// GetFunctionality returns the Functionality field value
+func (o *List) GetFunctionality() ListFunctionality {
+	if o == nil {
+		var ret ListFunctionality
+		return ret
+	}
+
+	return o.Functionality
+}
+
+// GetFunctionalityOk returns a tuple with the Functionality field value
+// and a boolean to check if the value has been set.
+func (o *List) GetFunctionalityOk() (*ListFunctionality, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Functionality, true
+}
+
+// SetFunctionality sets field value
+func (o *List) SetFunctionality(v ListFunctionality) {
+	o.Functionality = v
+}
+
 // GetItems returns the Items field value
 func (o *List) GetItems() []ListItemsInner {
 	if o == nil {
@@ -256,7 +284,13 @@ func (o List) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Subkind) {
 		toSerialize["subkind"] = o.Subkind
 	}
+	toSerialize["functionality"] = o.Functionality
 	toSerialize["items"] = o.Items
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 
@@ -270,6 +304,7 @@ func (o *List) UnmarshalJSON(data []byte) (err error) {
 		"created_by",
 		"created_at",
 		"kind",
+		"functionality",
 		"items",
 	}
 
@@ -289,15 +324,27 @@ func (o *List) UnmarshalJSON(data []byte) (err error) {
 
 	varList := _List{}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
-
-	err = decoder.Decode(&varList)
+	err = json.Unmarshal(data, &varList)
 
 	if err != nil {
 		return err
 	}
 
 	*o = List(varList)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "id")
+		delete(additionalProperties, "name")
+		delete(additionalProperties, "created_by")
+		delete(additionalProperties, "created_at")
+		delete(additionalProperties, "kind")
+		delete(additionalProperties, "subkind")
+		delete(additionalProperties, "functionality")
+		delete(additionalProperties, "items")
+		o.AdditionalProperties = additionalProperties
+	}
 
 	return err
 }

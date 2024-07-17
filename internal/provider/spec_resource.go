@@ -120,7 +120,7 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	specb64 := base64.StdEncoding.EncodeToString(spec)
 
 	// Create new specification
-	specRequest := r.client.SpecsApi.CreateSpec(ctx, r.client.OrgID).
+	specRequest := r.client.SpecsAPI.CreateSpec(ctx, r.client.OrgID).
 		SpecPostBody(openapiclient.SpecPostBody{
 			Name: name,
 			Spec: &specb64,
@@ -167,7 +167,7 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	currentHash := state.SourceHash
 
-	specResponse, httpResp, err := r.client.SpecsApi.GetSpec(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	specResponse, httpResp, err := r.client.SpecsAPI.GetSpec(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {
@@ -245,7 +245,7 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 	specb64 := base64.StdEncoding.EncodeToString(spec)
 
-	specRequest := r.client.SpecsApi.UpdateSpec(ctx, r.client.OrgID, plan.ID.ValueString()).
+	specRequest := r.client.SpecsAPI.UpdateSpec(ctx, r.client.OrgID, plan.ID.ValueString()).
 		SpecPostBody(openapiclient.SpecPostBody{
 			Name: name,
 			Spec: &specb64,
@@ -295,7 +295,7 @@ func (r *specResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	// delete specification
-	_, err := r.client.SpecsApi.DeleteSpec(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	_, err := r.client.SpecsAPI.DeleteSpec(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

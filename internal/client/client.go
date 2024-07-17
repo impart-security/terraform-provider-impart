@@ -53,23 +53,23 @@ type APIClient struct {
 
 	ApiBindingsAPI ApiBindingsAPI
 
-	ListsAPI ListsAPI
-
-	LogBindingsAPI LogBindingsAPI
-
-	RulesScriptsApi RulesScriptsAPI
-
-	SpecsApi SpecsApi
-
-	UserApi UserApi
-
-	NotificationTemplatesAPI NotificationTemplatesAPI
-
 	ConnectorsAPI ConnectorsAPI
 
 	EventMonitorsAPI EventMonitorsAPI
 
+	ListsAPI ListsAPI
+
+	LogBindingsAPI LogBindingsAPI
+
+	NotificationTemplatesAPI NotificationTemplatesAPI
+
 	RulesDependenciesAPI RulesDependenciesAPI
+
+	RulesScriptsAPI RulesScriptsAPI
+
+	SpecsAPI SpecsAPI
+
+	UserAPI UserAPI
 }
 
 type service struct {
@@ -89,15 +89,15 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 
 	// API Services
 	c.ApiBindingsAPI = (*ApiBindingsAPIService)(&c.common)
-	c.RulesScriptsApi = (*RulesScriptsAPIService)(&c.common)
-	c.SpecsApi = (*SpecsApiService)(&c.common)
-	c.UserApi = (*UserApiService)(&c.common)
+	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
+	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
 	c.ListsAPI = (*ListsAPIService)(&c.common)
 	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)
 	c.NotificationTemplatesAPI = (*NotificationTemplatesAPIService)(&c.common)
-	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
-	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
 	c.RulesDependenciesAPI = (*RulesDependenciesAPIService)(&c.common)
+	c.RulesScriptsAPI = (*RulesScriptsAPIService)(&c.common)
+	c.SpecsAPI = (*SpecsAPIService)(&c.common)
+	c.UserAPI = (*UserAPIService)(&c.common)
 
 	return c
 }
@@ -531,18 +531,6 @@ func addFile(w *multipart.Writer, fieldName, path string) error {
 	_, err = io.Copy(part, file)
 
 	return err
-}
-
-// Prevent trying to import "fmt"
-func reportError(format string, a ...interface{}) error {
-	return fmt.Errorf(format, a...)
-}
-
-// A wrapper for strict JSON decoding
-func newStrictDecoder(data []byte) *json.Decoder {
-	dec := json.NewDecoder(bytes.NewBuffer(data))
-	dec.DisallowUnknownFields()
-	return dec
 }
 
 // Set request body from an interface{}

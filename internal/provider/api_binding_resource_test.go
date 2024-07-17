@@ -17,7 +17,6 @@ func TestAccApiBindingResource(t *testing.T) {
 resource "impart_spec" "test_binding" {
   name        = "terraform_test"
   source_file = "./testdata/spec.yaml"
-  source_hash = "4f501b53775586d59458a5d1c3eda6e1ef195d746895dd37b93db033f378e04c"
 }
 
 resource "impart_api_binding" "test" {
@@ -50,7 +49,6 @@ resource "impart_api_binding" "test" {
 			resource "impart_spec" "test_binding" {
 			  name        = "terraform_test"
 			  source_file = "./testdata/spec.yaml"
-			  source_hash = "4f501b53775586d59458a5d1c3eda6e1ef195d746895dd37b93db033f378e04c"
 			}
 			resource "impart_api_binding" "test" {
 			  name      = "terraform_test_updated"

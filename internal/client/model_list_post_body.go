@@ -12,7 +12,6 @@ Contact: support@impart.security
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 )
@@ -23,11 +22,13 @@ var _ MappedNullable = &ListPostBody{}
 // ListPostBody struct for ListPostBody
 type ListPostBody struct {
 	// The name of the list.
-	Name    string       `json:"name"`
-	Kind    ListKind     `json:"kind"`
-	Subkind *ListSubkind `json:"subkind,omitempty"`
+	Name          string             `json:"name"`
+	Kind          ListKind           `json:"kind"`
+	Subkind       *ListSubkind       `json:"subkind,omitempty"`
+	Functionality *ListFunctionality `json:"functionality,omitempty"`
 	// The items in the list.
-	Items []ListItemsInner `json:"items,omitempty"`
+	Items                []ListItemsInner `json:"items,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ListPostBody ListPostBody
@@ -40,6 +41,8 @@ func NewListPostBody(name string, kind ListKind) *ListPostBody {
 	this := ListPostBody{}
 	this.Name = name
 	this.Kind = kind
+	var functionality ListFunctionality = ADD_REMOVE
+	this.Functionality = &functionality
 	return &this
 }
 
@@ -48,6 +51,8 @@ func NewListPostBody(name string, kind ListKind) *ListPostBody {
 // but it doesn't guarantee that properties required by API are set
 func NewListPostBodyWithDefaults() *ListPostBody {
 	this := ListPostBody{}
+	var functionality ListFunctionality = ADD_REMOVE
+	this.Functionality = &functionality
 	return &this
 }
 
@@ -131,6 +136,38 @@ func (o *ListPostBody) SetSubkind(v ListSubkind) {
 	o.Subkind = &v
 }
 
+// GetFunctionality returns the Functionality field value if set, zero value otherwise.
+func (o *ListPostBody) GetFunctionality() ListFunctionality {
+	if o == nil || IsNil(o.Functionality) {
+		var ret ListFunctionality
+		return ret
+	}
+	return *o.Functionality
+}
+
+// GetFunctionalityOk returns a tuple with the Functionality field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ListPostBody) GetFunctionalityOk() (*ListFunctionality, bool) {
+	if o == nil || IsNil(o.Functionality) {
+		return nil, false
+	}
+	return o.Functionality, true
+}
+
+// HasFunctionality returns a boolean if a field has been set.
+func (o *ListPostBody) HasFunctionality() bool {
+	if o != nil && !IsNil(o.Functionality) {
+		return true
+	}
+
+	return false
+}
+
+// SetFunctionality gets a reference to the given ListFunctionality and assigns it to the Functionality field.
+func (o *ListPostBody) SetFunctionality(v ListFunctionality) {
+	o.Functionality = &v
+}
+
 // GetItems returns the Items field value if set, zero value otherwise.
 func (o *ListPostBody) GetItems() []ListItemsInner {
 	if o == nil || IsNil(o.Items) {
@@ -178,9 +215,17 @@ func (o ListPostBody) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Subkind) {
 		toSerialize["subkind"] = o.Subkind
 	}
+	if !IsNil(o.Functionality) {
+		toSerialize["functionality"] = o.Functionality
+	}
 	if !IsNil(o.Items) {
 		toSerialize["items"] = o.Items
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 
@@ -209,15 +254,24 @@ func (o *ListPostBody) UnmarshalJSON(data []byte) (err error) {
 
 	varListPostBody := _ListPostBody{}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
-
-	err = decoder.Decode(&varListPostBody)
+	err = json.Unmarshal(data, &varListPostBody)
 
 	if err != nil {
 		return err
 	}
 
 	*o = ListPostBody(varListPostBody)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "name")
+		delete(additionalProperties, "kind")
+		delete(additionalProperties, "subkind")
+		delete(additionalProperties, "functionality")
+		delete(additionalProperties, "items")
+		o.AdditionalProperties = additionalProperties
+	}
 
 	return err
 }

@@ -166,7 +166,7 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 		return
 	}
 
-	rulesScriptReq := r.client.RulesScriptsApi.GetRulesScripts(ctx, r.client.OrgID).
+	rulesScriptReq := r.client.RulesScriptsAPI.GetRulesScripts(ctx, r.client.OrgID).
 		ExcludeSrc(true).
 		ExcludeRevisions(true).
 		Type_("custom")
@@ -288,7 +288,7 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 		return
 	}
 
-	getRuleDependenciesResponse, _, err := r.client.RulesScriptsApi.GetRulesScripts(ctx, r.client.OrgID).Execute()
+	getRuleDependenciesResponse, _, err := r.client.RulesScriptsAPI.GetRulesScripts(ctx, r.client.OrgID).Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

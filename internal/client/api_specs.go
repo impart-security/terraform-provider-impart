@@ -20,7 +20,7 @@ import (
 	"strings"
 )
 
-type SpecsApi interface {
+type SpecsAPI interface {
 
 	/*
 		CreateSpec Create a spec
@@ -85,12 +85,12 @@ type SpecsApi interface {
 	UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *http.Response, error)
 }
 
-// SpecsApiService SpecsApi service
-type SpecsApiService service
+// SpecsAPIService SpecsAPI service
+type SpecsAPIService service
 
 type ApiCreateSpecRequest struct {
 	ctx          context.Context
-	ApiService   SpecsApi
+	ApiService   SpecsAPI
 	orgId        string
 	specPostBody *SpecPostBody
 }
@@ -114,7 +114,7 @@ Creates a spec for an organization.
 	@param orgId Organization ID
 	@return ApiCreateSpecRequest
 */
-func (a *SpecsApiService) CreateSpec(ctx context.Context, orgId string) ApiCreateSpecRequest {
+func (a *SpecsAPIService) CreateSpec(ctx context.Context, orgId string) ApiCreateSpecRequest {
 	return ApiCreateSpecRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -125,7 +125,7 @@ func (a *SpecsApiService) CreateSpec(ctx context.Context, orgId string) ApiCreat
 // Execute executes the request
 //
 //	@return Spec
-func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *http.Response, error) {
+func (a *SpecsAPIService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -133,7 +133,7 @@ func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *htt
 		localVarReturnValue *Spec
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsApiService.CreateSpec")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsAPIService.CreateSpec")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -161,7 +161,7 @@ func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *htt
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -192,19 +192,8 @@ func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *htt
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -215,7 +204,18 @@ func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *htt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -241,7 +241,7 @@ func (a *SpecsApiService) CreateSpecExecute(r ApiCreateSpecRequest) (*Spec, *htt
 
 type ApiDeleteSpecRequest struct {
 	ctx        context.Context
-	ApiService SpecsApi
+	ApiService SpecsAPI
 	orgId      string
 	specId     string
 	ifMatch    *string
@@ -267,7 +267,7 @@ Deletes a spec for an organization.
 	@param specId Spec ID
 	@return ApiDeleteSpecRequest
 */
-func (a *SpecsApiService) DeleteSpec(ctx context.Context, orgId string, specId string) ApiDeleteSpecRequest {
+func (a *SpecsAPIService) DeleteSpec(ctx context.Context, orgId string, specId string) ApiDeleteSpecRequest {
 	return ApiDeleteSpecRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -277,14 +277,14 @@ func (a *SpecsApiService) DeleteSpec(ctx context.Context, orgId string, specId s
 }
 
 // Execute executes the request
-func (a *SpecsApiService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Response, error) {
+func (a *SpecsAPIService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsApiService.DeleteSpec")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsAPIService.DeleteSpec")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -313,7 +313,7 @@ func (a *SpecsApiService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Respo
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -345,19 +345,8 @@ func (a *SpecsApiService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Respo
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -368,7 +357,18 @@ func (a *SpecsApiService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Respo
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -385,7 +385,7 @@ func (a *SpecsApiService) DeleteSpecExecute(r ApiDeleteSpecRequest) (*http.Respo
 
 type ApiGetSpecRequest struct {
 	ctx        context.Context
-	ApiService SpecsApi
+	ApiService SpecsAPI
 	orgId      string
 	specId     string
 	revision   *int32
@@ -411,7 +411,7 @@ Gets a spec for an organization.
 	@param specId Spec ID
 	@return ApiGetSpecRequest
 */
-func (a *SpecsApiService) GetSpec(ctx context.Context, orgId string, specId string) ApiGetSpecRequest {
+func (a *SpecsAPIService) GetSpec(ctx context.Context, orgId string, specId string) ApiGetSpecRequest {
 	return ApiGetSpecRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -423,7 +423,7 @@ func (a *SpecsApiService) GetSpec(ctx context.Context, orgId string, specId stri
 // Execute executes the request
 //
 //	@return Spec
-func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Response, error) {
+func (a *SpecsAPIService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -431,7 +431,7 @@ func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Resp
 		localVarReturnValue *Spec
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsApiService.GetSpec")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsAPIService.GetSpec")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -463,7 +463,7 @@ func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Resp
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -492,19 +492,8 @@ func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Resp
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -515,7 +504,18 @@ func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Resp
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -539,54 +539,29 @@ func (a *SpecsApiService) GetSpecExecute(r ApiGetSpecRequest) (*Spec, *http.Resp
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiGetSpecAnalysesRequest struct {
-	ctx          context.Context
-	ApiService   SpecsApi
-	orgId        string
-	maxResults   *int32
-	specId       *[]string
-	collectionId *[]string
+type ApiGetSpecsRequest struct {
+	ctx        context.Context
+	ApiService SpecsAPI
+	orgId      string
+	page       *int32
+	maxResults *int32
+}
+
+// The page of results to return
+func (r ApiGetSpecsRequest) Page(page int32) ApiGetSpecsRequest {
+	r.page = &page
+	return r
 }
 
 // The max number of results to return
-func (r ApiGetSpecAnalysesRequest) MaxResults(maxResults int32) ApiGetSpecAnalysesRequest {
+func (r ApiGetSpecsRequest) MaxResults(maxResults int32) ApiGetSpecsRequest {
 	r.maxResults = &maxResults
 	return r
 }
 
-// Spec ID
-func (r ApiGetSpecAnalysesRequest) SpecId(specId []string) ApiGetSpecAnalysesRequest {
-	r.specId = &specId
-	return r
-}
-
-// Collection ID
-func (r ApiGetSpecAnalysesRequest) CollectionId(collectionId []string) ApiGetSpecAnalysesRequest {
-	r.collectionId = &collectionId
-	return r
-}
-
-/*
-GetSpecAnalyses Get specs analysis
-
-Gets a list of specs analysis for an organization.
-
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param orgId Organization ID
-	@return ApiGetSpecAnalysesRequest
-*/
-func (a *SpecsApiService) GetSpecAnalyses(ctx context.Context, orgId string) ApiGetSpecAnalysesRequest {
-	return ApiGetSpecAnalysesRequest{
-		ApiService: a,
-		ctx:        ctx,
-		orgId:      orgId,
-	}
-}
-
-
 type ApiUpdateSpecRequest struct {
 	ctx          context.Context
-	ApiService   SpecsApi
+	ApiService   SpecsAPI
 	orgId        string
 	specId       string
 	specPostBody *SpecPostBody
@@ -619,7 +594,7 @@ Updates a spec for an organization.
 	@param specId Spec ID
 	@return ApiUpdateSpecRequest
 */
-func (a *SpecsApiService) UpdateSpec(ctx context.Context, orgId string, specId string) ApiUpdateSpecRequest {
+func (a *SpecsAPIService) UpdateSpec(ctx context.Context, orgId string, specId string) ApiUpdateSpecRequest {
 	return ApiUpdateSpecRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -631,7 +606,7 @@ func (a *SpecsApiService) UpdateSpec(ctx context.Context, orgId string, specId s
 // Execute executes the request
 //
 //	@return Spec
-func (a *SpecsApiService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *http.Response, error) {
+func (a *SpecsAPIService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
@@ -639,7 +614,7 @@ func (a *SpecsApiService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *htt
 		localVarReturnValue *Spec
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsApiService.UpdateSpec")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "SpecsAPIService.UpdateSpec")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -671,7 +646,7 @@ func (a *SpecsApiService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *htt
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -705,19 +680,8 @@ func (a *SpecsApiService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *htt
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -728,7 +692,18 @@ func (a *SpecsApiService) UpdateSpecExecute(r ApiUpdateSpecRequest) (*Spec, *htt
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

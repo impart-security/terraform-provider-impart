@@ -12,7 +12,6 @@ Contact: support@impart.security
 package client
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -26,7 +25,8 @@ type ListItemsInner struct {
 	// The value of the item.
 	Value string `json:"value"`
 	// The expiration date of the item.
-	Expiration NullableTime `json:"expiration,omitempty"`
+	Expiration           NullableTime `json:"expiration,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _ListItemsInner ListItemsInner
@@ -130,6 +130,11 @@ func (o ListItemsInner) ToMap() (map[string]interface{}, error) {
 	if o.Expiration.IsSet() {
 		toSerialize["expiration"] = o.Expiration.Get()
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
 }
 
@@ -157,15 +162,21 @@ func (o *ListItemsInner) UnmarshalJSON(data []byte) (err error) {
 
 	varListItemsInner := _ListItemsInner{}
 
-	decoder := json.NewDecoder(bytes.NewReader(data))
-
-	err = decoder.Decode(&varListItemsInner)
+	err = json.Unmarshal(data, &varListItemsInner)
 
 	if err != nil {
 		return err
 	}
 
 	*o = ListItemsInner(varListItemsInner)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "value")
+		delete(additionalProperties, "expiration")
+		o.AdditionalProperties = additionalProperties
+	}
 
 	return err
 }

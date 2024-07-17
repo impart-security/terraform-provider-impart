@@ -77,7 +77,7 @@ func (d *specDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &state)...)
 
-	specResponse, _, err := d.client.SpecsApi.GetSpec(ctx, d.client.OrgID, state.ID.ValueString()).Execute()
+	specResponse, _, err := d.client.SpecsAPI.GetSpec(ctx, d.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

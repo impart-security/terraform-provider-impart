@@ -25,8 +25,11 @@ type ListPatchBody struct {
 	// The items in the list.
 	Add []ListItemsInner `json:"add,omitempty"`
 	// Items to remove from the list.
-	Remove []string `json:"remove,omitempty"`
+	Remove               []string `json:"remove,omitempty"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _ListPatchBody ListPatchBody
 
 // NewListPatchBody instantiates a new ListPatchBody object
 // This constructor will assign default values to properties that have it defined,
@@ -160,7 +163,35 @@ func (o ListPatchBody) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Remove) {
 		toSerialize["remove"] = o.Remove
 	}
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
+}
+
+func (o *ListPatchBody) UnmarshalJSON(data []byte) (err error) {
+	varListPatchBody := _ListPatchBody{}
+
+	err = json.Unmarshal(data, &varListPatchBody)
+
+	if err != nil {
+		return err
+	}
+
+	*o = ListPatchBody(varListPatchBody)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "name")
+		delete(additionalProperties, "add")
+		delete(additionalProperties, "remove")
+		o.AdditionalProperties = additionalProperties
+	}
+
+	return err
 }
 
 type NullableListPatchBody struct {

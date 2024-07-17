@@ -19,8 +19,7 @@ import (
 	"net/url"
 )
 
-type UserApi interface {
-
+type UserAPI interface {
 	/*
 		GetTokenInfo Get token info
 
@@ -37,12 +36,13 @@ type UserApi interface {
 
 }
 
-// UserApiService UserApi service
-type UserApiService service
+// UserAPIService UserAPI service
+type UserAPIService service
+
 
 type ApiGetTokenInfoRequest struct {
 	ctx        context.Context
-	ApiService UserApi
+	ApiService UserAPI
 }
 
 func (r ApiGetTokenInfoRequest) Execute() (*TokenInfo, *http.Response, error) {
@@ -57,7 +57,7 @@ Gets the token info for the current user.
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ApiGetTokenInfoRequest
 */
-func (a *UserApiService) GetTokenInfo(ctx context.Context) ApiGetTokenInfoRequest {
+func (a *UserAPIService) GetTokenInfo(ctx context.Context) ApiGetTokenInfoRequest {
 	return ApiGetTokenInfoRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -67,7 +67,7 @@ func (a *UserApiService) GetTokenInfo(ctx context.Context) ApiGetTokenInfoReques
 // Execute executes the request
 //
 //	@return TokenInfo
-func (a *UserApiService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenInfo, *http.Response, error) {
+func (a *UserAPIService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenInfo, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -75,7 +75,7 @@ func (a *UserApiService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenIn
 		localVarReturnValue *TokenInfo
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.GetTokenInfo")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserAPIService.GetTokenInfo")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -96,7 +96,7 @@ func (a *UserApiService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenIn
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -125,19 +125,8 @@ func (a *UserApiService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenIn
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -148,7 +137,18 @@ func (a *UserApiService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenIn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

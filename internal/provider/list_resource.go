@@ -41,11 +41,12 @@ type ListResource struct {
 
 // listResourceModel maps the resource schema data.
 type listResourceModel struct {
-	ID      types.String    `tfsdk:"id"`
-	Name    types.String    `tfsdk:"name"`
-	Kind    types.String    `tfsdk:"kind"`
-	Subkind types.String    `tfsdk:"subkind"`
-	Items   []listItemModel `tfsdk:"items"`
+	ID            types.String    `tfsdk:"id"`
+	Name          types.String    `tfsdk:"name"`
+	Kind          types.String    `tfsdk:"kind"`
+	Subkind       types.String    `tfsdk:"subkind"`
+	Functionality types.String    `tfsdk:"functionality"`
+	Items         []listItemModel `tfsdk:"items"`
 }
 
 type listItemModel struct {
@@ -97,6 +98,13 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			},
 			"subkind": schema.StringAttribute{
 				Description: "The list subkind.",
+				Optional:    true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
+			},
+			"functionality": schema.StringAttribute{
+				Description: "The list functionality. Allowed values are add, add/remove, none.",
 				Optional:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -192,6 +200,20 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 		postBody.Subkind = subkind
 	}
 
+	if !plan.Functionality.IsNull() {
+		functionality, err := openapiclient.NewListFunctionalityFromValue(plan.Functionality.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Unable to create the list",
+				err.Error(),
+			)
+			return
+		}
+		postBody.Functionality = functionality
+	} else {
+		postBody.Functionality = openapiclient.ADD_REMOVE.Ptr()
+	}
+
 	listResponse, _, err := r.client.ListsAPI.CreateList(ctx, r.client.OrgID).ListPostBody(postBody).Execute()
 
 	if err != nil {
@@ -217,6 +239,10 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 
 	if plan.Items != nil && len(listResponse.Items) > 0 {
 		applyListResponseToState(listResponse, &plan)
+	}
+
+	if !plan.Functionality.IsNull() {
+		plan.Functionality = types.StringValue(string(listResponse.Functionality))
 	}
 
 	// Set state to fully populated data
@@ -268,9 +294,13 @@ func (r *ListResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	// Because we cannot pull config to check here
-	// ReplaceWhenStartTrackingItems plan modifier is used to relacea list resource when items goes from null to set
+	// ReplaceWhenStartTrackingItems plan modifier is used to relace a list resource when items goes from null to set
 	if state.Items != nil {
 		applyListResponseToState(listResponse, &state)
+	}
+
+	if !state.Functionality.IsNull() {
+		state.Functionality = types.StringValue(string(listResponse.Functionality))
 	}
 
 	// Set refreshed state
@@ -348,6 +378,10 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		applyListResponseToState(listResponse, &newState)
 	}
 
+	if !plan.Functionality.IsNull() {
+		newState.Functionality = plan.Functionality
+	}
+
 	// Set the refreshed state
 	diags = resp.State.Set(ctx, newState)
 	resp.Diagnostics.Append(diags...)
@@ -399,6 +433,23 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 			resp.Diagnostics.AddError(
 				"Configuration Error: Ivalid value",
 				err.Error(),
+			)
+		}
+	}
+
+	if !plan.Functionality.IsNull() {
+		functionality, err := openapiclient.NewListFunctionalityFromValue(plan.Functionality.ValueString())
+		if err != nil {
+			resp.Diagnostics.AddError(
+				"Configuration Error: Ivalid value",
+				err.Error(),
+			)
+		}
+
+		if plan.Items != nil && (*functionality != openapiclient.ADD_REMOVE && *functionality != openapiclient.NONE) {
+			resp.Diagnostics.AddError(
+				"Configuration Error: Ivalid value",
+				"List items can only be set with add/remove or none functionality",
 			)
 		}
 	}

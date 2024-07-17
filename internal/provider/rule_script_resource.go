@@ -178,7 +178,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	// Create new rule
-	ruleRequest := r.client.RulesScriptsApi.CreateRulesScript(ctx, r.client.OrgID).
+	ruleRequest := r.client.RulesScriptsAPI.CreateRulesScript(ctx, r.client.OrgID).
 		RulesScriptPostBody(rulesScriptPostBody)
 
 	ruleResponse, _, err := ruleRequest.Execute()
@@ -221,7 +221,7 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 		return
 	}
 
-	ruleResponse, httpResp, err := r.client.RulesScriptsApi.GetRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	ruleResponse, httpResp, err := r.client.RulesScriptsAPI.GetRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {
@@ -322,7 +322,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		rulesScriptPostBody.Description = &description
 	}
 
-	ruleRequest := r.client.RulesScriptsApi.UpdateRulesScript(ctx, r.client.OrgID, plan.ID.ValueString()).
+	ruleRequest := r.client.RulesScriptsAPI.UpdateRulesScript(ctx, r.client.OrgID, plan.ID.ValueString()).
 		RulesScriptPostBody(rulesScriptPostBody)
 
 	// update rule
@@ -387,7 +387,7 @@ func (r *ruleScriptResource) Delete(ctx context.Context, req resource.DeleteRequ
 	}
 
 	// delete the rule
-	_, err := r.client.RulesScriptsApi.DeleteRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
+	_, err := r.client.RulesScriptsAPI.DeleteRulesScript(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

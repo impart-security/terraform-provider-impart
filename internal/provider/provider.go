@@ -142,7 +142,7 @@ func (p *impartProvider) Configure(ctx context.Context, req provider.ConfigureRe
 
 	apiClient := openapiclient.NewAPIClient(configuration)
 
-	tokenInfo, httpResp, err := apiClient.UserApi.GetTokenInfo(context.Background()).Execute()
+	tokenInfo, httpResp, err := apiClient.UserAPI.GetTokenInfo(context.Background()).Execute()
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create Impart API Client",
