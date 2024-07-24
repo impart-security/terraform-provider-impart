@@ -190,5 +190,6 @@ func (p *impartProvider) Resources(_ context.Context) []func() resource.Resource
 		NewMonitorResource,
 		NewRuleScriptDependenciesResource,
 		NewListResource,
+		NewRuleTestcaseResource,
 	}
 }

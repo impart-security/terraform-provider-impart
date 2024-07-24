@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.0] - 2024-07-24
+
+### Changed
+
+- Added impart_rule_test_case resource
+
 ## [0.7.0] - 2024-07-17
 
 ### Changed

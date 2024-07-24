@@ -67,6 +67,8 @@ type APIClient struct {
 
 	RulesScriptsAPI RulesScriptsAPI
 
+	RulesTestCasesAPI RulesTestCasesAPI
+
 	SpecsAPI SpecsAPI
 
 	UserAPI UserAPI
@@ -96,6 +98,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.NotificationTemplatesAPI = (*NotificationTemplatesAPIService)(&c.common)
 	c.RulesDependenciesAPI = (*RulesDependenciesAPIService)(&c.common)
 	c.RulesScriptsAPI = (*RulesScriptsAPIService)(&c.common)
+	c.RulesTestCasesAPI = (*RulesTestCasesAPIService)(&c.common)
 	c.SpecsAPI = (*SpecsAPIService)(&c.common)
 	c.UserAPI = (*UserAPIService)(&c.common)
 
