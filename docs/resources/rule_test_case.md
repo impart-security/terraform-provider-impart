@@ -35,6 +35,35 @@ resource "impart_rule_test_case" "example" {
       }
     }
   ]
+
+  assertions = [
+    {
+      message_indexes = [0]
+      assertion_type  = "output"
+      condition       = "contains" #contains|not_contains
+      expected        = "test"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "block"
+      location        = "req" # req|res
+      expected        = "true"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "status_code"
+      location        = "req"    # req|res
+      condition       = "one_of" # equal|not_equal|greater_than|less_than|one_of
+      expected        = "201,200"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "tags"
+      location        = "req"      # req|res
+      condition       = "contains" # contains|not_contains
+      expected        = "tagname"
+    }
+  ]
 }
 ```
 
@@ -48,6 +77,7 @@ resource "impart_rule_test_case" "example" {
 
 ### Optional
 
+- `assertions` (Attributes List) The assertions of the test case. (see [below for nested schema](#nestedatt--assertions))
 - `description` (String) The description of the test case.
 
 ### Read-Only
@@ -100,3 +130,29 @@ Optional:
 - `header_keys` (List of String) The HTTP response header keys.
 - `header_values` (List of String) The HTTP response header values.
 - `truncated_body` (Boolean) Indicates whether the response body was truncated.
+
+
+
+<a id="nestedatt--assertions"></a>
+### Nested Schema for `assertions`
+
+Required:
+
+- `assertion_type` (String) The assertion type of the request.
+- `expected` (String) The expected value of the assertion.
+It is a string value, and the format it must satisfy depends on the assertion type:
+**output**: A string.
+**tags**: A string.
+**status_code**: An integer value (e.g., "200") or comma-separated list of integers for one_of condition (e.g., "200,404,500").
+**block**: A boolean value represented as "true" or "false".
+- `message_indexes` (List of Number) The indexes of the messages in the test case the assertion applies to.
+
+Optional:
+
+- `condition` (String) The condition of the assertion.
+Accepted values per assertion type:
+**output**: contains, not_contains.
+**tags**: contains, not_contains.
+**status_code**: equal, not_equal, greater_than, less_than, one_of.
+**block**: N/A
+- `location` (String) The location of the assertion. Allowed values: req, res. Not applicable for assertion type output.

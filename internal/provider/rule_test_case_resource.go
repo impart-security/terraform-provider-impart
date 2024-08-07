@@ -4,8 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
+	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -23,6 +28,15 @@ var (
 	_ resource.Resource                = &ruleTestcaseResource{}
 	_ resource.ResourceWithConfigure   = &ruleTestcaseResource{}
 	_ resource.ResourceWithImportState = &ruleTestcaseResource{}
+)
+
+type AssertionType string
+
+const (
+	AssertionTypeOutput     AssertionType = "output"
+	AssertionTypeBlock      AssertionType = "block"
+	AssertionTypeStatusCode AssertionType = "status_code"
+	AssertionTypeTags       AssertionType = "tags"
 )
 
 // NewRuleTestcaseResource is a helper function to simplify the provider implementation.
@@ -55,10 +69,11 @@ func (r *ruleTestcaseResource) Metadata(_ context.Context, req resource.Metadata
 }
 
 type ruleTestCaseModel struct {
-	ID          types.String   `tfsdk:"id"`
-	Name        types.String   `tfsdk:"name"`
-	Description types.String   `tfsdk:"description"`
-	Messages    []messageModel `tfsdk:"messages"`
+	ID          types.String     `tfsdk:"id"`
+	Name        types.String     `tfsdk:"name"`
+	Description types.String     `tfsdk:"description"`
+	Messages    []messageModel   `tfsdk:"messages"`
+	Assertions  []assertionModel `tfsdk:"assertions"`
 }
 
 type messageModel struct {
@@ -87,6 +102,14 @@ type resModel struct {
 	HeaderKeys    []types.String `tfsdk:"header_keys"`
 	HeaderValues  []types.String `tfsdk:"header_values"`
 	StatusCode    types.Int32    `tfsdk:"status_code"`
+}
+
+type assertionModel struct {
+	MessageIndexes []types.Int32 `tfsdk:"message_indexes"`
+	AssertionType  types.String  `tfsdk:"assertion_type"`
+	Location       types.String  `tfsdk:"location"`
+	Condition      types.String  `tfsdk:"condition"`
+	Expected       types.String  `tfsdk:"expected"`
 }
 
 func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -216,6 +239,57 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 					},
 				},
 			},
+			"assertions": schema.ListNestedAttribute{
+				Description: "The assertions of the test case.",
+				Optional:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"message_indexes": schema.ListAttribute{
+							Description: "The indexes of the messages in the test case the assertion applies to.",
+							ElementType: types.Int32Type,
+							Required:    true,
+							Validators: []validator.List{
+								listvalidator.UniqueValues(),
+							},
+						},
+						"assertion_type": schema.StringAttribute{
+							Description: "The assertion type of the request.",
+							Required:    true,
+							Validators: []validator.String{stringvalidator.OneOf(string(AssertionTypeOutput),
+								string(AssertionTypeStatusCode),
+								string(AssertionTypeTags),
+								string(AssertionTypeBlock))},
+						},
+						"location": schema.StringAttribute{
+							Description: "The location of the assertion. Allowed values: req, res. Not applicable for assertion type output.",
+							Optional:    true,
+							Validators:  []validator.String{stringvalidator.OneOf("req", "res")},
+						},
+						"condition": schema.StringAttribute{
+							Description: "The condition of the request.",
+							MarkdownDescription: `
+The condition of the assertion.
+Accepted values per assertion type:
+**output**: contains, not_contains.
+**tags**: contains, not_contains.
+**status_code**: equal, not_equal, greater_than, less_than, one_of.
+**block**: N/A`,
+							Optional: true,
+						},
+						"expected": schema.StringAttribute{
+							Description: "The expected value of the assertion.",
+							MarkdownDescription: `
+The expected value of the assertion.
+It is a string value, and the format it must satisfy depends on the assertion type:
+**output**: A string.
+**tags**: A string.
+**status_code**: An integer value (e.g., "200") or comma-separated list of integers for one_of condition (e.g., "200,404,500").
+**block**: A boolean value represented as "true" or "false".`,
+							Required: true,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -235,7 +309,14 @@ func (r ruleTestcaseResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 
-	postBody := toRulesTestCasePostBody(plan)
+	postBody, err := toRulesTestCasePostBody(plan)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to create the rule test case",
+			err.Error(),
+		)
+		return
+	}
 
 	ruleTestCaseRequest := r.client.RulesTestCasesAPI.CreateRulesTestCase(ctx, r.client.OrgID).
 		RulesTestCasePostBody(postBody)
@@ -321,7 +402,14 @@ func (r ruleTestcaseResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	postBody := toRulesTestCasePostBody(plan)
+	postBody, err := toRulesTestCasePostBody(plan)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to update the rule test case",
+			err.Error(),
+		)
+		return
+	}
 
 	ruleTestCaseRequest := r.client.RulesTestCasesAPI.UpdateRulesTestCase(ctx, r.client.OrgID, plan.ID.ValueString()).
 		RulesTestCasePostBody(postBody)
@@ -388,7 +476,23 @@ func fromArray(strings []string) []types.String {
 	return result
 }
 
-func toRulesTestCasePostBody(plan ruleTestCaseModel) openapiclient.RulesTestCasePostBody {
+func fromInt32Array(items []int32) []types.Int32 {
+	var result []types.Int32
+	for _, item := range items {
+		result = append(result, types.Int32Value(item))
+	}
+	return result
+}
+
+func toInt32Array(items []types.Int32) []int32 {
+	var result []int32
+	for _, item := range items {
+		result = append(result, item.ValueInt32())
+	}
+	return result
+}
+
+func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCasePostBody, error) {
 	postBody := openapiclient.RulesTestCasePostBody{
 		Name:     plan.Name.ValueString(),
 		Messages: make([]openapiclient.RulesTestCaseMessagesInner, 0, len(plan.Messages)),
@@ -399,7 +503,7 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) openapiclient.RulesTestCase
 	}
 
 	if len(plan.Messages) == 0 {
-		return postBody
+		return postBody, nil
 	}
 
 	for _, message := range plan.Messages {
@@ -485,7 +589,77 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) openapiclient.RulesTestCase
 		postBody.Messages = append(postBody.Messages, rtMessage)
 	}
 
-	return postBody
+	for _, assertion := range plan.Assertions {
+		var a openapiclient.RulesTestCaseAssertion
+		if assertion.AssertionType.ValueString() == string(AssertionTypeBlock) {
+			a = openapiclient.RulesTestCaseAssertion{
+				RulesTestCaseAssertionBlock: &openapiclient.RulesTestCaseAssertionBlock{
+					MessageIndexes: toInt32Array(assertion.MessageIndexes),
+					AssertionType:  assertion.AssertionType.ValueString(),
+					Location:       assertion.Location.ValueString(),
+					Expected:       assertion.Expected.ValueString() == "true",
+				},
+			}
+		} else if assertion.AssertionType.ValueString() == string(AssertionTypeOutput) {
+			condition, err := openapiclient.NewRulesTestCaseAssertionConditionPresenceFromValue(assertion.Condition.ValueString())
+			if err != nil {
+				return postBody, fmt.Errorf("unable to create assertion condition: %w", err)
+			}
+
+			a = openapiclient.RulesTestCaseAssertion{
+				RulesTestCaseAssertionOutput: &openapiclient.RulesTestCaseAssertionOutput{
+					MessageIndexes: toInt32Array(assertion.MessageIndexes),
+					AssertionType:  assertion.AssertionType.ValueString(),
+					Condition:      *condition,
+					Expected:       assertion.Expected.ValueString(),
+				},
+			}
+		} else if assertion.AssertionType.ValueString() == string(AssertionTypeStatusCode) {
+			stringValues := strings.Split(assertion.Expected.ValueString(), ",")
+			intValues := make([]int32, len(stringValues))
+			for i, v := range stringValues {
+				value, err := strconv.Atoi(v)
+				if err != nil { //this should not happened as we are validating the resource
+					return postBody, fmt.Errorf("unable to convert string to int: %w", err)
+				}
+				intValues[i] = int32(value)
+			}
+
+			condition, err := openapiclient.NewRulesTestCaseAssertionConditionDefaultFromValue(assertion.Condition.ValueString())
+			if err != nil {
+				return postBody, fmt.Errorf("unable to create assertion condition: %w", err)
+			}
+
+			a = openapiclient.RulesTestCaseAssertion{
+				RulesTestCaseAssertionStatusCode: &openapiclient.RulesTestCaseAssertionStatusCode{
+					MessageIndexes: toInt32Array(assertion.MessageIndexes),
+					AssertionType:  assertion.AssertionType.ValueString(),
+					Location:       assertion.Location.ValueString(),
+					Condition:      *condition,
+					Expected:       intValues,
+				},
+			}
+		} else if assertion.AssertionType.ValueString() == string(AssertionTypeTags) {
+			condition, err := openapiclient.NewRulesTestCaseAssertionConditionPresenceFromValue(assertion.Condition.ValueString())
+			if err != nil {
+				return postBody, fmt.Errorf("unable to create assertion condition: %w", err)
+			}
+
+			a = openapiclient.RulesTestCaseAssertion{
+				RulesTestCaseAssertionTags: &openapiclient.RulesTestCaseAssertionTags{
+					MessageIndexes: toInt32Array(assertion.MessageIndexes),
+					AssertionType:  assertion.AssertionType.ValueString(),
+					Location:       assertion.Location.ValueString(),
+					Condition:      *condition,
+					Expected:       assertion.Expected.ValueString(),
+				},
+			}
+		}
+
+		postBody.Assertions = append(postBody.Assertions, a)
+	}
+
+	return postBody, nil
 }
 
 func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan ruleTestCaseModel) ruleTestCaseModel {
@@ -543,5 +717,120 @@ func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan
 
 		testCaseModel.Messages = append(testCaseModel.Messages, messageModel)
 	}
+
+	// Handle empty array in state
+	if len(ruleTestCaseResponse.Assertions) == 0 && plan.Assertions != nil {
+		testCaseModel.Assertions = make([]assertionModel, 0)
+	}
+
+	for _, assertion := range ruleTestCaseResponse.Assertions {
+		var aModel assertionModel
+		if assertion.RulesTestCaseAssertionBlock != nil {
+			aModel = assertionModel{
+				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionBlock.MessageIndexes),
+				AssertionType:  types.StringValue(assertion.RulesTestCaseAssertionBlock.AssertionType),
+				Location:       types.StringValue(assertion.RulesTestCaseAssertionBlock.Location),
+				Expected:       types.StringValue(fmt.Sprintf("%t", assertion.RulesTestCaseAssertionBlock.Expected)),
+			}
+		} else if assertion.RulesTestCaseAssertionOutput != nil {
+			aModel = assertionModel{
+				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionOutput.MessageIndexes),
+				AssertionType:  types.StringValue(assertion.RulesTestCaseAssertionOutput.AssertionType),
+				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionOutput.Condition)),
+				Expected:       types.StringValue(assertion.RulesTestCaseAssertionOutput.Expected),
+			}
+		} else if assertion.RulesTestCaseAssertionStatusCode != nil {
+			aModel = assertionModel{
+				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionStatusCode.MessageIndexes),
+				AssertionType:  types.StringValue(assertion.RulesTestCaseAssertionStatusCode.AssertionType),
+				Location:       types.StringValue(assertion.RulesTestCaseAssertionStatusCode.Location),
+				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionStatusCode.Condition)),
+				Expected:       types.StringValue(strings.Trim(strings.Join(strings.Fields(fmt.Sprint(assertion.RulesTestCaseAssertionStatusCode.Expected)), ","), "[]")), // convert []int32 to comma separated string
+			}
+		} else if assertion.RulesTestCaseAssertionTags != nil {
+			aModel = assertionModel{
+				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionTags.MessageIndexes),
+				AssertionType:  types.StringValue(assertion.RulesTestCaseAssertionTags.AssertionType),
+				Location:       types.StringValue(assertion.RulesTestCaseAssertionTags.Location),
+				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionTags.Condition)),
+				Expected:       types.StringValue(assertion.RulesTestCaseAssertionTags.Expected),
+			}
+		}
+
+		testCaseModel.Assertions = append(testCaseModel.Assertions, aModel)
+	}
+
 	return testCaseModel
+}
+
+func (r *ruleTestcaseResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var plan ruleTestCaseModel
+	diags := req.Config.Get(ctx, &plan)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	conditions := map[string][]string{
+		string(AssertionTypeOutput):     {"contains", "not_contains"},
+		string(AssertionTypeStatusCode): {"equal", "not_equal", "greater_than", "less_than", "one_of"},
+		string(AssertionTypeTags):       {"contains", "not_contains"},
+		string(AssertionTypeBlock):      nil,
+	}
+
+	for _, assertion := range plan.Assertions {
+		conditions, ok := conditions[assertion.AssertionType.ValueString()]
+		if !ok {
+			continue
+		}
+
+		if len(conditions) == 0 {
+			if !assertion.Condition.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Assertion Condition",
+					fmt.Sprintf("The condition attribute is not appplicable for assertion type %q", assertion.AssertionType.ValueString()),
+				)
+			}
+		} else {
+			if assertion.Condition.IsNull() {
+				resp.Diagnostics.AddError(
+					"Missing Assertion Condition",
+					fmt.Sprintf("The condition attribute is required for assertion type %q", assertion.AssertionType.ValueString()),
+				)
+			} else if !slices.Contains(conditions, assertion.Condition.ValueString()) {
+				resp.Diagnostics.AddError(
+					"Invalid Assertion Condition",
+					fmt.Sprintf("The condition attribute must be one of %q for assertion type %q", strings.Join(conditions, ", "), assertion.AssertionType.ValueString()),
+				)
+			}
+		}
+
+		// Validate expected value
+		if assertion.AssertionType.ValueString() == string(AssertionTypeStatusCode) {
+			stringValues := strings.Split(assertion.Expected.ValueString(), ",")
+			for _, v := range stringValues {
+				if _, err := strconv.Atoi(v); err != nil {
+					resp.Diagnostics.AddError(
+						"Invalid Assertion Expected Value",
+						fmt.Sprintf("The expected value must be a comma-separated list of integers for assertion type %q", assertion.AssertionType.ValueString()),
+					)
+					break
+				}
+			}
+		} else if assertion.AssertionType.ValueString() == string(AssertionTypeBlock) {
+			if assertion.Expected.ValueString() != "true" && assertion.Expected.ValueString() != "false" {
+				resp.Diagnostics.AddError(
+					"Invalid Assertion Expected Value",
+					fmt.Sprintf("The expected value must be true or false for assertion type %q", assertion.AssertionType.ValueString()),
+				)
+			}
+		} else if assertion.AssertionType.ValueString() == string(AssertionTypeOutput) {
+			if !assertion.Location.IsNull() {
+				resp.Diagnostics.AddError(
+					"Invalid Assertion Location Attribute",
+					fmt.Sprintf("The location attribute is not applicable for assertion type %q", assertion.AssertionType.ValueString()),
+				)
+			}
+		}
+	}
 }

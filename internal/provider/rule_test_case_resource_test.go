@@ -40,6 +40,14 @@ resource "impart_rule_test_case" "test" {
       }
     }
   ]
+  assertions = [
+    {
+      message_indexes = [0]
+      assertion_type  = "output"
+      condition       = "contains"
+      expected        = "test"
+    }
+  ]
 }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", "example"),
@@ -61,6 +69,11 @@ resource "impart_rule_test_case" "test" {
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.header_keys.0", "Header1"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.header_values.0", "value1"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.truncated_body", "false"),
+
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.message_indexes.0", "0"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.assertion_type", "output"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.condition", "contains"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.expected", "test"),
 				),
 			},
 			// Update
@@ -92,6 +105,15 @@ resource "impart_rule_test_case" "test" {
       }
     }
   ]
+  assertions = [
+    {
+      message_indexes = [1]
+      assertion_type  = "status_code"
+      location        = "req"
+      condition       = "equal"
+      expected        = "201,200"
+    }
+  ]
 }`,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", "example"),
@@ -115,6 +137,12 @@ resource "impart_rule_test_case" "test" {
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.header_keys.0", "Header2"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.header_values.0", "value2"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.0.res.truncated_body", "true"),
+
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.message_indexes.0", "1"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.assertion_type", "status_code"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.condition", "equal"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.expected", "201,200"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "assertions.0.location", "req"),
 				),
 			},
 

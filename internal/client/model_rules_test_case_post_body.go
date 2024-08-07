@@ -26,7 +26,9 @@ type RulesTestCasePostBody struct {
 	// The description of the test case
 	Description *string `json:"description,omitempty"`
 	// The messages of the test case.
-	Messages             []RulesTestCaseMessagesInner `json:"messages"`
+	Messages []RulesTestCaseMessagesInner `json:"messages"`
+	// Assertions for the test case.
+	Assertions           []RulesTestCaseAssertion `json:"assertions,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -131,6 +133,38 @@ func (o *RulesTestCasePostBody) SetMessages(v []RulesTestCaseMessagesInner) {
 	o.Messages = v
 }
 
+// GetAssertions returns the Assertions field value if set, zero value otherwise.
+func (o *RulesTestCasePostBody) GetAssertions() []RulesTestCaseAssertion {
+	if o == nil || IsNil(o.Assertions) {
+		var ret []RulesTestCaseAssertion
+		return ret
+	}
+	return o.Assertions
+}
+
+// GetAssertionsOk returns a tuple with the Assertions field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RulesTestCasePostBody) GetAssertionsOk() ([]RulesTestCaseAssertion, bool) {
+	if o == nil || IsNil(o.Assertions) {
+		return nil, false
+	}
+	return o.Assertions, true
+}
+
+// HasAssertions returns a boolean if a field has been set.
+func (o *RulesTestCasePostBody) HasAssertions() bool {
+	if o != nil && !IsNil(o.Assertions) {
+		return true
+	}
+
+	return false
+}
+
+// SetAssertions gets a reference to the given []RulesTestCaseAssertion and assigns it to the Assertions field.
+func (o *RulesTestCasePostBody) SetAssertions(v []RulesTestCaseAssertion) {
+	o.Assertions = v
+}
+
 func (o RulesTestCasePostBody) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -146,6 +180,9 @@ func (o RulesTestCasePostBody) ToMap() (map[string]interface{}, error) {
 		toSerialize["description"] = o.Description
 	}
 	toSerialize["messages"] = o.Messages
+	if !IsNil(o.Assertions) {
+		toSerialize["assertions"] = o.Assertions
+	}
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -193,6 +230,7 @@ func (o *RulesTestCasePostBody) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "messages")
+		delete(additionalProperties, "assertions")
 		o.AdditionalProperties = additionalProperties
 	}
 

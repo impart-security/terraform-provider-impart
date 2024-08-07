@@ -30,6 +30,8 @@ type RulesTestCase struct {
 	Description string `json:"description"`
 	// The messages of the test case.
 	Messages []RulesTestCaseMessagesInner `json:"messages"`
+	// Assertions for the test case.
+	Assertions []RulesTestCaseAssertion `json:"assertions"`
 	// The unique identifier of the user who created the test case.
 	CreatedBy string `json:"created_by"`
 	// The date and time in [RFC3339](https://datatracker.ietf.org/doc/html/rfc3339) format.
@@ -47,12 +49,13 @@ type _RulesTestCase RulesTestCase
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRulesTestCase(id string, name string, description string, messages []RulesTestCaseMessagesInner, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *RulesTestCase {
+func NewRulesTestCase(id string, name string, description string, messages []RulesTestCaseMessagesInner, assertions []RulesTestCaseAssertion, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *RulesTestCase {
 	this := RulesTestCase{}
 	this.Id = id
 	this.Name = name
 	this.Description = description
 	this.Messages = messages
+	this.Assertions = assertions
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.UpdatedBy = updatedBy
@@ -162,6 +165,30 @@ func (o *RulesTestCase) GetMessagesOk() ([]RulesTestCaseMessagesInner, bool) {
 // SetMessages sets field value
 func (o *RulesTestCase) SetMessages(v []RulesTestCaseMessagesInner) {
 	o.Messages = v
+}
+
+// GetAssertions returns the Assertions field value
+func (o *RulesTestCase) GetAssertions() []RulesTestCaseAssertion {
+	if o == nil {
+		var ret []RulesTestCaseAssertion
+		return ret
+	}
+
+	return o.Assertions
+}
+
+// GetAssertionsOk returns a tuple with the Assertions field value
+// and a boolean to check if the value has been set.
+func (o *RulesTestCase) GetAssertionsOk() ([]RulesTestCaseAssertion, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Assertions, true
+}
+
+// SetAssertions sets field value
+func (o *RulesTestCase) SetAssertions(v []RulesTestCaseAssertion) {
+	o.Assertions = v
 }
 
 // GetCreatedBy returns the CreatedBy field value
@@ -278,6 +305,7 @@ func (o RulesTestCase) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	toSerialize["description"] = o.Description
 	toSerialize["messages"] = o.Messages
+	toSerialize["assertions"] = o.Assertions
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
 	toSerialize["updated_by"] = o.UpdatedBy.Get()
@@ -299,6 +327,7 @@ func (o *RulesTestCase) UnmarshalJSON(data []byte) (err error) {
 		"name",
 		"description",
 		"messages",
+		"assertions",
 		"created_by",
 		"created_at",
 		"updated_by",
@@ -336,6 +365,7 @@ func (o *RulesTestCase) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "messages")
+		delete(additionalProperties, "assertions")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "updated_by")

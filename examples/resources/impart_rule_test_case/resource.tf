@@ -20,4 +20,33 @@ resource "impart_rule_test_case" "example" {
       }
     }
   ]
+
+  assertions = [
+    {
+      message_indexes = [0]
+      assertion_type  = "output"
+      condition       = "contains" #contains|not_contains
+      expected        = "test"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "block"
+      location        = "req" # req|res
+      expected        = "true"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "status_code"
+      location        = "req"    # req|res
+      condition       = "one_of" # equal|not_equal|greater_than|less_than|one_of
+      expected        = "201,200"
+    },
+    {
+      message_indexes = [0]
+      assertion_type  = "tags"
+      location        = "req"      # req|res
+      condition       = "contains" # contains|not_contains
+      expected        = "tagname"
+    }
+  ]
 }
