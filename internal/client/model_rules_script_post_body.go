@@ -13,6 +13,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the RulesScriptPostBody type satisfies the MappedNullable interface at compile time
@@ -20,11 +21,15 @@ var _ MappedNullable = &RulesScriptPostBody{}
 
 // RulesScriptPostBody struct for RulesScriptPostBody
 type RulesScriptPostBody struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-	Disabled    bool    `json:"disabled"`
-	Src         string  `json:"src"`
+	Name                 string              `json:"name"`
+	Description          *string             `json:"description,omitempty"`
+	Disabled             bool                `json:"disabled"`
+	BlockingEffect       *BlockingEffectType `json:"blocking_effect,omitempty"`
+	Src                  string              `json:"src"`
+	AdditionalProperties map[string]interface{}
 }
+
+type _RulesScriptPostBody RulesScriptPostBody
 
 // NewRulesScriptPostBody instantiates a new RulesScriptPostBody object
 // This constructor will assign default values to properties that have it defined,
@@ -43,6 +48,8 @@ func NewRulesScriptPostBody(name string, disabled bool, src string) *RulesScript
 // but it doesn't guarantee that properties required by API are set
 func NewRulesScriptPostBodyWithDefaults() *RulesScriptPostBody {
 	this := RulesScriptPostBody{}
+	var blockingEffect BlockingEffectType = BLOCK
+	this.BlockingEffect = &blockingEffect
 	return &this
 }
 
@@ -126,6 +133,38 @@ func (o *RulesScriptPostBody) SetDisabled(v bool) {
 	o.Disabled = v
 }
 
+// GetBlockingEffect returns the BlockingEffect field value if set, zero value otherwise.
+func (o *RulesScriptPostBody) GetBlockingEffect() BlockingEffectType {
+	if o == nil || IsNil(o.BlockingEffect) {
+		var ret BlockingEffectType
+		return ret
+	}
+	return *o.BlockingEffect
+}
+
+// GetBlockingEffectOk returns a tuple with the BlockingEffect field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RulesScriptPostBody) GetBlockingEffectOk() (*BlockingEffectType, bool) {
+	if o == nil || IsNil(o.BlockingEffect) {
+		return nil, false
+	}
+	return o.BlockingEffect, true
+}
+
+// HasBlockingEffect returns a boolean if a field has been set.
+func (o *RulesScriptPostBody) HasBlockingEffect() bool {
+	if o != nil && !IsNil(o.BlockingEffect) {
+		return true
+	}
+
+	return false
+}
+
+// SetBlockingEffect gets a reference to the given BlockingEffectType and assigns it to the BlockingEffect field.
+func (o *RulesScriptPostBody) SetBlockingEffect(v BlockingEffectType) {
+	o.BlockingEffect = &v
+}
+
 // GetSrc returns the Src field value
 func (o *RulesScriptPostBody) GetSrc() string {
 	if o == nil {
@@ -165,8 +204,64 @@ func (o RulesScriptPostBody) ToMap() (map[string]interface{}, error) {
 		toSerialize["description"] = o.Description
 	}
 	toSerialize["disabled"] = o.Disabled
+	if !IsNil(o.BlockingEffect) {
+		toSerialize["blocking_effect"] = o.BlockingEffect
+	}
 	toSerialize["src"] = o.Src
+
+	for key, value := range o.AdditionalProperties {
+		toSerialize[key] = value
+	}
+
 	return toSerialize, nil
+}
+
+func (o *RulesScriptPostBody) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"name",
+		"disabled",
+		"src",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varRulesScriptPostBody := _RulesScriptPostBody{}
+
+	err = json.Unmarshal(data, &varRulesScriptPostBody)
+
+	if err != nil {
+		return err
+	}
+
+	*o = RulesScriptPostBody(varRulesScriptPostBody)
+
+	additionalProperties := make(map[string]interface{})
+
+	if err = json.Unmarshal(data, &additionalProperties); err == nil {
+		delete(additionalProperties, "name")
+		delete(additionalProperties, "description")
+		delete(additionalProperties, "disabled")
+		delete(additionalProperties, "blocking_effect")
+		delete(additionalProperties, "src")
+		o.AdditionalProperties = additionalProperties
+	}
+
+	return err
 }
 
 type NullableRulesScriptPostBody struct {

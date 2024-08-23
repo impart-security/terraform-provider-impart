@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
@@ -37,13 +39,14 @@ type ruleScriptResource struct {
 
 // ruleScriptResourceModel maps the resource schema data.
 type ruleScriptResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Description types.String `tfsdk:"description"`
-	Disabled    types.Bool   `tfsdk:"disabled"`
-	SourceFile  types.String `tfsdk:"source_file"`
-	SourceHash  types.String `tfsdk:"source_hash"`
-	Content     types.String `tfsdk:"content"`
+	ID             types.String `tfsdk:"id"`
+	Name           types.String `tfsdk:"name"`
+	Description    types.String `tfsdk:"description"`
+	Disabled       types.Bool   `tfsdk:"disabled"`
+	SourceFile     types.String `tfsdk:"source_file"`
+	SourceHash     types.String `tfsdk:"source_hash"`
+	Content        types.String `tfsdk:"content"`
+	BlockingEffect types.String `tfsdk:"blocking_effect"`
 }
 
 // Configure adds the provider configured client to the resource.
@@ -104,6 +107,12 @@ func (r *ruleScriptResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 			"content": schema.StringAttribute{
 				Description: "The rule body content.",
+				Optional:    true,
+			},
+
+			"blocking_effect": schema.StringAttribute{
+				Description: "The rule blocking effect. Allowed values: block, simulate. If not set effect will be block.",
+				Validators:  []validator.String{stringvalidator.OneOf(string(openapiclient.BLOCK), string(openapiclient.SIMULATE))},
 				Optional:    true,
 			},
 		},
@@ -177,6 +186,21 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 		rulesScriptPostBody.Description = &description
 	}
 
+	blockingEffectVal := string(openapiclient.BLOCK)
+	if !plan.BlockingEffect.IsNull() {
+		blockingEffectVal = plan.BlockingEffect.ValueString()
+	}
+
+	blockingEffect, err := openapiclient.NewBlockingEffectTypeFromValue(blockingEffectVal)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to create the rule script",
+			err.Error(),
+		)
+		return
+	}
+	rulesScriptPostBody.BlockingEffect = blockingEffect
+
 	// Create new rule
 	ruleRequest := r.client.RulesScriptsAPI.CreateRulesScript(ctx, r.client.OrgID).
 		RulesScriptPostBody(rulesScriptPostBody)
@@ -200,6 +224,10 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.Name = types.StringValue(ruleResponse.Name)
 	plan.Description = types.StringValue(ruleResponse.Description)
 	plan.Disabled = types.BoolValue(ruleResponse.Disabled)
+
+	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+		plan.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
+	}
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -248,6 +276,11 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 		SourceFile:  state.SourceFile,
 		Description: types.StringValue(ruleResponse.Description),
 		Disabled:    types.BoolValue(ruleResponse.Disabled),
+	}
+
+	// ignore blocking effect value if it was not explicitly set
+	if !(state.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+		newState.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
 	}
 
 	// track hash only if user originally set source_hash or content
@@ -322,6 +355,21 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		rulesScriptPostBody.Description = &description
 	}
 
+	blockingEffectVal := string(openapiclient.BLOCK)
+	if !plan.BlockingEffect.IsNull() {
+		blockingEffectVal = plan.BlockingEffect.ValueString()
+	}
+
+	blockingEffect, err := openapiclient.NewBlockingEffectTypeFromValue(blockingEffectVal)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Unable to update the rule script",
+			err.Error(),
+		)
+		return
+	}
+	rulesScriptPostBody.BlockingEffect = blockingEffect
+
 	ruleRequest := r.client.RulesScriptsAPI.UpdateRulesScript(ctx, r.client.OrgID, plan.ID.ValueString()).
 		RulesScriptPostBody(rulesScriptPostBody)
 
@@ -352,6 +400,10 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	if !plan.Description.IsNull() {
 		state.Description = types.StringValue(ruleResponse.Description)
+	}
+
+	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+		state.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
 	}
 
 	// track only if content was set

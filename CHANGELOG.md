@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.2] - 2024-08-23
+
+### Changed
+
+- Added blocking_effect to impart_rule_script resource
+
 ## [0.8.1] - 2024-08-06
 
 ### Changed

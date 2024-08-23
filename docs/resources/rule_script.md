@@ -15,19 +15,21 @@ Manage a rule script.
 ```terraform
 # Create a new rule script
 resource "impart_rule_script" "example" {
-  name        = "example"
-  disabled    = false
-  description = "Rule description"
-  source_file = "${path.module}/rule.js"
-  source_hash = "<sha256 hash for the source_file content>"
+  name            = "example"
+  disabled        = false
+  description     = "Rule description"
+  source_file     = "${path.module}/rule.js"
+  source_hash     = "<sha256 hash for the source_file content>"
+  blocking_effect = "block"
 }
 
 # Create a new rule script with content
 resource "impart_rule_script" "example_content" {
-  name        = "example"
-  disabled    = false
-  description = "Rule description"
-  content     = file("${path.module}/rule.js")
+  name            = "example"
+  disabled        = false
+  description     = "Rule description"
+  content         = file("${path.module}/rule.js")
+  blocking_effect = "block"
 }
 ```
 
@@ -41,6 +43,7 @@ resource "impart_rule_script" "example_content" {
 
 ### Optional
 
+- `blocking_effect` (String) The rule blocking effect. Allowed values: block, simulate. If not set effect will be block.
 - `content` (String) The rule body content.
 - `description` (String) The description for this rule script.
 - `source_file` (String) The rule source file.
