@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
+	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
 var (

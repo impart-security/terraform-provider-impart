@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.3] - 2024-09-12
+
+### Changed
+
+- Added required attribute to impart_rule_test_case resource
+
+### Fixed
+
+- Errors on empty descriptions for impart_rule_test_case and impart_rule_script resources
+- Array validation for impart_rule_test_case
+
 ## [0.8.2] - 2024-08-23
 
 ### Changed

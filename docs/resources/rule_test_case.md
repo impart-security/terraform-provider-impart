@@ -79,6 +79,7 @@ resource "impart_rule_test_case" "example" {
 
 - `assertions` (Attributes List) The assertions of the test case. (see [below for nested schema](#nestedatt--assertions))
 - `description` (String) The description of the test case.
+- `required` (Boolean) Sets if test case required to pass on update.
 
 ### Read-Only
 

@@ -17,7 +17,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
+	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -222,11 +222,14 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	// Map response body to model
 	plan.ID = types.StringValue(ruleResponse.Id)
 	plan.Name = types.StringValue(ruleResponse.Name)
-	plan.Description = types.StringValue(ruleResponse.Description)
 	plan.Disabled = types.BoolValue(ruleResponse.Disabled)
 
 	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
 		plan.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
+	}
+
+	if !plan.Description.IsNull() || ruleResponse.Description != "" {
+		plan.Description = types.StringValue(ruleResponse.Description)
 	}
 
 	// Set state to fully populated data
@@ -271,16 +274,18 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	// Map response body to model
 	newState := ruleScriptResourceModel{
-		ID:          types.StringValue(ruleResponse.Id),
-		Name:        types.StringValue(ruleResponse.Name),
-		SourceFile:  state.SourceFile,
-		Description: types.StringValue(ruleResponse.Description),
-		Disabled:    types.BoolValue(ruleResponse.Disabled),
+		ID:         types.StringValue(ruleResponse.Id),
+		Name:       types.StringValue(ruleResponse.Name),
+		SourceFile: state.SourceFile,
+		Disabled:   types.BoolValue(ruleResponse.Disabled),
 	}
 
 	// ignore blocking effect value if it was not explicitly set
 	if !(state.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
 		newState.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
+	}
+	if !state.Description.IsNull() || ruleResponse.Description != "" {
+		newState.Description = types.StringValue(ruleResponse.Description)
 	}
 
 	// track hash only if user originally set source_hash or content
@@ -398,7 +403,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		SourceHash: plan.SourceHash,
 	}
 
-	if !plan.Description.IsNull() {
+	if !plan.Description.IsNull() || ruleResponse.Description != "" {
 		state.Description = types.StringValue(ruleResponse.Description)
 	}
 

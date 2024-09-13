@@ -19,7 +19,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"go4.org/netipx"
 
-	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
+	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -104,7 +104,7 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"functionality": schema.StringAttribute{
-				Description: "The list functionality. Allowed values are add, add/remove, none.",
+				Description: "The list functionality. Allowed values are add, add/remove.",
 				Optional:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -446,10 +446,10 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 			)
 		}
 
-		if plan.Items != nil && (*functionality != openapiclient.ADD_REMOVE && *functionality != openapiclient.NONE) {
+		if plan.Items != nil && (*functionality != openapiclient.ADD_REMOVE) {
 			resp.Diagnostics.AddError(
 				"Configuration Error: Ivalid value",
-				"List items can only be set with add/remove or none functionality",
+				"List items can only be set with add/remove functionality",
 			)
 		}
 	}

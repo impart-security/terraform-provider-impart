@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
+	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -119,8 +119,12 @@ func (r *notificationTemplateResource) Create(ctx context.Context, req resource.
 		ConnectorId: plan.ConnectorID.ValueString(),
 		Name:        plan.Name.ValueString(),
 		Payload:     plan.Payload.ValueString(),
-		Subject:     plan.Subject.ValueString(),
 		Destination: plan.Destination,
+	}
+
+	if !plan.Subject.IsNull() {
+		subject := plan.Subject.ValueString()
+		postBody.Subject = &subject
 	}
 
 	notificationTemplateResponse, _, err := r.client.NotificationTemplatesAPI.CreateNotificationTemplate(ctx, r.client.OrgID).NotificationTemplatePostBody(postBody).Execute()
@@ -216,8 +220,12 @@ func (r *notificationTemplateResource) Update(ctx context.Context, req resource.
 		ConnectorId: plan.ConnectorID.ValueString(),
 		Name:        plan.Name.ValueString(),
 		Payload:     plan.Payload.ValueString(),
-		Subject:     plan.Subject.ValueString(),
 		Destination: plan.Destination,
+	}
+
+	if !plan.Subject.IsNull() {
+		subject := plan.Subject.ValueString()
+		postBody.Subject = &subject
 	}
 
 	notificationTemplateRequest := r.client.NotificationTemplatesAPI.UpdateNotificationTemplate(ctx, r.client.OrgID, plan.ID.ValueString()).

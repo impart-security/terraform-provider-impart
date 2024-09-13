@@ -21,7 +21,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
-	openapiclient "github.com/impart-security/terraform-provider-impart/internal/client"
+	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
 var (
@@ -72,6 +72,7 @@ type ruleTestCaseModel struct {
 	ID          types.String     `tfsdk:"id"`
 	Name        types.String     `tfsdk:"name"`
 	Description types.String     `tfsdk:"description"`
+	Required    types.Bool       `tfsdk:"required"`
 	Messages    []messageModel   `tfsdk:"messages"`
 	Assertions  []assertionModel `tfsdk:"assertions"`
 }
@@ -130,6 +131,10 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description: "The description of the test case.",
 				Optional:    true,
 			},
+			"required": schema.BoolAttribute{
+				Description: "Sets if test case required to pass on update.",
+				Optional:    true,
+			},
 			"messages": schema.ListNestedAttribute{
 				Description: "The messages of the test case.",
 				Required:    true,
@@ -159,21 +164,33 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 									Description: "The HTTP request header keys.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"header_values": schema.ListAttribute{
 									Description: "The HTTP request header values.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"cookie_keys": schema.ListAttribute{
 									Description: "The HTTP request cookie keys.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"cookie_values": schema.ListAttribute{
 									Description: "The HTTP request cookie values.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"remote_addr": schema.StringAttribute{
 									Description: "The remote address of the request.",
@@ -197,11 +214,17 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 									Description: "The HTTP response header keys.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"header_values": schema.ListAttribute{
 									Description: "The HTTP response header values.",
 									Optional:    true,
 									ElementType: types.StringType,
+									Validators: []validator.List{
+										listvalidator.SizeAtLeast(1),
+									},
 								},
 								"status_code": schema.Int32Attribute{
 									Description: "The HTTP response status code.",
@@ -497,9 +520,15 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 		Name:     plan.Name.ValueString(),
 		Messages: make([]openapiclient.RulesTestCaseMessagesInner, 0, len(plan.Messages)),
 	}
+
 	if !plan.Description.IsNull() {
 		description := plan.Description.ValueString()
 		postBody.Description = &description
+	}
+
+	if !plan.Required.IsNull() {
+		required := plan.Required.ValueBool()
+		postBody.Required = &required
 	}
 
 	if len(plan.Messages) == 0 {
@@ -664,11 +693,19 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 
 func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan ruleTestCaseModel) ruleTestCaseModel {
 	testCaseModel := ruleTestCaseModel{
-		ID:          types.StringValue(ruleTestCaseResponse.Id),
-		Name:        types.StringValue(ruleTestCaseResponse.Name),
-		Description: types.StringValue(ruleTestCaseResponse.Description),
-		Messages:    make([]messageModel, 0, len(ruleTestCaseResponse.Messages)),
+		ID:       types.StringValue(ruleTestCaseResponse.Id),
+		Name:     types.StringValue(ruleTestCaseResponse.Name),
+		Messages: make([]messageModel, 0, len(ruleTestCaseResponse.Messages)),
 	}
+
+	if !plan.Required.IsNull() || ruleTestCaseResponse.Required {
+		testCaseModel.Required = plan.Required
+	}
+
+	if !plan.Description.IsNull() || ruleTestCaseResponse.Description != "" {
+		testCaseModel.Description = types.StringValue(ruleTestCaseResponse.Description)
+	}
+
 	for i, message := range ruleTestCaseResponse.Messages {
 		messageModel := messageModel{
 			Count:     types.Int32Value(message.Count),
