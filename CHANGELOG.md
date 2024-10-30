@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0] - 2024-10-29
+
+### Added
+
+- impart_label resource
+- impart_tag_metadata resource
+- labels attribute to rule scripts, rule test cases, lists, monitors, tags
+- description attribute to test cases messages and assertions
+
 ## [0.8.3] - 2024-09-12
 
 ### Changed

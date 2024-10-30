@@ -40,6 +40,7 @@ type monitorResourceModel struct {
 	Description             types.String     `tfsdk:"description"`
 	Conditions              []conditionModel `tfsdk:"conditions"`
 	NotificationTemplateIDs []string         `tfsdk:"notification_template_ids"`
+	Labels                  []types.String   `tfsdk:"labels"`
 }
 
 type conditionModel struct {
@@ -155,6 +156,11 @@ func (r *monitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 				Description: "An array of notification template ids for the templates that will send notifications to their respective connectors.",
 				Required:    true,
 			},
+			"labels": schema.ListAttribute{
+				Description: "The applied labels.",
+				ElementType: types.StringType,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -244,6 +250,14 @@ func (r *monitorResource) Create(ctx context.Context, req resource.CreateRequest
 		NotificationTemplateIds: plan.NotificationTemplateIDs,
 	}
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		postBody.Labels = labels
+	}
+
 	monitorResponse, _, err := r.client.EventMonitorsAPI.CreateEventMonitor(ctx, r.client.OrgID).EventMonitorPostBody(postBody).Execute()
 	if err != nil {
 		message := err.Error()
@@ -294,6 +308,8 @@ func (r *monitorResource) Create(ctx context.Context, req resource.CreateRequest
 	plan.Name = types.StringValue(monitorResponse.Name)
 	plan.Conditions = responseConditions
 	plan.NotificationTemplateIDs = monitorResponse.NotificationTemplateIds
+
+	plan.Labels = buildStateList(plan.Labels, monitorResponse.Labels)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -372,6 +388,7 @@ func (r *monitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 	state.Name = types.StringValue(monitorResponse.Name)
 	state.Conditions = responseConditions
 	state.NotificationTemplateIDs = monitorResponse.NotificationTemplateIds
+	state.Labels = buildStateList(state.Labels, monitorResponse.Labels)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -432,6 +449,14 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 		NotificationTemplateIds: plan.NotificationTemplateIDs,
 	}
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		postBody.Labels = labels
+	}
+
 	monitorRequest := r.client.EventMonitorsAPI.UpdateEventMonitor(ctx, r.client.OrgID, plan.ID.ValueString()).
 		EventMonitorPostBody(postBody)
 
@@ -490,6 +515,7 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 		NotificationTemplateIDs: monitorResponse.NotificationTemplateIds,
 		Conditions:              responseConditions,
 	}
+	state.Labels = buildStateList(plan.Labels, monitorResponse.Labels)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, state)

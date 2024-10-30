@@ -30,7 +30,9 @@ type RulesTestCasePostBody struct {
 	// The messages of the test case.
 	Messages []RulesTestCaseMessagesInner `json:"messages"`
 	// Assertions for the test case.
-	Assertions           []RulesTestCaseAssertion `json:"assertions,omitempty"`
+	Assertions []RulesTestCaseAssertion `json:"assertions,omitempty"`
+	// The applied labels.
+	Labels               []string `json:"labels,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -203,6 +205,38 @@ func (o *RulesTestCasePostBody) SetAssertions(v []RulesTestCaseAssertion) {
 	o.Assertions = v
 }
 
+// GetLabels returns the Labels field value if set, zero value otherwise.
+func (o *RulesTestCasePostBody) GetLabels() []string {
+	if o == nil || IsNil(o.Labels) {
+		var ret []string
+		return ret
+	}
+	return o.Labels
+}
+
+// GetLabelsOk returns a tuple with the Labels field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RulesTestCasePostBody) GetLabelsOk() ([]string, bool) {
+	if o == nil || IsNil(o.Labels) {
+		return nil, false
+	}
+	return o.Labels, true
+}
+
+// HasLabels returns a boolean if a field has been set.
+func (o *RulesTestCasePostBody) HasLabels() bool {
+	if o != nil && !IsNil(o.Labels) {
+		return true
+	}
+
+	return false
+}
+
+// SetLabels gets a reference to the given []string and assigns it to the Labels field.
+func (o *RulesTestCasePostBody) SetLabels(v []string) {
+	o.Labels = v
+}
+
 func (o RulesTestCasePostBody) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -223,6 +257,9 @@ func (o RulesTestCasePostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize["messages"] = o.Messages
 	if !IsNil(o.Assertions) {
 		toSerialize["assertions"] = o.Assertions
+	}
+	if !IsNil(o.Labels) {
+		toSerialize["labels"] = o.Labels
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -273,6 +310,7 @@ func (o *RulesTestCasePostBody) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "required")
 		delete(additionalProperties, "messages")
 		delete(additionalProperties, "assertions")
+		delete(additionalProperties, "labels")
 		o.AdditionalProperties = additionalProperties
 	}
 

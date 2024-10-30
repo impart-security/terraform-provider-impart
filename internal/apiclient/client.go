@@ -57,6 +57,8 @@ type APIClient struct {
 
 	EventMonitorsAPI EventMonitorsAPI
 
+	LabelsAPI LabelsAPI
+	
 	ListsAPI ListsAPI
 
 	LogBindingsAPI LogBindingsAPI
@@ -70,6 +72,7 @@ type APIClient struct {
 	RulesTestCasesAPI RulesTestCasesAPI
 
 	SpecsAPI SpecsAPI
+	TagsAPI TagsAPI
 
 	UserAPI UserAPI
 }
@@ -93,6 +96,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.ApiBindingsAPI = (*ApiBindingsAPIService)(&c.common)
 	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
 	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
+	c.LabelsAPI = (*LabelsAPIService)(&c.common)
 	c.ListsAPI = (*ListsAPIService)(&c.common)
 	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)
 	c.NotificationTemplatesAPI = (*NotificationTemplatesAPIService)(&c.common)
@@ -100,6 +104,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.RulesScriptsAPI = (*RulesScriptsAPIService)(&c.common)
 	c.RulesTestCasesAPI = (*RulesTestCasesAPIService)(&c.common)
 	c.SpecsAPI = (*SpecsAPIService)(&c.common)
+	c.TagsAPI = (*TagsAPIService)(&c.common)
 	c.UserAPI = (*UserAPIService)(&c.common)
 
 	return c

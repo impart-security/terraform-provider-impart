@@ -15,6 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
@@ -39,14 +40,15 @@ type ruleScriptResource struct {
 
 // ruleScriptResourceModel maps the resource schema data.
 type ruleScriptResourceModel struct {
-	ID             types.String `tfsdk:"id"`
-	Name           types.String `tfsdk:"name"`
-	Description    types.String `tfsdk:"description"`
-	Disabled       types.Bool   `tfsdk:"disabled"`
-	SourceFile     types.String `tfsdk:"source_file"`
-	SourceHash     types.String `tfsdk:"source_hash"`
-	Content        types.String `tfsdk:"content"`
-	BlockingEffect types.String `tfsdk:"blocking_effect"`
+	ID             types.String   `tfsdk:"id"`
+	Name           types.String   `tfsdk:"name"`
+	Description    types.String   `tfsdk:"description"`
+	Disabled       types.Bool     `tfsdk:"disabled"`
+	SourceFile     types.String   `tfsdk:"source_file"`
+	SourceHash     types.String   `tfsdk:"source_hash"`
+	Content        types.String   `tfsdk:"content"`
+	BlockingEffect types.String   `tfsdk:"blocking_effect"`
+	Labels         []types.String `tfsdk:"labels"`
 }
 
 // Configure adds the provider configured client to the resource.
@@ -113,6 +115,12 @@ func (r *ruleScriptResource) Schema(_ context.Context, _ resource.SchemaRequest,
 			"blocking_effect": schema.StringAttribute{
 				Description: "The rule blocking effect. Allowed values: block, simulate. If not set effect will be block.",
 				Validators:  []validator.String{stringvalidator.OneOf(string(openapiclient.BLOCK), string(openapiclient.SIMULATE))},
+				Optional:    true,
+			},
+
+			"labels": schema.ListAttribute{
+				Description: "The applied labels.",
+				ElementType: types.StringType,
 				Optional:    true,
 			},
 		},
@@ -201,6 +209,14 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 	rulesScriptPostBody.BlockingEffect = blockingEffect
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		rulesScriptPostBody.Labels = labels
+	}
+
 	// Create new rule
 	ruleRequest := r.client.RulesScriptsAPI.CreateRulesScript(ctx, r.client.OrgID).
 		RulesScriptPostBody(rulesScriptPostBody)
@@ -231,6 +247,8 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	if !plan.Description.IsNull() || ruleResponse.Description != "" {
 		plan.Description = types.StringValue(ruleResponse.Description)
 	}
+
+	plan.Labels = buildStateList(plan.Labels, ruleResponse.Labels)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -287,6 +305,8 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 	if !state.Description.IsNull() || ruleResponse.Description != "" {
 		newState.Description = types.StringValue(ruleResponse.Description)
 	}
+
+	newState.Labels = buildStateList(state.Labels, ruleResponse.Labels)
 
 	// track hash only if user originally set source_hash or content
 	if !state.SourceHash.IsNull() || !state.Content.IsNull() {
@@ -360,6 +380,14 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		rulesScriptPostBody.Description = &description
 	}
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		rulesScriptPostBody.Labels = labels
+	}
+
 	blockingEffectVal := string(openapiclient.BLOCK)
 	if !plan.BlockingEffect.IsNull() {
 		blockingEffectVal = plan.BlockingEffect.ValueString()
@@ -423,6 +451,8 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 
 		state.Content = types.StringValue(string(bytes))
 	}
+
+	state.Labels = buildStateList(plan.Labels, ruleResponse.Labels)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, state)
@@ -492,4 +522,39 @@ func (r *ruleScriptResource) ValidateConfig(ctx context.Context, req resource.Va
 		)
 		return
 	}
+}
+
+func buildStateList(inputList []basetypes.StringValue, responseList []string) []basetypes.StringValue {
+	// Quick check for empty lists
+	if len(inputList) == 0 && len(responseList) == 0 {
+		return inputList // return old state list so null/empty list will not generate a change
+	}
+
+	// Create a map to track items in responseList for quick lookup
+	responseMap := make(map[string]bool)
+	for _, item := range responseList {
+		responseMap[item] = true
+	}
+
+	// Start with items in inputList that are also in responseList
+	newList := []basetypes.StringValue{}
+	for _, item := range inputList {
+		value := item.ValueString()
+		if responseMap[value] {
+			newList = append(newList, item)
+		}
+	}
+
+	// Add any new items from responseList that are not in inputList
+	inputMap := make(map[string]bool)
+	for _, item := range inputList {
+		inputMap[item.ValueString()] = true
+	}
+	for _, item := range responseList {
+		if !inputMap[item] {
+			newList = append(newList, types.StringValue(item))
+		}
+	}
+
+	return newList
 }

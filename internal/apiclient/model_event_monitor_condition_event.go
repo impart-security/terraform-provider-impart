@@ -22,7 +22,7 @@ var _ MappedNullable = &EventMonitorConditionEvent{}
 // EventMonitorConditionEvent struct for EventMonitorConditionEvent
 type EventMonitorConditionEvent struct {
 	// The type that maps to which request schema we should be using.
-	Type string `json:"type"`
+	Type string `json:"type" validate:"regexp=^event$"`
 	// The action taken by what the 'actor' represents
 	Action *string `json:"action,omitempty"`
 	// ID of the entity the actor is affecting

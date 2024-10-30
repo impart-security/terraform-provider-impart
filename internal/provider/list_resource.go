@@ -47,6 +47,7 @@ type listResourceModel struct {
 	Subkind       types.String    `tfsdk:"subkind"`
 	Functionality types.String    `tfsdk:"functionality"`
 	Items         []listItemModel `tfsdk:"items"`
+	Labels        []types.String  `tfsdk:"labels"`
 }
 
 type listItemModel struct {
@@ -135,6 +136,11 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 					ReplaceWhenStartTrackingItems(),
 				},
 			},
+			"labels": schema.ListAttribute{
+				Description: "The applied labels.",
+				ElementType: types.StringType,
+				Optional:    true,
+			},
 		},
 	}
 }
@@ -200,6 +206,14 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 		postBody.Subkind = subkind
 	}
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		postBody.Labels = labels
+	}
+
 	if !plan.Functionality.IsNull() {
 		functionality, err := openapiclient.NewListFunctionalityFromValue(plan.Functionality.ValueString())
 		if err != nil {
@@ -237,13 +251,15 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 		plan.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
 
-	if plan.Items != nil && len(listResponse.Items) > 0 {
+	if len(listResponse.Items) > 0 {
 		applyListResponseToState(listResponse, &plan)
 	}
 
 	if !plan.Functionality.IsNull() {
 		plan.Functionality = types.StringValue(string(listResponse.Functionality))
 	}
+
+	plan.Labels = buildStateList(plan.Labels, listResponse.Labels)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -293,6 +309,8 @@ func (r *ListResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		state.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
 
+	state.Labels = buildStateList(state.Labels, listResponse.Labels)
+
 	// Because we cannot pull config to check here
 	// ReplaceWhenStartTrackingItems plan modifier is used to relace a list resource when items goes from null to set
 	if state.Items != nil {
@@ -338,6 +356,14 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		patchBody.Name = &name
 	}
 
+	if len(plan.Labels) > 0 {
+		labels := make([]string, len(plan.Labels))
+		for i, label := range plan.Labels {
+			labels[i] = label.ValueString()
+		}
+		patchBody.Labels = labels
+	}
+
 	diffLists(state.Items, plan.Items, &patchBody, resp)
 	if resp.Diagnostics.HasError() {
 		return
@@ -381,6 +407,8 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	if !plan.Functionality.IsNull() {
 		newState.Functionality = plan.Functionality
 	}
+
+	newState.Labels = buildStateList(plan.Labels, listResponse.Labels)
 
 	// Set the refreshed state
 	diags = resp.State.Set(ctx, newState)

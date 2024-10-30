@@ -40,6 +40,7 @@ resource "impart_list" "example" {
 
 - `functionality` (String) The list functionality. Allowed values are add, add/remove.
 - `items` (Attributes List) The list items. (see [below for nested schema](#nestedatt--items))
+- `labels` (List of String) The applied labels.
 - `subkind` (String) The list subkind.
 
 ### Read-Only

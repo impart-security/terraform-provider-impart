@@ -75,14 +75,16 @@ type ruleTestCaseModel struct {
 	Required    types.Bool       `tfsdk:"required"`
 	Messages    []messageModel   `tfsdk:"messages"`
 	Assertions  []assertionModel `tfsdk:"assertions"`
+	Labels      []types.String   `tfsdk:"labels"`
 }
 
 type messageModel struct {
-	Req       reqModel    `tfsdk:"req"`
-	Res       resModel    `tfsdk:"res"`
-	Count     types.Int32 `tfsdk:"count"`
-	Delay     types.Int32 `tfsdk:"delay"`
-	PostDelay types.Int32 `tfsdk:"post_delay"`
+	Req         reqModel     `tfsdk:"req"`
+	Res         resModel     `tfsdk:"res"`
+	Count       types.Int32  `tfsdk:"count"`
+	Delay       types.Int32  `tfsdk:"delay"`
+	PostDelay   types.Int32  `tfsdk:"post_delay"`
+	Description types.String `tfsdk:"description"`
 }
 
 type reqModel struct {
@@ -111,6 +113,7 @@ type assertionModel struct {
 	Location       types.String  `tfsdk:"location"`
 	Condition      types.String  `tfsdk:"condition"`
 	Expected       types.String  `tfsdk:"expected"`
+	Description    types.String  `tfsdk:"description"`
 }
 
 func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -135,6 +138,13 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Description: "Sets if test case required to pass on update.",
 				Optional:    true,
 			},
+
+			"labels": schema.ListAttribute{
+				Description: "The applied labels.",
+				ElementType: types.StringType,
+				Optional:    true,
+			},
+
 			"messages": schema.ListNestedAttribute{
 				Description: "The messages of the test case.",
 				Required:    true,
@@ -259,6 +269,10 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 								int32validator.AtLeast(0),
 							},
 						},
+						"description": schema.StringAttribute{
+							Description: "The description of the test case message.",
+							Optional:    true,
+						},
 					},
 				},
 			},
@@ -282,6 +296,10 @@ func (r ruleTestcaseResource) Schema(_ context.Context, _ resource.SchemaRequest
 								string(AssertionTypeStatusCode),
 								string(AssertionTypeTags),
 								string(AssertionTypeBlock))},
+						},
+						"description": schema.StringAttribute{
+							Description: "The description of the assertion.",
+							Optional:    true,
 						},
 						"location": schema.StringAttribute{
 							Description: "The location of the assertion. Allowed values: req, res. Not applicable for assertion type output.",
@@ -445,7 +463,7 @@ func (r ruleTestcaseResource) Update(ctx context.Context, req resource.UpdateReq
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to create the rule test case",
+			"Unable to update the rule test case",
 			message,
 		)
 		return
@@ -531,6 +549,13 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 		postBody.Required = &required
 	}
 
+	if len(plan.Labels) > 0 {
+		postBody.Labels = make([]string, 0, len(plan.Labels))
+		for _, label := range plan.Labels {
+			postBody.Labels = append(postBody.Labels, label.ValueString())
+		}
+	}
+
 	if len(plan.Messages) == 0 {
 		return postBody, nil
 	}
@@ -547,6 +572,11 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 			Count:     message.Count.ValueInt32(),
 			Delay:     message.Delay.ValueInt32(),
 			PostDelay: message.PostDelay.ValueInt32(),
+		}
+
+		if !message.Description.IsNull() {
+			description := message.Description.ValueString()
+			rtMessage.Description = &description
 		}
 
 		if !message.Req.TruncatedBody.IsNull() {
@@ -629,6 +659,10 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 					Expected:       assertion.Expected.ValueString() == "true",
 				},
 			}
+			if !assertion.Description.IsNull() {
+				description := assertion.Description.ValueString()
+				a.RulesTestCaseAssertionBlock.Description = &description
+			}
 		} else if assertion.AssertionType.ValueString() == string(AssertionTypeOutput) {
 			condition, err := openapiclient.NewRulesTestCaseAssertionConditionPresenceFromValue(assertion.Condition.ValueString())
 			if err != nil {
@@ -642,6 +676,10 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 					Condition:      *condition,
 					Expected:       assertion.Expected.ValueString(),
 				},
+			}
+			if !assertion.Description.IsNull() {
+				description := assertion.Description.ValueString()
+				a.RulesTestCaseAssertionOutput.Description = &description
 			}
 		} else if assertion.AssertionType.ValueString() == string(AssertionTypeStatusCode) {
 			stringValues := strings.Split(assertion.Expected.ValueString(), ",")
@@ -668,6 +706,10 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 					Expected:       intValues,
 				},
 			}
+			if !assertion.Description.IsNull() {
+				description := assertion.Description.ValueString()
+				a.RulesTestCaseAssertionStatusCode.Description = &description
+			}
 		} else if assertion.AssertionType.ValueString() == string(AssertionTypeTags) {
 			condition, err := openapiclient.NewRulesTestCaseAssertionConditionPresenceFromValue(assertion.Condition.ValueString())
 			if err != nil {
@@ -682,6 +724,10 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 					Condition:      *condition,
 					Expected:       assertion.Expected.ValueString(),
 				},
+			}
+			if !assertion.Description.IsNull() {
+				description := assertion.Description.ValueString()
+				a.RulesTestCaseAssertionTags.Description = &description
 			}
 		}
 
@@ -724,6 +770,9 @@ func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan
 				HeaderKeys:   fromArray(message.Res.HeaderKeys),
 				HeaderValues: fromArray(message.Res.HeaderValues),
 			},
+		}
+		if message.Description != nil {
+			messageModel.Description = types.StringValue(*message.Description)
 		}
 
 		if message.Req.Body != nil {
@@ -769,12 +818,18 @@ func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan
 				Location:       types.StringValue(assertion.RulesTestCaseAssertionBlock.Location),
 				Expected:       types.StringValue(fmt.Sprintf("%t", assertion.RulesTestCaseAssertionBlock.Expected)),
 			}
+			if assertion.RulesTestCaseAssertionBlock.Description != nil {
+				aModel.Description = types.StringValue(*assertion.RulesTestCaseAssertionBlock.Description)
+			}
 		} else if assertion.RulesTestCaseAssertionOutput != nil {
 			aModel = assertionModel{
 				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionOutput.MessageIndexes),
 				AssertionType:  types.StringValue(assertion.RulesTestCaseAssertionOutput.AssertionType),
 				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionOutput.Condition)),
 				Expected:       types.StringValue(assertion.RulesTestCaseAssertionOutput.Expected),
+			}
+			if assertion.RulesTestCaseAssertionOutput.Description != nil {
+				aModel.Description = types.StringValue(*assertion.RulesTestCaseAssertionOutput.Description)
 			}
 		} else if assertion.RulesTestCaseAssertionStatusCode != nil {
 			aModel = assertionModel{
@@ -784,6 +839,9 @@ func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan
 				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionStatusCode.Condition)),
 				Expected:       types.StringValue(strings.Trim(strings.Join(strings.Fields(fmt.Sprint(assertion.RulesTestCaseAssertionStatusCode.Expected)), ","), "[]")), // convert []int32 to comma separated string
 			}
+			if assertion.RulesTestCaseAssertionStatusCode.Description != nil {
+				aModel.Description = types.StringValue(*assertion.RulesTestCaseAssertionStatusCode.Description)
+			}
 		} else if assertion.RulesTestCaseAssertionTags != nil {
 			aModel = assertionModel{
 				MessageIndexes: fromInt32Array(assertion.RulesTestCaseAssertionTags.MessageIndexes),
@@ -792,10 +850,15 @@ func toRuleTestCaseModel(ruleTestCaseResponse *openapiclient.RulesTestCase, plan
 				Condition:      types.StringValue(string(assertion.RulesTestCaseAssertionTags.Condition)),
 				Expected:       types.StringValue(assertion.RulesTestCaseAssertionTags.Expected),
 			}
+			if assertion.RulesTestCaseAssertionTags.Description != nil {
+				aModel.Description = types.StringValue(*assertion.RulesTestCaseAssertionTags.Description)
+			}
 		}
 
 		testCaseModel.Assertions = append(testCaseModel.Assertions, aModel)
 	}
+
+	testCaseModel.Labels = buildStateList(plan.Labels, ruleTestCaseResponse.Labels)
 
 	return testCaseModel
 }

@@ -80,7 +80,7 @@ resource "impart_rule_script" "example" {
 Run the following command to build & install the provider
 
 ```shell
-make
+make install
 ```
 
 ### Test provider

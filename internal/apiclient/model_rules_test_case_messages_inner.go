@@ -28,7 +28,9 @@ type RulesTestCaseMessagesInner struct {
 	// The delay in milliseconds between message iterations.
 	Delay int32 `json:"delay"`
 	// The delay in milliseconds after a set of message iterations.
-	PostDelay            int32 `json:"post_delay"`
+	PostDelay int32 `json:"post_delay"`
+	// The description of the test case message.
+	Description          *string `json:"description,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -182,6 +184,38 @@ func (o *RulesTestCaseMessagesInner) SetPostDelay(v int32) {
 	o.PostDelay = v
 }
 
+// GetDescription returns the Description field value if set, zero value otherwise.
+func (o *RulesTestCaseMessagesInner) GetDescription() string {
+	if o == nil || IsNil(o.Description) {
+		var ret string
+		return ret
+	}
+	return *o.Description
+}
+
+// GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RulesTestCaseMessagesInner) GetDescriptionOk() (*string, bool) {
+	if o == nil || IsNil(o.Description) {
+		return nil, false
+	}
+	return o.Description, true
+}
+
+// HasDescription returns a boolean if a field has been set.
+func (o *RulesTestCaseMessagesInner) HasDescription() bool {
+	if o != nil && !IsNil(o.Description) {
+		return true
+	}
+
+	return false
+}
+
+// SetDescription gets a reference to the given string and assigns it to the Description field.
+func (o *RulesTestCaseMessagesInner) SetDescription(v string) {
+	o.Description = &v
+}
+
 func (o RulesTestCaseMessagesInner) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -197,6 +231,9 @@ func (o RulesTestCaseMessagesInner) ToMap() (map[string]interface{}, error) {
 	toSerialize["count"] = o.Count
 	toSerialize["delay"] = o.Delay
 	toSerialize["post_delay"] = o.PostDelay
+	if !IsNil(o.Description) {
+		toSerialize["description"] = o.Description
+	}
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -249,6 +286,7 @@ func (o *RulesTestCaseMessagesInner) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "count")
 		delete(additionalProperties, "delay")
 		delete(additionalProperties, "post_delay")
+		delete(additionalProperties, "description")
 		o.AdditionalProperties = additionalProperties
 	}
 

@@ -27,7 +27,9 @@ type RulesTestCaseAssertionBlock struct {
 	// The location of the assertion.
 	Location string `json:"location"`
 	// The expected value of the assertion.
-	Expected             bool `json:"expected"`
+	Expected bool `json:"expected"`
+	// The description of the test case assertion.
+	Description          *string `json:"description,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -150,6 +152,38 @@ func (o *RulesTestCaseAssertionBlock) SetExpected(v bool) {
 	o.Expected = v
 }
 
+// GetDescription returns the Description field value if set, zero value otherwise.
+func (o *RulesTestCaseAssertionBlock) GetDescription() string {
+	if o == nil || IsNil(o.Description) {
+		var ret string
+		return ret
+	}
+	return *o.Description
+}
+
+// GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *RulesTestCaseAssertionBlock) GetDescriptionOk() (*string, bool) {
+	if o == nil || IsNil(o.Description) {
+		return nil, false
+	}
+	return o.Description, true
+}
+
+// HasDescription returns a boolean if a field has been set.
+func (o *RulesTestCaseAssertionBlock) HasDescription() bool {
+	if o != nil && !IsNil(o.Description) {
+		return true
+	}
+
+	return false
+}
+
+// SetDescription gets a reference to the given string and assigns it to the Description field.
+func (o *RulesTestCaseAssertionBlock) SetDescription(v string) {
+	o.Description = &v
+}
+
 func (o RulesTestCaseAssertionBlock) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -164,6 +198,9 @@ func (o RulesTestCaseAssertionBlock) ToMap() (map[string]interface{}, error) {
 	toSerialize["assertion_type"] = o.AssertionType
 	toSerialize["location"] = o.Location
 	toSerialize["expected"] = o.Expected
+	if !IsNil(o.Description) {
+		toSerialize["description"] = o.Description
+	}
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -214,6 +251,7 @@ func (o *RulesTestCaseAssertionBlock) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "assertion_type")
 		delete(additionalProperties, "location")
 		delete(additionalProperties, "expected")
+		delete(additionalProperties, "description")
 		o.AdditionalProperties = additionalProperties
 	}
 

@@ -548,8 +548,15 @@ type ApiGetEventMonitorsRequest struct {
 	ctx        context.Context
 	ApiService EventMonitorsAPI
 	orgId      string
+	label      *[]string
 	page       *int32
 	maxResults *int32
+}
+
+// Label slug
+func (r ApiGetEventMonitorsRequest) Label(label []string) ApiGetEventMonitorsRequest {
+	r.label = &label
+	return r
 }
 
 // The page of results to return
@@ -611,6 +618,9 @@ func (a *EventMonitorsAPIService) GetEventMonitorsExecute(r ApiGetEventMonitorsR
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
 
+	if r.label != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "label", r.label, "", "csv")
+	}
 	if r.page != nil {
 		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "", "")
 	} else {

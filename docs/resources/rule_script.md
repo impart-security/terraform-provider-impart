@@ -46,6 +46,7 @@ resource "impart_rule_script" "example_content" {
 - `blocking_effect` (String) The rule blocking effect. Allowed values: block, simulate. If not set effect will be block.
 - `content` (String) The rule body content.
 - `description` (String) The description for this rule script.
+- `labels` (List of String) The applied labels.
 - `source_file` (String) The rule source file.
 - `source_hash` (String) The rule source hash.
 

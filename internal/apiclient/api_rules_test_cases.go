@@ -561,6 +561,7 @@ type ApiGetRulesTestCasesRequest struct {
 	orgId      string
 	page       *int32
 	maxResults *int32
+	label      *[]string
 }
 
 // The page of results to return
@@ -572,6 +573,12 @@ func (r ApiGetRulesTestCasesRequest) Page(page int32) ApiGetRulesTestCasesReques
 // The max number of results to return
 func (r ApiGetRulesTestCasesRequest) MaxResults(maxResults int32) ApiGetRulesTestCasesRequest {
 	r.maxResults = &maxResults
+	return r
+}
+
+// Label slug
+func (r ApiGetRulesTestCasesRequest) Label(label []string) ApiGetRulesTestCasesRequest {
+	r.label = &label
 	return r
 }
 
@@ -633,6 +640,9 @@ func (a *RulesTestCasesAPIService) GetRulesTestCasesExecute(r ApiGetRulesTestCas
 	} else {
 		var defaultValue int32 = 100
 		r.maxResults = &defaultValue
+	}
+	if r.label != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "label", r.label, "", "csv")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

@@ -26,6 +26,8 @@ type List struct {
 	Id string `json:"id"`
 	// The name of the list.
 	Name string `json:"name"`
+	// The applied labels.
+	Labels []string `json:"labels"`
 	// User ID of the user that created the list.
 	CreatedBy string `json:"created_by"`
 	// The date the list was created.
@@ -44,10 +46,11 @@ type _List List
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewList(id string, name string, createdBy string, createdAt time.Time, kind ListKind, functionality ListFunctionality, items []ListItemsInner) *List {
+func NewList(id string, name string, labels []string, createdBy string, createdAt time.Time, kind ListKind, functionality ListFunctionality, items []ListItemsInner) *List {
 	this := List{}
 	this.Id = id
 	this.Name = name
+	this.Labels = labels
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.Kind = kind
@@ -112,6 +115,30 @@ func (o *List) GetNameOk() (*string, bool) {
 // SetName sets field value
 func (o *List) SetName(v string) {
 	o.Name = v
+}
+
+// GetLabels returns the Labels field value
+func (o *List) GetLabels() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.Labels
+}
+
+// GetLabelsOk returns a tuple with the Labels field value
+// and a boolean to check if the value has been set.
+func (o *List) GetLabelsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Labels, true
+}
+
+// SetLabels sets field value
+func (o *List) SetLabels(v []string) {
+	o.Labels = v
 }
 
 // GetCreatedBy returns the CreatedBy field value
@@ -278,6 +305,7 @@ func (o List) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["id"] = o.Id
 	toSerialize["name"] = o.Name
+	toSerialize["labels"] = o.Labels
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
 	toSerialize["kind"] = o.Kind
@@ -301,6 +329,7 @@ func (o *List) UnmarshalJSON(data []byte) (err error) {
 	requiredProperties := []string{
 		"id",
 		"name",
+		"labels",
 		"created_by",
 		"created_at",
 		"kind",
@@ -337,6 +366,7 @@ func (o *List) UnmarshalJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "id")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "labels")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "kind")

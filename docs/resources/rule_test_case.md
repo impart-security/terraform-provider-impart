@@ -79,6 +79,7 @@ resource "impart_rule_test_case" "example" {
 
 - `assertions` (Attributes List) The assertions of the test case. (see [below for nested schema](#nestedatt--assertions))
 - `description` (String) The description of the test case.
+- `labels` (List of String) The applied labels.
 - `required` (Boolean) Sets if test case required to pass on update.
 
 ### Read-Only
@@ -97,6 +98,7 @@ Optional:
 
 - `count` (Number) The number of times to include the message in the test case.
 - `delay` (Number) The delay in milliseconds between message iterations.
+- `description` (String) The description of the test case message.
 - `post_delay` (Number) The delay in milliseconds after a set of message iterations.
 
 <a id="nestedatt--messages--req"></a>
@@ -156,4 +158,5 @@ Accepted values per assertion type:
 **tags**: contains, not_contains.
 **status_code**: equal, not_equal, greater_than, less_than, one_of.
 **block**: N/A
+- `description` (String) The description of the assertion.
 - `location` (String) The location of the assertion. Allowed values: req, res. Not applicable for assertion type output.

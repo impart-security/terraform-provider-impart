@@ -17,23 +17,25 @@ import (
 	"time"
 )
 
-// checks if the RulesTestCase type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &RulesTestCase{}
+// checks if the Tag type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &Tag{}
 
-// RulesTestCase struct for RulesTestCase
-type RulesTestCase struct {
-	// The unique identifier of the test case.
-	Id string `json:"id"`
-	// The name of the test case.
+// Tag struct for Tag
+type Tag struct {
+	// The tag name.
 	Name string `json:"name"`
-	// The description of the test case.
+	// A formatted version of the tag name.
+	DisplayName string `json:"display_name"`
+	Type        string `json:"type"`
+	// A description of the tag.
 	Description string `json:"description"`
-	// Whether the test case is required to pass when creating or updating rules.
-	Required bool `json:"required"`
-	// The messages of the test case.
-	Messages []RulesTestCaseMessagesInner `json:"messages"`
-	// Assertions for the test case.
-	Assertions []RulesTestCaseAssertion `json:"assertions"`
+	// A risk statement for the tag.
+	RiskStatement string           `json:"risk_statement"`
+	Remediations  []TagRemediation `json:"remediations"`
+	// An external URL for the tag.
+	ExternalUrl string `json:"external_url"`
+	// The category of the tag.
+	Category string `json:"category"`
 	// The applied labels.
 	Labels []string `json:"labels"`
 	// The unique identifier of the user who created the test case.
@@ -47,20 +49,22 @@ type RulesTestCase struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _RulesTestCase RulesTestCase
+type _Tag Tag
 
-// NewRulesTestCase instantiates a new RulesTestCase object
+// NewTag instantiates a new Tag object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewRulesTestCase(id string, name string, description string, required bool, messages []RulesTestCaseMessagesInner, assertions []RulesTestCaseAssertion, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *RulesTestCase {
-	this := RulesTestCase{}
-	this.Id = id
+func NewTag(name string, displayName string, type_ string, description string, riskStatement string, remediations []TagRemediation, externalUrl string, category string, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *Tag {
+	this := Tag{}
 	this.Name = name
+	this.DisplayName = displayName
+	this.Type = type_
 	this.Description = description
-	this.Required = required
-	this.Messages = messages
-	this.Assertions = assertions
+	this.RiskStatement = riskStatement
+	this.Remediations = remediations
+	this.ExternalUrl = externalUrl
+	this.Category = category
 	this.Labels = labels
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
@@ -69,42 +73,16 @@ func NewRulesTestCase(id string, name string, description string, required bool,
 	return &this
 }
 
-// NewRulesTestCaseWithDefaults instantiates a new RulesTestCase object
+// NewTagWithDefaults instantiates a new Tag object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewRulesTestCaseWithDefaults() *RulesTestCase {
-	this := RulesTestCase{}
-	var required bool = false
-	this.Required = required
+func NewTagWithDefaults() *Tag {
+	this := Tag{}
 	return &this
 }
 
-// GetId returns the Id field value
-func (o *RulesTestCase) GetId() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Id
-}
-
-// GetIdOk returns a tuple with the Id field value
-// and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetIdOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Id, true
-}
-
-// SetId sets field value
-func (o *RulesTestCase) SetId(v string) {
-	o.Id = v
-}
-
 // GetName returns the Name field value
-func (o *RulesTestCase) GetName() string {
+func (o *Tag) GetName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -115,7 +93,7 @@ func (o *RulesTestCase) GetName() string {
 
 // GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetNameOk() (*string, bool) {
+func (o *Tag) GetNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -123,12 +101,60 @@ func (o *RulesTestCase) GetNameOk() (*string, bool) {
 }
 
 // SetName sets field value
-func (o *RulesTestCase) SetName(v string) {
+func (o *Tag) SetName(v string) {
 	o.Name = v
 }
 
+// GetDisplayName returns the DisplayName field value
+func (o *Tag) GetDisplayName() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.DisplayName
+}
+
+// GetDisplayNameOk returns a tuple with the DisplayName field value
+// and a boolean to check if the value has been set.
+func (o *Tag) GetDisplayNameOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.DisplayName, true
+}
+
+// SetDisplayName sets field value
+func (o *Tag) SetDisplayName(v string) {
+	o.DisplayName = v
+}
+
+// GetType returns the Type field value
+func (o *Tag) GetType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Type
+}
+
+// GetTypeOk returns a tuple with the Type field value
+// and a boolean to check if the value has been set.
+func (o *Tag) GetTypeOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Type, true
+}
+
+// SetType sets field value
+func (o *Tag) SetType(v string) {
+	o.Type = v
+}
+
 // GetDescription returns the Description field value
-func (o *RulesTestCase) GetDescription() string {
+func (o *Tag) GetDescription() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -139,7 +165,7 @@ func (o *RulesTestCase) GetDescription() string {
 
 // GetDescriptionOk returns a tuple with the Description field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetDescriptionOk() (*string, bool) {
+func (o *Tag) GetDescriptionOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -147,84 +173,108 @@ func (o *RulesTestCase) GetDescriptionOk() (*string, bool) {
 }
 
 // SetDescription sets field value
-func (o *RulesTestCase) SetDescription(v string) {
+func (o *Tag) SetDescription(v string) {
 	o.Description = v
 }
 
-// GetRequired returns the Required field value
-func (o *RulesTestCase) GetRequired() bool {
+// GetRiskStatement returns the RiskStatement field value
+func (o *Tag) GetRiskStatement() string {
 	if o == nil {
-		var ret bool
+		var ret string
 		return ret
 	}
 
-	return o.Required
+	return o.RiskStatement
 }
 
-// GetRequiredOk returns a tuple with the Required field value
+// GetRiskStatementOk returns a tuple with the RiskStatement field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetRequiredOk() (*bool, bool) {
+func (o *Tag) GetRiskStatementOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return &o.Required, true
+	return &o.RiskStatement, true
 }
 
-// SetRequired sets field value
-func (o *RulesTestCase) SetRequired(v bool) {
-	o.Required = v
+// SetRiskStatement sets field value
+func (o *Tag) SetRiskStatement(v string) {
+	o.RiskStatement = v
 }
 
-// GetMessages returns the Messages field value
-func (o *RulesTestCase) GetMessages() []RulesTestCaseMessagesInner {
+// GetRemediations returns the Remediations field value
+func (o *Tag) GetRemediations() []TagRemediation {
 	if o == nil {
-		var ret []RulesTestCaseMessagesInner
+		var ret []TagRemediation
 		return ret
 	}
 
-	return o.Messages
+	return o.Remediations
 }
 
-// GetMessagesOk returns a tuple with the Messages field value
+// GetRemediationsOk returns a tuple with the Remediations field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetMessagesOk() ([]RulesTestCaseMessagesInner, bool) {
+func (o *Tag) GetRemediationsOk() ([]TagRemediation, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return o.Messages, true
+	return o.Remediations, true
 }
 
-// SetMessages sets field value
-func (o *RulesTestCase) SetMessages(v []RulesTestCaseMessagesInner) {
-	o.Messages = v
+// SetRemediations sets field value
+func (o *Tag) SetRemediations(v []TagRemediation) {
+	o.Remediations = v
 }
 
-// GetAssertions returns the Assertions field value
-func (o *RulesTestCase) GetAssertions() []RulesTestCaseAssertion {
+// GetExternalUrl returns the ExternalUrl field value
+func (o *Tag) GetExternalUrl() string {
 	if o == nil {
-		var ret []RulesTestCaseAssertion
+		var ret string
 		return ret
 	}
 
-	return o.Assertions
+	return o.ExternalUrl
 }
 
-// GetAssertionsOk returns a tuple with the Assertions field value
+// GetExternalUrlOk returns a tuple with the ExternalUrl field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetAssertionsOk() ([]RulesTestCaseAssertion, bool) {
+func (o *Tag) GetExternalUrlOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
-	return o.Assertions, true
+	return &o.ExternalUrl, true
 }
 
-// SetAssertions sets field value
-func (o *RulesTestCase) SetAssertions(v []RulesTestCaseAssertion) {
-	o.Assertions = v
+// SetExternalUrl sets field value
+func (o *Tag) SetExternalUrl(v string) {
+	o.ExternalUrl = v
+}
+
+// GetCategory returns the Category field value
+func (o *Tag) GetCategory() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.Category
+}
+
+// GetCategoryOk returns a tuple with the Category field value
+// and a boolean to check if the value has been set.
+func (o *Tag) GetCategoryOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.Category, true
+}
+
+// SetCategory sets field value
+func (o *Tag) SetCategory(v string) {
+	o.Category = v
 }
 
 // GetLabels returns the Labels field value
-func (o *RulesTestCase) GetLabels() []string {
+func (o *Tag) GetLabels() []string {
 	if o == nil {
 		var ret []string
 		return ret
@@ -235,7 +285,7 @@ func (o *RulesTestCase) GetLabels() []string {
 
 // GetLabelsOk returns a tuple with the Labels field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetLabelsOk() ([]string, bool) {
+func (o *Tag) GetLabelsOk() ([]string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -243,12 +293,12 @@ func (o *RulesTestCase) GetLabelsOk() ([]string, bool) {
 }
 
 // SetLabels sets field value
-func (o *RulesTestCase) SetLabels(v []string) {
+func (o *Tag) SetLabels(v []string) {
 	o.Labels = v
 }
 
 // GetCreatedBy returns the CreatedBy field value
-func (o *RulesTestCase) GetCreatedBy() string {
+func (o *Tag) GetCreatedBy() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -259,7 +309,7 @@ func (o *RulesTestCase) GetCreatedBy() string {
 
 // GetCreatedByOk returns a tuple with the CreatedBy field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetCreatedByOk() (*string, bool) {
+func (o *Tag) GetCreatedByOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -267,12 +317,12 @@ func (o *RulesTestCase) GetCreatedByOk() (*string, bool) {
 }
 
 // SetCreatedBy sets field value
-func (o *RulesTestCase) SetCreatedBy(v string) {
+func (o *Tag) SetCreatedBy(v string) {
 	o.CreatedBy = v
 }
 
 // GetCreatedAt returns the CreatedAt field value
-func (o *RulesTestCase) GetCreatedAt() time.Time {
+func (o *Tag) GetCreatedAt() time.Time {
 	if o == nil {
 		var ret time.Time
 		return ret
@@ -283,7 +333,7 @@ func (o *RulesTestCase) GetCreatedAt() time.Time {
 
 // GetCreatedAtOk returns a tuple with the CreatedAt field value
 // and a boolean to check if the value has been set.
-func (o *RulesTestCase) GetCreatedAtOk() (*time.Time, bool) {
+func (o *Tag) GetCreatedAtOk() (*time.Time, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -291,13 +341,13 @@ func (o *RulesTestCase) GetCreatedAtOk() (*time.Time, bool) {
 }
 
 // SetCreatedAt sets field value
-func (o *RulesTestCase) SetCreatedAt(v time.Time) {
+func (o *Tag) SetCreatedAt(v time.Time) {
 	o.CreatedAt = v
 }
 
 // GetUpdatedBy returns the UpdatedBy field value
 // If the value is explicit nil, the zero value for string will be returned
-func (o *RulesTestCase) GetUpdatedBy() string {
+func (o *Tag) GetUpdatedBy() string {
 	if o == nil || o.UpdatedBy.Get() == nil {
 		var ret string
 		return ret
@@ -309,7 +359,7 @@ func (o *RulesTestCase) GetUpdatedBy() string {
 // GetUpdatedByOk returns a tuple with the UpdatedBy field value
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *RulesTestCase) GetUpdatedByOk() (*string, bool) {
+func (o *Tag) GetUpdatedByOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -317,13 +367,13 @@ func (o *RulesTestCase) GetUpdatedByOk() (*string, bool) {
 }
 
 // SetUpdatedBy sets field value
-func (o *RulesTestCase) SetUpdatedBy(v string) {
+func (o *Tag) SetUpdatedBy(v string) {
 	o.UpdatedBy.Set(&v)
 }
 
 // GetUpdatedAt returns the UpdatedAt field value
 // If the value is explicit nil, the zero value for time.Time will be returned
-func (o *RulesTestCase) GetUpdatedAt() time.Time {
+func (o *Tag) GetUpdatedAt() time.Time {
 	if o == nil || o.UpdatedAt.Get() == nil {
 		var ret time.Time
 		return ret
@@ -335,7 +385,7 @@ func (o *RulesTestCase) GetUpdatedAt() time.Time {
 // GetUpdatedAtOk returns a tuple with the UpdatedAt field value
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *RulesTestCase) GetUpdatedAtOk() (*time.Time, bool) {
+func (o *Tag) GetUpdatedAtOk() (*time.Time, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -343,11 +393,11 @@ func (o *RulesTestCase) GetUpdatedAtOk() (*time.Time, bool) {
 }
 
 // SetUpdatedAt sets field value
-func (o *RulesTestCase) SetUpdatedAt(v time.Time) {
+func (o *Tag) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
 
-func (o RulesTestCase) MarshalJSON() ([]byte, error) {
+func (o Tag) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -355,14 +405,16 @@ func (o RulesTestCase) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o RulesTestCase) ToMap() (map[string]interface{}, error) {
+func (o Tag) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["id"] = o.Id
 	toSerialize["name"] = o.Name
+	toSerialize["display_name"] = o.DisplayName
+	toSerialize["type"] = o.Type
 	toSerialize["description"] = o.Description
-	toSerialize["required"] = o.Required
-	toSerialize["messages"] = o.Messages
-	toSerialize["assertions"] = o.Assertions
+	toSerialize["risk_statement"] = o.RiskStatement
+	toSerialize["remediations"] = o.Remediations
+	toSerialize["external_url"] = o.ExternalUrl
+	toSerialize["category"] = o.Category
 	toSerialize["labels"] = o.Labels
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
@@ -376,17 +428,19 @@ func (o RulesTestCase) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *RulesTestCase) UnmarshalJSON(data []byte) (err error) {
+func (o *Tag) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
-		"id",
 		"name",
+		"display_name",
+		"type",
 		"description",
-		"required",
-		"messages",
-		"assertions",
+		"risk_statement",
+		"remediations",
+		"external_url",
+		"category",
 		"labels",
 		"created_by",
 		"created_at",
@@ -408,25 +462,27 @@ func (o *RulesTestCase) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 
-	varRulesTestCase := _RulesTestCase{}
+	varTag := _Tag{}
 
-	err = json.Unmarshal(data, &varRulesTestCase)
+	err = json.Unmarshal(data, &varTag)
 
 	if err != nil {
 		return err
 	}
 
-	*o = RulesTestCase(varRulesTestCase)
+	*o = Tag(varTag)
 
 	additionalProperties := make(map[string]interface{})
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
-		delete(additionalProperties, "id")
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "display_name")
+		delete(additionalProperties, "type")
 		delete(additionalProperties, "description")
-		delete(additionalProperties, "required")
-		delete(additionalProperties, "messages")
-		delete(additionalProperties, "assertions")
+		delete(additionalProperties, "risk_statement")
+		delete(additionalProperties, "remediations")
+		delete(additionalProperties, "external_url")
+		delete(additionalProperties, "category")
 		delete(additionalProperties, "labels")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
@@ -438,38 +494,38 @@ func (o *RulesTestCase) UnmarshalJSON(data []byte) (err error) {
 	return err
 }
 
-type NullableRulesTestCase struct {
-	value *RulesTestCase
+type NullableTag struct {
+	value *Tag
 	isSet bool
 }
 
-func (v NullableRulesTestCase) Get() *RulesTestCase {
+func (v NullableTag) Get() *Tag {
 	return v.value
 }
 
-func (v *NullableRulesTestCase) Set(val *RulesTestCase) {
+func (v *NullableTag) Set(val *Tag) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableRulesTestCase) IsSet() bool {
+func (v NullableTag) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableRulesTestCase) Unset() {
+func (v *NullableTag) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableRulesTestCase(val *RulesTestCase) *NullableRulesTestCase {
-	return &NullableRulesTestCase{value: val, isSet: true}
+func NewNullableTag(val *Tag) *NullableTag {
+	return &NullableTag{value: val, isSet: true}
 }
 
-func (v NullableRulesTestCase) MarshalJSON() ([]byte, error) {
+func (v NullableTag) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableRulesTestCase) UnmarshalJSON(src []byte) error {
+func (v *NullableTag) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

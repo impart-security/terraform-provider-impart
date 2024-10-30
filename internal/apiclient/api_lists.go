@@ -715,6 +715,7 @@ type ApiGetListsRequest struct {
 	kind       *string
 	subkind    *string
 	maxResults *int32
+	label      *[]string
 }
 
 // The page of results to return
@@ -738,6 +739,12 @@ func (r ApiGetListsRequest) Subkind(subkind string) ApiGetListsRequest {
 // The max number of results to return
 func (r ApiGetListsRequest) MaxResults(maxResults int32) ApiGetListsRequest {
 	r.maxResults = &maxResults
+	return r
+}
+
+// Label slug
+func (r ApiGetListsRequest) Label(label []string) ApiGetListsRequest {
+	r.label = &label
 	return r
 }
 
@@ -805,6 +812,9 @@ func (a *ListsAPIService) GetListsExecute(r ApiGetListsRequest) (*Lists, *http.R
 	} else {
 		var defaultValue int32 = 100
 		r.maxResults = &defaultValue
+	}
+	if r.label != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "label", r.label, "", "csv")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

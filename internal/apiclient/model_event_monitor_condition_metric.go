@@ -22,7 +22,7 @@ var _ MappedNullable = &EventMonitorConditionMetric{}
 // EventMonitorConditionMetric struct for EventMonitorConditionMetric
 type EventMonitorConditionMetric struct {
 	// The type that maps to which request schema we should be using.
-	Type string `json:"type"`
+	Type string `json:"type" validate:"regexp=^metric$"`
 	// The tag this condition operates on.
 	Tag *string `json:"tag,omitempty"`
 	// The spec IDs to filter for.

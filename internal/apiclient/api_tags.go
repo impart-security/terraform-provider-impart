@@ -20,117 +20,117 @@ import (
 	"strings"
 )
 
-type RulesScriptsAPI interface {
+type TagsAPI interface {
 
 	/*
-		CreateRulesScript Create a new rules script
+		CreateTag Create a tag
 
-		Creates a new rules script for an organization.
+		Creates a tag for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@return ApiCreateRulesScriptRequest
+		@return ApiCreateTagRequest
 	*/
-	CreateRulesScript(ctx context.Context, orgId string) ApiCreateRulesScriptRequest
+	CreateTag(ctx context.Context, orgId string) ApiCreateTagRequest
 
-	// CreateRulesScriptExecute executes the request
-	//  @return RulesScript
-	CreateRulesScriptExecute(r ApiCreateRulesScriptRequest) (*RulesScript, *http.Response, error)
+	// CreateTagExecute executes the request
+	//  @return Tag
+	CreateTagExecute(r ApiCreateTagRequest) (*Tag, *http.Response, error)
 
 	/*
-		DeleteRulesScript Delete a rules script
+		DeleteTag Delete a tag
 
-		Deletes a rules script for an organization.
+		Deletes a tag from an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param rulesScriptId Rules script ID
-		@return ApiDeleteRulesScriptRequest
+		@param tagName Tag name
+		@return ApiDeleteTagRequest
 	*/
-	DeleteRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiDeleteRulesScriptRequest
+	DeleteTag(ctx context.Context, orgId string, tagName string) ApiDeleteTagRequest
 
-	// DeleteRulesScriptExecute executes the request
-	DeleteRulesScriptExecute(r ApiDeleteRulesScriptRequest) (*http.Response, error)
+	// DeleteTagExecute executes the request
+	DeleteTagExecute(r ApiDeleteTagRequest) (*http.Response, error)
 
 	/*
-		GetRulesScript Get a rules script
+		GetTag Get a tag
 
-		Gets a rules script for an organization.
+		Gets a tag for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param rulesScriptId Rules script ID
-		@return ApiGetRulesScriptRequest
+		@param tagName Tag name
+		@return ApiGetTagRequest
 	*/
-	GetRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiGetRulesScriptRequest
+	GetTag(ctx context.Context, orgId string, tagName string) ApiGetTagRequest
 
-	// GetRulesScriptExecute executes the request
-	//  @return RulesScript
-	GetRulesScriptExecute(r ApiGetRulesScriptRequest) (*RulesScript, *http.Response, error)
+	// GetTagExecute executes the request
+	//  @return Tag
+	GetTagExecute(r ApiGetTagRequest) (*Tag, *http.Response, error)
 
 	/*
-		GetRulesScripts Get rules scripts
+		GetTags Get tags
 
-		Gets a list of rules scripts for an organization.
+		Gets a list of tags for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@return ApiGetRulesScriptsRequest
+		@return ApiGetTagsRequest
 	*/
-	GetRulesScripts(ctx context.Context, orgId string) ApiGetRulesScriptsRequest
+	GetTags(ctx context.Context, orgId string) ApiGetTagsRequest
 
-	// GetRulesScriptsExecute executes the request
-	//  @return RulesScripts
-	GetRulesScriptsExecute(r ApiGetRulesScriptsRequest) (*RulesScripts, *http.Response, error)
+	// GetTagsExecute executes the request
+	//  @return Tags
+	GetTagsExecute(r ApiGetTagsRequest) (*Tags, *http.Response, error)
 
 	/*
-		UpdateRulesScript Update a rules script
+		UpdateTag Update a tag
 
-		Updates a rules script for an organization.
+		Updates a tag for an organization.
 
 		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 		@param orgId Organization ID
-		@param rulesScriptId Rules script ID
-		@return ApiUpdateRulesScriptRequest
+		@param tagName Tag name
+		@return ApiUpdateTagRequest
 	*/
-	UpdateRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiUpdateRulesScriptRequest
+	UpdateTag(ctx context.Context, orgId string, tagName string) ApiUpdateTagRequest
 
-	// UpdateRulesScriptExecute executes the request
-	//  @return RulesScript
-	UpdateRulesScriptExecute(r ApiUpdateRulesScriptRequest) (*RulesScript, *http.Response, error)
+	// UpdateTagExecute executes the request
+	//  @return Tag
+	UpdateTagExecute(r ApiUpdateTagRequest) (*Tag, *http.Response, error)
 }
 
-// RulesScriptsAPIService RulesScriptsAPI service
-type RulesScriptsAPIService service
+// TagsAPIService TagsAPI service
+type TagsAPIService service
 
-type ApiCreateRulesScriptRequest struct {
-	ctx                 context.Context
-	ApiService          RulesScriptsAPI
-	orgId               string
-	rulesScriptPostBody *RulesScriptPostBody
+type ApiCreateTagRequest struct {
+	ctx         context.Context
+	ApiService  TagsAPI
+	orgId       string
+	tagPostBody *TagPostBody
 }
 
-// Request body for creating a rules script.
-func (r ApiCreateRulesScriptRequest) RulesScriptPostBody(rulesScriptPostBody RulesScriptPostBody) ApiCreateRulesScriptRequest {
-	r.rulesScriptPostBody = &rulesScriptPostBody
+// Request body for creating a tag.
+func (r ApiCreateTagRequest) TagPostBody(tagPostBody TagPostBody) ApiCreateTagRequest {
+	r.tagPostBody = &tagPostBody
 	return r
 }
 
-func (r ApiCreateRulesScriptRequest) Execute() (*RulesScript, *http.Response, error) {
-	return r.ApiService.CreateRulesScriptExecute(r)
+func (r ApiCreateTagRequest) Execute() (*Tag, *http.Response, error) {
+	return r.ApiService.CreateTagExecute(r)
 }
 
 /*
-CreateRulesScript Create a new rules script
+CreateTag Create a tag
 
-Creates a new rules script for an organization.
+Creates a tag for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@return ApiCreateRulesScriptRequest
+	@return ApiCreateTagRequest
 */
-func (a *RulesScriptsAPIService) CreateRulesScript(ctx context.Context, orgId string) ApiCreateRulesScriptRequest {
-	return ApiCreateRulesScriptRequest{
+func (a *TagsAPIService) CreateTag(ctx context.Context, orgId string) ApiCreateTagRequest {
+	return ApiCreateTagRequest{
 		ApiService: a,
 		ctx:        ctx,
 		orgId:      orgId,
@@ -139,21 +139,21 @@ func (a *RulesScriptsAPIService) CreateRulesScript(ctx context.Context, orgId st
 
 // Execute executes the request
 //
-//	@return RulesScript
-func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScriptRequest) (*RulesScript, *http.Response, error) {
+//	@return Tag
+func (a *TagsAPIService) CreateTagExecute(r ApiCreateTagRequest) (*Tag, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *RulesScript
+		localVarReturnValue *Tag
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RulesScriptsAPIService.CreateRulesScript")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagsAPIService.CreateTag")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/rules_scripts"
+	localVarPath := localBasePath + "/orgs/{org_id}/tags"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -162,8 +162,8 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 	if strlen(r.orgId) > 36 {
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
-	if r.rulesScriptPostBody == nil {
-		return localVarReturnValue, nil, reportError("rulesScriptPostBody is required and must be specified")
+	if r.tagPostBody == nil {
+		return localVarReturnValue, nil, reportError("tagPostBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -176,7 +176,7 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -184,7 +184,7 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.rulesScriptPostBody
+	localVarPostBody = r.tagPostBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -207,30 +207,8 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 422 {
-			var v CompilationDiagnostics
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -241,7 +219,18 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -265,59 +254,59 @@ func (a *RulesScriptsAPIService) CreateRulesScriptExecute(r ApiCreateRulesScript
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiDeleteRulesScriptRequest struct {
-	ctx           context.Context
-	ApiService    RulesScriptsAPI
-	orgId         string
-	rulesScriptId string
-	ifMatch       *string
+type ApiDeleteTagRequest struct {
+	ctx        context.Context
+	ApiService TagsAPI
+	orgId      string
+	tagName    string
+	ifMatch    *string
 }
 
 // If Match for ETag lock checks.
-func (r ApiDeleteRulesScriptRequest) IfMatch(ifMatch string) ApiDeleteRulesScriptRequest {
+func (r ApiDeleteTagRequest) IfMatch(ifMatch string) ApiDeleteTagRequest {
 	r.ifMatch = &ifMatch
 	return r
 }
 
-func (r ApiDeleteRulesScriptRequest) Execute() (*http.Response, error) {
-	return r.ApiService.DeleteRulesScriptExecute(r)
+func (r ApiDeleteTagRequest) Execute() (*http.Response, error) {
+	return r.ApiService.DeleteTagExecute(r)
 }
 
 /*
-DeleteRulesScript Delete a rules script
+DeleteTag Delete a tag
 
-Deletes a rules script for an organization.
+Deletes a tag from an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@param rulesScriptId Rules script ID
-	@return ApiDeleteRulesScriptRequest
+	@param tagName Tag name
+	@return ApiDeleteTagRequest
 */
-func (a *RulesScriptsAPIService) DeleteRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiDeleteRulesScriptRequest {
-	return ApiDeleteRulesScriptRequest{
-		ApiService:    a,
-		ctx:           ctx,
-		orgId:         orgId,
-		rulesScriptId: rulesScriptId,
+func (a *TagsAPIService) DeleteTag(ctx context.Context, orgId string, tagName string) ApiDeleteTagRequest {
+	return ApiDeleteTagRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		tagName:    tagName,
 	}
 }
 
 // Execute executes the request
-func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScriptRequest) (*http.Response, error) {
+func (a *TagsAPIService) DeleteTagExecute(r ApiDeleteTagRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RulesScriptsAPIService.DeleteRulesScript")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagsAPIService.DeleteTag")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/rules_scripts/{rules_script_id}"
+	localVarPath := localBasePath + "/orgs/{org_id}/tags/{tag_name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"rules_script_id"+"}", url.PathEscape(parameterValueToString(r.rulesScriptId, "rulesScriptId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"tag_name"+"}", url.PathEscape(parameterValueToString(r.tagName, "tagName")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -325,8 +314,8 @@ func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScript
 	if strlen(r.orgId) > 36 {
 		return nil, reportError("orgId must have less than 36 elements")
 	}
-	if strlen(r.rulesScriptId) > 36 {
-		return nil, reportError("rulesScriptId must have less than 36 elements")
+	if strlen(r.tagName) > 64 {
+		return nil, reportError("tagName must have less than 64 elements")
 	}
 
 	// to determine the Content-Type header
@@ -339,7 +328,7 @@ func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScript
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -371,19 +360,8 @@ func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScript
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -394,7 +372,18 @@ func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScript
 			return localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -409,62 +398,55 @@ func (a *RulesScriptsAPIService) DeleteRulesScriptExecute(r ApiDeleteRulesScript
 	return localVarHTTPResponse, nil
 }
 
-type ApiGetRulesScriptRequest struct {
-	ctx           context.Context
-	ApiService    RulesScriptsAPI
-	orgId         string
-	rulesScriptId string
-	revision      *int32
+type ApiGetTagRequest struct {
+	ctx        context.Context
+	ApiService TagsAPI
+	orgId      string
+	tagName    string
 }
 
-// The revision to request
-func (r ApiGetRulesScriptRequest) Revision(revision int32) ApiGetRulesScriptRequest {
-	r.revision = &revision
-	return r
-}
-
-func (r ApiGetRulesScriptRequest) Execute() (*RulesScript, *http.Response, error) {
-	return r.ApiService.GetRulesScriptExecute(r)
+func (r ApiGetTagRequest) Execute() (*Tag, *http.Response, error) {
+	return r.ApiService.GetTagExecute(r)
 }
 
 /*
-GetRulesScript Get a rules script
+GetTag Get a tag
 
-Gets a rules script for an organization.
+Gets a tag for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@param rulesScriptId Rules script ID
-	@return ApiGetRulesScriptRequest
+	@param tagName Tag name
+	@return ApiGetTagRequest
 */
-func (a *RulesScriptsAPIService) GetRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiGetRulesScriptRequest {
-	return ApiGetRulesScriptRequest{
-		ApiService:    a,
-		ctx:           ctx,
-		orgId:         orgId,
-		rulesScriptId: rulesScriptId,
+func (a *TagsAPIService) GetTag(ctx context.Context, orgId string, tagName string) ApiGetTagRequest {
+	return ApiGetTagRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		tagName:    tagName,
 	}
 }
 
 // Execute executes the request
 //
-//	@return RulesScript
-func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptRequest) (*RulesScript, *http.Response, error) {
+//	@return Tag
+func (a *TagsAPIService) GetTagExecute(r ApiGetTagRequest) (*Tag, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *RulesScript
+		localVarReturnValue *Tag
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RulesScriptsAPIService.GetRulesScript")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagsAPIService.GetTag")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/rules_scripts/{rules_script_id}"
+	localVarPath := localBasePath + "/orgs/{org_id}/tags/{tag_name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"rules_script_id"+"}", url.PathEscape(parameterValueToString(r.rulesScriptId, "rulesScriptId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"tag_name"+"}", url.PathEscape(parameterValueToString(r.tagName, "tagName")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -472,13 +454,10 @@ func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptReques
 	if strlen(r.orgId) > 36 {
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
-	if strlen(r.rulesScriptId) > 36 {
-		return localVarReturnValue, nil, reportError("rulesScriptId must have less than 36 elements")
+	if strlen(r.tagName) > 64 {
+		return localVarReturnValue, nil, reportError("tagName must have less than 64 elements")
 	}
 
-	if r.revision != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "revision", r.revision, "", "")
-	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -489,7 +468,7 @@ func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptReques
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -518,19 +497,8 @@ func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptReques
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -541,7 +509,18 @@ func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptReques
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -565,76 +544,27 @@ func (a *RulesScriptsAPIService) GetRulesScriptExecute(r ApiGetRulesScriptReques
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiGetRulesScriptsRequest struct {
-	ctx              context.Context
-	ApiService       RulesScriptsAPI
-	orgId            string
-	page             *int32
-	maxResults       *int32
-	type_            *string
-	excludeSrc       *bool
-	excludeRevisions *bool
-	isDisabled       *string
-	label            *[]string
+type ApiGetTagsRequest struct {
+	ctx        context.Context
+	ApiService TagsAPI
+	orgId      string
 }
 
-// The page of results to return
-func (r ApiGetRulesScriptsRequest) Page(page int32) ApiGetRulesScriptsRequest {
-	r.page = &page
-	return r
-}
-
-// The max number of results to return
-func (r ApiGetRulesScriptsRequest) MaxResults(maxResults int32) ApiGetRulesScriptsRequest {
-	r.maxResults = &maxResults
-	return r
-}
-
-// Type of rule script to filter results by
-func (r ApiGetRulesScriptsRequest) Type_(type_ string) ApiGetRulesScriptsRequest {
-	r.type_ = &type_
-	return r
-}
-
-// Whether to exclude the rule script src from the response
-func (r ApiGetRulesScriptsRequest) ExcludeSrc(excludeSrc bool) ApiGetRulesScriptsRequest {
-	r.excludeSrc = &excludeSrc
-	return r
-}
-
-// Whether to exclude the rule script revisions from the response
-func (r ApiGetRulesScriptsRequest) ExcludeRevisions(excludeRevisions bool) ApiGetRulesScriptsRequest {
-	r.excludeRevisions = &excludeRevisions
-	return r
-}
-
-// Disabled status to filter results by
-func (r ApiGetRulesScriptsRequest) IsDisabled(isDisabled string) ApiGetRulesScriptsRequest {
-	r.isDisabled = &isDisabled
-	return r
-}
-
-// Label slug
-func (r ApiGetRulesScriptsRequest) Label(label []string) ApiGetRulesScriptsRequest {
-	r.label = &label
-	return r
-}
-
-func (r ApiGetRulesScriptsRequest) Execute() (*RulesScripts, *http.Response, error) {
-	return r.ApiService.GetRulesScriptsExecute(r)
+func (r ApiGetTagsRequest) Execute() (*Tags, *http.Response, error) {
+	return r.ApiService.GetTagsExecute(r)
 }
 
 /*
-GetRulesScripts Get rules scripts
+GetTags Get tags
 
-Gets a list of rules scripts for an organization.
+Gets a list of tags for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@return ApiGetRulesScriptsRequest
+	@return ApiGetTagsRequest
 */
-func (a *RulesScriptsAPIService) GetRulesScripts(ctx context.Context, orgId string) ApiGetRulesScriptsRequest {
-	return ApiGetRulesScriptsRequest{
+func (a *TagsAPIService) GetTags(ctx context.Context, orgId string) ApiGetTagsRequest {
+	return ApiGetTagsRequest{
 		ApiService: a,
 		ctx:        ctx,
 		orgId:      orgId,
@@ -643,21 +573,21 @@ func (a *RulesScriptsAPIService) GetRulesScripts(ctx context.Context, orgId stri
 
 // Execute executes the request
 //
-//	@return RulesScripts
-func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequest) (*RulesScripts, *http.Response, error) {
+//	@return Tags
+func (a *TagsAPIService) GetTagsExecute(r ApiGetTagsRequest) (*Tags, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *RulesScripts
+		localVarReturnValue *Tags
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RulesScriptsAPIService.GetRulesScripts")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagsAPIService.GetTags")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/rules_scripts"
+	localVarPath := localBasePath + "/orgs/{org_id}/tags"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -667,39 +597,6 @@ func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequ
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
 
-	if r.page != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "page", r.page, "", "")
-	} else {
-		var defaultValue int32 = 0
-		r.page = &defaultValue
-	}
-	if r.maxResults != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "max_results", r.maxResults, "", "")
-	} else {
-		var defaultValue int32 = 100
-		r.maxResults = &defaultValue
-	}
-	if r.type_ != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "type", r.type_, "", "")
-	}
-	if r.excludeSrc != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "exclude_src", r.excludeSrc, "", "")
-	} else {
-		var defaultValue bool = false
-		r.excludeSrc = &defaultValue
-	}
-	if r.excludeRevisions != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "exclude_revisions", r.excludeRevisions, "", "")
-	} else {
-		var defaultValue bool = false
-		r.excludeRevisions = &defaultValue
-	}
-	if r.isDisabled != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "is_disabled", r.isDisabled, "", "")
-	}
-	if r.label != nil {
-		parameterAddToHeaderOrQuery(localVarQueryParams, "label", r.label, "", "csv")
-	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -710,7 +607,7 @@ func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequ
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -739,19 +636,8 @@ func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequ
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -762,7 +648,18 @@ func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequ
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -786,90 +683,69 @@ func (a *RulesScriptsAPIService) GetRulesScriptsExecute(r ApiGetRulesScriptsRequ
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ApiGetRulesScriptsSearchRequest struct {
+type ApiUpdateTagRequest struct {
 	ctx        context.Context
-	ApiService RulesScriptsAPI
+	ApiService TagsAPI
 	orgId      string
-	search     *string
-	maxResults *int32
+	tagName    string
+	tagPutBody *TagPutBody
+	ifMatch    *string
 }
 
-// Search string
-func (r ApiGetRulesScriptsSearchRequest) Search(search string) ApiGetRulesScriptsSearchRequest {
-	r.search = &search
-	return r
-}
-
-// The max number of results to return
-func (r ApiGetRulesScriptsSearchRequest) MaxResults(maxResults int32) ApiGetRulesScriptsSearchRequest {
-	r.maxResults = &maxResults
-	return r
-}
-
-
-type ApiUpdateRulesScriptRequest struct {
-	ctx                 context.Context
-	ApiService          RulesScriptsAPI
-	orgId               string
-	rulesScriptId       string
-	rulesScriptPostBody *RulesScriptPostBody
-	ifMatch             *string
-}
-
-// Request body for creating a rules script.
-func (r ApiUpdateRulesScriptRequest) RulesScriptPostBody(rulesScriptPostBody RulesScriptPostBody) ApiUpdateRulesScriptRequest {
-	r.rulesScriptPostBody = &rulesScriptPostBody
+// Request body for updating a tag.
+func (r ApiUpdateTagRequest) TagPutBody(tagPutBody TagPutBody) ApiUpdateTagRequest {
+	r.tagPutBody = &tagPutBody
 	return r
 }
 
 // If Match for ETag lock checks.
-func (r ApiUpdateRulesScriptRequest) IfMatch(ifMatch string) ApiUpdateRulesScriptRequest {
+func (r ApiUpdateTagRequest) IfMatch(ifMatch string) ApiUpdateTagRequest {
 	r.ifMatch = &ifMatch
 	return r
 }
 
-func (r ApiUpdateRulesScriptRequest) Execute() (*RulesScript, *http.Response, error) {
-	return r.ApiService.UpdateRulesScriptExecute(r)
+func (r ApiUpdateTagRequest) Execute() (*Tag, *http.Response, error) {
+	return r.ApiService.UpdateTagExecute(r)
 }
 
 /*
-UpdateRulesScript Update a rules script
+UpdateTag Update a tag
 
-Updates a rules script for an organization.
+Updates a tag for an organization.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param orgId Organization ID
-	@param rulesScriptId Rules script ID
-	@return ApiUpdateRulesScriptRequest
+	@param tagName Tag name
+	@return ApiUpdateTagRequest
 */
-func (a *RulesScriptsAPIService) UpdateRulesScript(ctx context.Context, orgId string, rulesScriptId string) ApiUpdateRulesScriptRequest {
-	return ApiUpdateRulesScriptRequest{
-		ApiService:    a,
-		ctx:           ctx,
-		orgId:         orgId,
-		rulesScriptId: rulesScriptId,
+func (a *TagsAPIService) UpdateTag(ctx context.Context, orgId string, tagName string) ApiUpdateTagRequest {
+	return ApiUpdateTagRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		tagName:    tagName,
 	}
 }
 
 // Execute executes the request
 //
-//	@return RulesScript
-func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScriptRequest) (*RulesScript, *http.Response, error) {
+//	@return Tag
+func (a *TagsAPIService) UpdateTagExecute(r ApiUpdateTagRequest) (*Tag, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *RulesScript
+		localVarReturnValue *Tag
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RulesScriptsAPIService.UpdateRulesScript")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "TagsAPIService.UpdateTag")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/orgs/{org_id}/rules_scripts/{rules_script_id}"
+	localVarPath := localBasePath + "/orgs/{org_id}/tags/{tag_name}"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"rules_script_id"+"}", url.PathEscape(parameterValueToString(r.rulesScriptId, "rulesScriptId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"tag_name"+"}", url.PathEscape(parameterValueToString(r.tagName, "tagName")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -877,11 +753,11 @@ func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScript
 	if strlen(r.orgId) > 36 {
 		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
 	}
-	if strlen(r.rulesScriptId) > 36 {
-		return localVarReturnValue, nil, reportError("rulesScriptId must have less than 36 elements")
+	if strlen(r.tagName) > 64 {
+		return localVarReturnValue, nil, reportError("tagName must have less than 64 elements")
 	}
-	if r.rulesScriptPostBody == nil {
-		return localVarReturnValue, nil, reportError("rulesScriptPostBody is required and must be specified")
+	if r.tagPutBody == nil {
+		return localVarReturnValue, nil, reportError("tagPutBody is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -894,7 +770,7 @@ func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScript
 	}
 
 	// to determine the Accept header
-	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
 
 	// set Accept header
 	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
@@ -905,7 +781,7 @@ func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScript
 		parameterAddToHeaderOrQuery(localVarHeaderParams, "If-Match", r.ifMatch, "", "")
 	}
 	// body params
-	localVarPostBody = r.rulesScriptPostBody
+	localVarPostBody = r.tagPutBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err
@@ -928,30 +804,8 @@ func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScript
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-		if localVarHTTPResponse.StatusCode == 400 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
 		if localVarHTTPResponse.StatusCode == 401 {
-			var v BasicError
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
-			newErr.model = v
-			return localVarReturnValue, localVarHTTPResponse, newErr
-		}
-		if localVarHTTPResponse.StatusCode == 422 {
-			var v CompilationDiagnostics
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -962,7 +816,18 @@ func (a *RulesScriptsAPIService) UpdateRulesScriptExecute(r ApiUpdateRulesScript
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v BasicError
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

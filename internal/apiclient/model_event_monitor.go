@@ -30,6 +30,10 @@ type EventMonitor struct {
 	Description string `json:"description"`
 	// Array of condition objects that (if all are true) will trigger the monitor.
 	Conditions []EventMonitorCondition `json:"conditions"`
+	// The ids of the notification templates that the monitor is associated with.
+	NotificationTemplateIds []string `json:"notification_template_ids"`
+	// The applied labels.
+	Labels []string `json:"labels"`
 	// ID of the member who created the monitor.
 	CreatedBy string `json:"created_by"`
 	// The date the event monitor was created.
@@ -37,10 +41,8 @@ type EventMonitor struct {
 	// ID of the member who last updated the monitor.
 	UpdatedBy NullableString `json:"updated_by"`
 	// The date the event monitor was last updated.
-	UpdatedAt NullableTime `json:"updated_at"`
-	// The ids of the notification templates that the monitor is associated with.
-	NotificationTemplateIds []string `json:"notification_template_ids"`
-	AdditionalProperties    map[string]interface{}
+	UpdatedAt            NullableTime `json:"updated_at"`
+	AdditionalProperties map[string]interface{}
 }
 
 type _EventMonitor EventMonitor
@@ -49,17 +51,18 @@ type _EventMonitor EventMonitor
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEventMonitor(id string, name string, description string, conditions []EventMonitorCondition, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime, notificationTemplateIds []string) *EventMonitor {
+func NewEventMonitor(id string, name string, description string, conditions []EventMonitorCondition, notificationTemplateIds []string, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *EventMonitor {
 	this := EventMonitor{}
 	this.Id = id
 	this.Name = name
 	this.Description = description
 	this.Conditions = conditions
+	this.NotificationTemplateIds = notificationTemplateIds
+	this.Labels = labels
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.UpdatedBy = updatedBy
 	this.UpdatedAt = updatedAt
-	this.NotificationTemplateIds = notificationTemplateIds
 	return &this
 }
 
@@ -167,6 +170,54 @@ func (o *EventMonitor) SetConditions(v []EventMonitorCondition) {
 	o.Conditions = v
 }
 
+// GetNotificationTemplateIds returns the NotificationTemplateIds field value
+func (o *EventMonitor) GetNotificationTemplateIds() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.NotificationTemplateIds
+}
+
+// GetNotificationTemplateIdsOk returns a tuple with the NotificationTemplateIds field value
+// and a boolean to check if the value has been set.
+func (o *EventMonitor) GetNotificationTemplateIdsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.NotificationTemplateIds, true
+}
+
+// SetNotificationTemplateIds sets field value
+func (o *EventMonitor) SetNotificationTemplateIds(v []string) {
+	o.NotificationTemplateIds = v
+}
+
+// GetLabels returns the Labels field value
+func (o *EventMonitor) GetLabels() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.Labels
+}
+
+// GetLabelsOk returns a tuple with the Labels field value
+// and a boolean to check if the value has been set.
+func (o *EventMonitor) GetLabelsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Labels, true
+}
+
+// SetLabels sets field value
+func (o *EventMonitor) SetLabels(v []string) {
+	o.Labels = v
+}
+
 // GetCreatedBy returns the CreatedBy field value
 func (o *EventMonitor) GetCreatedBy() string {
 	if o == nil {
@@ -267,30 +318,6 @@ func (o *EventMonitor) SetUpdatedAt(v time.Time) {
 	o.UpdatedAt.Set(&v)
 }
 
-// GetNotificationTemplateIds returns the NotificationTemplateIds field value
-func (o *EventMonitor) GetNotificationTemplateIds() []string {
-	if o == nil {
-		var ret []string
-		return ret
-	}
-
-	return o.NotificationTemplateIds
-}
-
-// GetNotificationTemplateIdsOk returns a tuple with the NotificationTemplateIds field value
-// and a boolean to check if the value has been set.
-func (o *EventMonitor) GetNotificationTemplateIdsOk() ([]string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return o.NotificationTemplateIds, true
-}
-
-// SetNotificationTemplateIds sets field value
-func (o *EventMonitor) SetNotificationTemplateIds(v []string) {
-	o.NotificationTemplateIds = v
-}
-
 func (o EventMonitor) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -305,11 +332,12 @@ func (o EventMonitor) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	toSerialize["description"] = o.Description
 	toSerialize["conditions"] = o.Conditions
+	toSerialize["notification_template_ids"] = o.NotificationTemplateIds
+	toSerialize["labels"] = o.Labels
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
 	toSerialize["updated_by"] = o.UpdatedBy.Get()
 	toSerialize["updated_at"] = o.UpdatedAt.Get()
-	toSerialize["notification_template_ids"] = o.NotificationTemplateIds
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -327,11 +355,12 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 		"name",
 		"description",
 		"conditions",
+		"notification_template_ids",
+		"labels",
 		"created_by",
 		"created_at",
 		"updated_by",
 		"updated_at",
-		"notification_template_ids",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -365,11 +394,12 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "conditions")
+		delete(additionalProperties, "notification_template_ids")
+		delete(additionalProperties, "labels")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "updated_by")
 		delete(additionalProperties, "updated_at")
-		delete(additionalProperties, "notification_template_ids")
 		o.AdditionalProperties = additionalProperties
 	}
 

@@ -64,6 +64,10 @@ resource "impart_monitor" "test_metric" {
 - `name` (String) The name for this monitor.
 - `notification_template_ids` (List of String) An array of notification template ids for the templates that will send notifications to their respective connectors.
 
+### Optional
+
+- `labels` (List of String) The applied labels.
+
 ### Read-Only
 
 - `id` (String) Identifier for this monitor.

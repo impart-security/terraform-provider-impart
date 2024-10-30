@@ -29,10 +29,12 @@ type ListsItemsInner struct {
 	// User ID of the user that created the list.
 	CreatedBy string `json:"created_by"`
 	// The date the list was created.
-	CreatedAt            time.Time          `json:"created_at"`
-	Kind                 ListKind           `json:"kind"`
-	Subkind              *ListSubkind       `json:"subkind,omitempty"`
-	Functionality        *ListFunctionality `json:"functionality,omitempty"`
+	CreatedAt     time.Time          `json:"created_at"`
+	Kind          ListKind           `json:"kind"`
+	Subkind       *ListSubkind       `json:"subkind,omitempty"`
+	Functionality *ListFunctionality `json:"functionality,omitempty"`
+	// The applied labels.
+	Labels               []string `json:"labels"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -42,7 +44,7 @@ type _ListsItemsInner ListsItemsInner
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewListsItemsInner(id string, name string, createdBy string, createdAt time.Time, kind ListKind) *ListsItemsInner {
+func NewListsItemsInner(id string, name string, createdBy string, createdAt time.Time, kind ListKind, labels []string) *ListsItemsInner {
 	this := ListsItemsInner{}
 	this.Id = id
 	this.Name = name
@@ -51,6 +53,7 @@ func NewListsItemsInner(id string, name string, createdBy string, createdAt time
 	this.Kind = kind
 	var functionality ListFunctionality = ADD_REMOVE
 	this.Functionality = &functionality
+	this.Labels = labels
 	return &this
 }
 
@@ -248,6 +251,30 @@ func (o *ListsItemsInner) SetFunctionality(v ListFunctionality) {
 	o.Functionality = &v
 }
 
+// GetLabels returns the Labels field value
+func (o *ListsItemsInner) GetLabels() []string {
+	if o == nil {
+		var ret []string
+		return ret
+	}
+
+	return o.Labels
+}
+
+// GetLabelsOk returns a tuple with the Labels field value
+// and a boolean to check if the value has been set.
+func (o *ListsItemsInner) GetLabelsOk() ([]string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.Labels, true
+}
+
+// SetLabels sets field value
+func (o *ListsItemsInner) SetLabels(v []string) {
+	o.Labels = v
+}
+
 func (o ListsItemsInner) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -269,6 +296,7 @@ func (o ListsItemsInner) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Functionality) {
 		toSerialize["functionality"] = o.Functionality
 	}
+	toSerialize["labels"] = o.Labels
 
 	for key, value := range o.AdditionalProperties {
 		toSerialize[key] = value
@@ -287,6 +315,7 @@ func (o *ListsItemsInner) UnmarshalJSON(data []byte) (err error) {
 		"created_by",
 		"created_at",
 		"kind",
+		"labels",
 	}
 
 	allProperties := make(map[string]interface{})
@@ -323,6 +352,7 @@ func (o *ListsItemsInner) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "kind")
 		delete(additionalProperties, "subkind")
 		delete(additionalProperties, "functionality")
+		delete(additionalProperties, "labels")
 		o.AdditionalProperties = additionalProperties
 	}
 

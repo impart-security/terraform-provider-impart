@@ -27,7 +27,9 @@ type ListPostBody struct {
 	Subkind       *ListSubkind       `json:"subkind,omitempty"`
 	Functionality *ListFunctionality `json:"functionality,omitempty"`
 	// The items in the list.
-	Items                []ListItemsInner `json:"items,omitempty"`
+	Items []ListItemsInner `json:"items,omitempty"`
+	// The applied labels.
+	Labels               []string `json:"labels,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -200,6 +202,38 @@ func (o *ListPostBody) SetItems(v []ListItemsInner) {
 	o.Items = v
 }
 
+// GetLabels returns the Labels field value if set, zero value otherwise.
+func (o *ListPostBody) GetLabels() []string {
+	if o == nil || IsNil(o.Labels) {
+		var ret []string
+		return ret
+	}
+	return o.Labels
+}
+
+// GetLabelsOk returns a tuple with the Labels field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ListPostBody) GetLabelsOk() ([]string, bool) {
+	if o == nil || IsNil(o.Labels) {
+		return nil, false
+	}
+	return o.Labels, true
+}
+
+// HasLabels returns a boolean if a field has been set.
+func (o *ListPostBody) HasLabels() bool {
+	if o != nil && !IsNil(o.Labels) {
+		return true
+	}
+
+	return false
+}
+
+// SetLabels gets a reference to the given []string and assigns it to the Labels field.
+func (o *ListPostBody) SetLabels(v []string) {
+	o.Labels = v
+}
+
 func (o ListPostBody) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -220,6 +254,9 @@ func (o ListPostBody) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Items) {
 		toSerialize["items"] = o.Items
+	}
+	if !IsNil(o.Labels) {
+		toSerialize["labels"] = o.Labels
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -270,6 +307,7 @@ func (o *ListPostBody) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "subkind")
 		delete(additionalProperties, "functionality")
 		delete(additionalProperties, "items")
+		delete(additionalProperties, "labels")
 		o.AdditionalProperties = additionalProperties
 	}
 
