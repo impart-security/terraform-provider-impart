@@ -43,6 +43,7 @@ type ListResource struct {
 type listResourceModel struct {
 	ID            types.String    `tfsdk:"id"`
 	Name          types.String    `tfsdk:"name"`
+	Description   types.String    `tfsdk:"description"`
 	Kind          types.String    `tfsdk:"kind"`
 	Subkind       types.String    `tfsdk:"subkind"`
 	Functionality types.String    `tfsdk:"functionality"`
@@ -89,6 +90,10 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 			"name": schema.StringAttribute{
 				Description: "The name for this list.",
 				Required:    true,
+			},
+			"description": schema.StringAttribute{
+				Description: "The description for this list.",
+				Optional:    true,
 			},
 			"kind": schema.StringAttribute{
 				Description: "The list kind.",
@@ -252,7 +257,7 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	if len(listResponse.Items) > 0 {
-		applyListResponseToState(listResponse, &plan)
+		applyListResponseToState(listResponse.Items, &plan)
 	}
 
 	if !plan.Functionality.IsNull() {
@@ -309,12 +314,16 @@ func (r *ListResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		state.Subkind = types.StringValue(string(*listResponse.Subkind))
 	}
 
+	if !state.Description.IsNull() || listResponse.Description != "" {
+		state.Description = types.StringValue(listResponse.Description)
+	}
+
 	state.Labels = buildStateList(state.Labels, listResponse.Labels)
 
 	// Because we cannot pull config to check here
 	// ReplaceWhenStartTrackingItems plan modifier is used to relace a list resource when items goes from null to set
 	if state.Items != nil {
-		applyListResponseToState(listResponse, &state)
+		applyListResponseToState(listResponse.Items, &state)
 	}
 
 	if !state.Functionality.IsNull() {
@@ -349,11 +358,15 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
-	patchBody := openapiclient.ListPatchBody{}
+	putBody := openapiclient.ListPutBody{}
 
 	if !plan.Name.IsNull() {
-		name := plan.Name.ValueString()
-		patchBody.Name = &name
+		putBody.Name = plan.Name.ValueString()
+	}
+
+	if !plan.Description.IsNull() {
+		description := plan.Description.ValueString()
+		putBody.Description = &description
 	}
 
 	if len(plan.Labels) > 0 {
@@ -361,19 +374,18 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		for i, label := range plan.Labels {
 			labels[i] = label.ValueString()
 		}
-		patchBody.Labels = labels
+		putBody.Labels = labels
 	}
 
+	patchBody := openapiclient.ListItemsPatchBody{}
 	diffLists(state.Items, plan.Items, &patchBody, resp)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	listRequest := r.client.ListsAPI.UpdateList(ctx, r.client.OrgID, plan.ID.ValueString()).
-		ListPatchBody(patchBody)
+	listPutRequest := r.client.ListsAPI.PutList(ctx, r.client.OrgID, state.ID.ValueString()).ListPutBody(putBody)
 
-	// update a list
-	listResponse, _, err := listRequest.Execute()
+	listPutResponse, _, err := listPutRequest.Execute()
 
 	if err != nil {
 		message := err.Error()
@@ -382,7 +394,7 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to update the list",
+			"Unable to update the list metadata",
 			message,
 		)
 		return
@@ -390,25 +402,52 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	// Overwrite the list with refreshed state
 	newState := listResourceModel{
-		ID:    types.StringValue(listResponse.Id),
-		Name:  types.StringValue(listResponse.Name),
-		Kind:  types.StringValue(string(listResponse.Kind)),
+		ID:    types.StringValue(listPutResponse.Id),
+		Name:  types.StringValue(listPutResponse.Name),
+		Kind:  types.StringValue(string(listPutResponse.Kind)),
 		Items: plan.Items,
 	}
 
-	if listResponse.Subkind != nil {
-		newState.Subkind = types.StringValue(string(*listResponse.Subkind))
+	applyPatch := len(patchBody.Add) > 0 || len(patchBody.Remove) > 0
+
+	if applyPatch {
+		listPatchItemsRequest := r.client.ListsAPI.UpdateListItems(ctx, r.client.OrgID, state.ID.ValueString()).
+			ListItemsPatchBody(patchBody)
+
+		// update a list items
+		listPatchItemsResponse, _, err := listPatchItemsRequest.Execute()
+
+		if err != nil {
+			message := err.Error()
+			if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
+				message = fmt.Sprintf("%s %s", apiErr.Error(), string(apiErr.Body()))
+			}
+
+			resp.Diagnostics.AddError(
+				"Unable to update the list items",
+				message,
+			)
+			return
+		}
+
+		if plan.Items != nil {
+			applyListResponseToState(listPatchItemsResponse, &newState)
+		}
 	}
 
-	if plan.Items != nil {
-		applyListResponseToState(listResponse, &newState)
+	if listPutResponse.Subkind != nil {
+		newState.Subkind = types.StringValue(string(*listPutResponse.Subkind))
 	}
 
 	if !plan.Functionality.IsNull() {
 		newState.Functionality = plan.Functionality
 	}
 
-	newState.Labels = buildStateList(plan.Labels, listResponse.Labels)
+	if !plan.Description.IsNull() || listPutResponse.Description != "" {
+		newState.Description = types.StringValue(listPutResponse.Description)
+	}
+
+	newState.Labels = buildStateList(plan.Labels, listPutResponse.Labels)
 
 	// Set the refreshed state
 	diags = resp.State.Set(ctx, newState)
@@ -500,7 +539,7 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 	}
 }
 
-func diffLists(oldList, newList []listItemModel, patchBody *openapiclient.ListPatchBody, resp *resource.UpdateResponse) {
+func diffLists(oldList, newList []listItemModel, patchBody *openapiclient.ListItemsPatchBody, resp *resource.UpdateResponse) {
 	oldMap := make(map[string]basetypes.StringValue)
 	newMap := make(map[string]basetypes.StringValue)
 
@@ -560,13 +599,13 @@ func compareStringValues(a, b types.String) bool {
 	return a.ValueString() == b.ValueString()
 }
 
-func applyListResponseToState(listResponse *openapiclient.List, state *listResourceModel) {
+func applyListResponseToState(listItems []openapiclient.ListItemsInner, state *listResourceModel) {
 	responseItemsMap := make(map[string]openapiclient.ListItemsInner)
-	for _, item := range listResponse.Items {
+	for _, item := range listItems {
 		responseItemsMap[item.Value] = item
 	}
 
-	valueElements := make([]listItemModel, len(listResponse.Items))
+	valueElements := make([]listItemModel, len(listItems))
 	pos := 0
 	for _, item := range state.Items {
 		normalized := getListItemRepresentation(state.Kind.ValueString(), item.Value.ValueString())

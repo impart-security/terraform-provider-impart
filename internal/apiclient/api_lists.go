@@ -69,6 +69,22 @@ type ListsAPI interface {
 	GetListExecute(r ApiGetListRequest) (*List, *http.Response, error)
 
 	/*
+		GetListItems Get a lists items
+
+		Gets a list items for an organization.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@param listId List ID
+		@return ApiGetListItemsRequest
+	*/
+	GetListItems(ctx context.Context, orgId string, listId string) ApiGetListItemsRequest
+
+	// GetListItemsExecute executes the request
+	//  @return []ListItemsInner
+	GetListItemsExecute(r ApiGetListItemsRequest) ([]ListItemsInner, *http.Response, error)
+
+	/*
 		GetListOptions Get list options
 
 		Gets options for a list.
@@ -113,6 +129,22 @@ type ListsAPI interface {
 	GetListsOptionsExecute(r ApiGetListsOptionsRequest) (*http.Response, error)
 
 	/*
+		PutList Update a list
+
+		Updates a list for an organization.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@param listId List ID
+		@return ApiPutListRequest
+	*/
+	PutList(ctx context.Context, orgId string, listId string) ApiPutListRequest
+
+	// PutListExecute executes the request
+	//  @return List
+	PutListExecute(r ApiPutListRequest) (*List, *http.Response, error)
+
+	/*
 		UpdateList Update a list
 
 		Updates a list for an organization.
@@ -127,6 +159,22 @@ type ListsAPI interface {
 	// UpdateListExecute executes the request
 	//  @return List
 	UpdateListExecute(r ApiUpdateListRequest) (*List, *http.Response, error)
+
+	/*
+		UpdateListItems Update list items
+
+		Updates a list items for an organization.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@param listId List ID
+		@return ApiUpdateListItemsRequest
+	*/
+	UpdateListItems(ctx context.Context, orgId string, listId string) ApiUpdateListItemsRequest
+
+	// UpdateListItemsExecute executes the request
+	//  @return []ListItemsInner
+	UpdateListItemsExecute(r ApiUpdateListItemsRequest) ([]ListItemsInner, *http.Response, error)
 }
 
 // ListsAPIService ListsAPI service
@@ -474,6 +522,152 @@ func (a *ListsAPIService) GetListExecute(r ApiGetListRequest) (*List, *http.Resp
 	}
 
 	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.listId) > 36 {
+		return localVarReturnValue, nil, reportError("listId must have less than 36 elements")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiGetListItemsRequest struct {
+	ctx        context.Context
+	ApiService ListsAPI
+	orgId      string
+	listId     string
+}
+
+func (r ApiGetListItemsRequest) Execute() ([]ListItemsInner, *http.Response, error) {
+	return r.ApiService.GetListItemsExecute(r)
+}
+
+/*
+GetListItems Get a lists items
+
+Gets a list items for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiGetListItemsRequest
+*/
+func (a *ListsAPIService) GetListItems(ctx context.Context, orgId string, listId string) ApiGetListItemsRequest {
+	return ApiGetListItemsRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return []ListItemsInner
+func (a *ListsAPIService) GetListItemsExecute(r ApiGetListItemsRequest) ([]ListItemsInner, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ListItemsInner
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.GetListItems")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}/items"
 	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
 
@@ -1029,6 +1223,174 @@ func (a *ListsAPIService) GetListsOptionsExecute(r ApiGetListsOptionsRequest) (*
 	return localVarHTTPResponse, nil
 }
 
+type ApiPutListRequest struct {
+	ctx         context.Context
+	ApiService  ListsAPI
+	orgId       string
+	listId      string
+	listPutBody *ListPutBody
+	ifMatch     *string
+}
+
+// Request body for patching a list.
+func (r ApiPutListRequest) ListPutBody(listPutBody ListPutBody) ApiPutListRequest {
+	r.listPutBody = &listPutBody
+	return r
+}
+
+// If Match for ETag lock checks.
+func (r ApiPutListRequest) IfMatch(ifMatch string) ApiPutListRequest {
+	r.ifMatch = &ifMatch
+	return r
+}
+
+func (r ApiPutListRequest) Execute() (*List, *http.Response, error) {
+	return r.ApiService.PutListExecute(r)
+}
+
+/*
+PutList Update a list
+
+Updates a list for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiPutListRequest
+*/
+func (a *ListsAPIService) PutList(ctx context.Context, orgId string, listId string) ApiPutListRequest {
+	return ApiPutListRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return List
+func (a *ListsAPIService) PutListExecute(r ApiPutListRequest) (*List, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *List
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.PutList")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.listId) > 36 {
+		return localVarReturnValue, nil, reportError("listId must have less than 36 elements")
+	}
+	if r.listPutBody == nil {
+		return localVarReturnValue, nil, reportError("listPutBody is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.ifMatch != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "If-Match", r.ifMatch, "", "")
+	}
+	// body params
+	localVarPostBody = r.listPutBody
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
 type ApiUpdateListRequest struct {
 	ctx           context.Context
 	ApiService    ListsAPI
@@ -1128,6 +1490,164 @@ func (a *ListsAPIService) UpdateListExecute(r ApiUpdateListRequest) (*List, *htt
 	}
 	// body params
 	localVarPostBody = r.listPatchBody
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return localVarReturnValue, nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarReturnValue, localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode >= 400 && localVarHTTPResponse.StatusCode < 500 {
+			var v ProblemResponse
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	err = a.client.decode(&localVarReturnValue, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+	if err != nil {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: err.Error(),
+		}
+		return localVarReturnValue, localVarHTTPResponse, newErr
+	}
+
+	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiUpdateListItemsRequest struct {
+	ctx                context.Context
+	ApiService         ListsAPI
+	orgId              string
+	listId             string
+	listItemsPatchBody *ListItemsPatchBody
+}
+
+// Request body for patching a list.
+func (r ApiUpdateListItemsRequest) ListItemsPatchBody(listItemsPatchBody ListItemsPatchBody) ApiUpdateListItemsRequest {
+	r.listItemsPatchBody = &listItemsPatchBody
+	return r
+}
+
+func (r ApiUpdateListItemsRequest) Execute() ([]ListItemsInner, *http.Response, error) {
+	return r.ApiService.UpdateListItemsExecute(r)
+}
+
+/*
+UpdateListItems Update list items
+
+Updates a list items for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param listId List ID
+	@return ApiUpdateListItemsRequest
+*/
+func (a *ListsAPIService) UpdateListItems(ctx context.Context, orgId string, listId string) ApiUpdateListItemsRequest {
+	return ApiUpdateListItemsRequest{
+		ApiService: a,
+		ctx:        ctx,
+		orgId:      orgId,
+		listId:     listId,
+	}
+}
+
+// Execute executes the request
+//
+//	@return []ListItemsInner
+func (a *ListsAPIService) UpdateListItemsExecute(r ApiUpdateListItemsRequest) ([]ListItemsInner, *http.Response, error) {
+	var (
+		localVarHTTPMethod  = http.MethodPatch
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []ListItemsInner
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ListsAPIService.UpdateListItems")
+	if err != nil {
+		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/lists/{list_id}/items"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"list_id"+"}", url.PathEscape(parameterValueToString(r.listId, "listId")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return localVarReturnValue, nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.listId) > 36 {
+		return localVarReturnValue, nil, reportError("listId must have less than 36 elements")
+	}
+	if r.listItemsPatchBody == nil {
+		return localVarReturnValue, nil, reportError("listItemsPatchBody is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json", "application/problem+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.listItemsPatchBody
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

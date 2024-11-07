@@ -22,7 +22,9 @@ var _ MappedNullable = &ListPostBody{}
 // ListPostBody struct for ListPostBody
 type ListPostBody struct {
 	// The name of the list.
-	Name          string             `json:"name"`
+	Name string `json:"name"`
+	// The description of the list.
+	Description   *string            `json:"description,omitempty"`
 	Kind          ListKind           `json:"kind"`
 	Subkind       *ListSubkind       `json:"subkind,omitempty"`
 	Functionality *ListFunctionality `json:"functionality,omitempty"`
@@ -80,6 +82,38 @@ func (o *ListPostBody) GetNameOk() (*string, bool) {
 // SetName sets field value
 func (o *ListPostBody) SetName(v string) {
 	o.Name = v
+}
+
+// GetDescription returns the Description field value if set, zero value otherwise.
+func (o *ListPostBody) GetDescription() string {
+	if o == nil || IsNil(o.Description) {
+		var ret string
+		return ret
+	}
+	return *o.Description
+}
+
+// GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *ListPostBody) GetDescriptionOk() (*string, bool) {
+	if o == nil || IsNil(o.Description) {
+		return nil, false
+	}
+	return o.Description, true
+}
+
+// HasDescription returns a boolean if a field has been set.
+func (o *ListPostBody) HasDescription() bool {
+	if o != nil && !IsNil(o.Description) {
+		return true
+	}
+
+	return false
+}
+
+// SetDescription gets a reference to the given string and assigns it to the Description field.
+func (o *ListPostBody) SetDescription(v string) {
+	o.Description = &v
 }
 
 // GetKind returns the Kind field value
@@ -245,6 +279,9 @@ func (o ListPostBody) MarshalJSON() ([]byte, error) {
 func (o ListPostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["name"] = o.Name
+	if !IsNil(o.Description) {
+		toSerialize["description"] = o.Description
+	}
 	toSerialize["kind"] = o.Kind
 	if !IsNil(o.Subkind) {
 		toSerialize["subkind"] = o.Subkind
@@ -303,6 +340,7 @@ func (o *ListPostBody) UnmarshalJSON(data []byte) (err error) {
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "name")
+		delete(additionalProperties, "description")
 		delete(additionalProperties, "kind")
 		delete(additionalProperties, "subkind")
 		delete(additionalProperties, "functionality")

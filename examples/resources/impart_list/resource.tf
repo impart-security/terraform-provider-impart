@@ -1,7 +1,8 @@
 # Create a new list
 resource "impart_list" "example" {
-  name = "list_example"
-  kind = "string"
+  name        = "list_example"
+  kind        = "string"
+  description = "list description"
   items = [
     {
       value = "item1",

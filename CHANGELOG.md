@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.10.0] - 2024-11-07
+
+### Added
+
+- description attribute to impart_list resource
+
+### Changed
+
+- impart_list implementation to use PUT lists and PATCH list items endpoints
+
 ## [0.9.0] - 2024-10-29
 
 ### Added

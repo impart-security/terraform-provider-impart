@@ -15,8 +15,9 @@ Manage a list.
 ```terraform
 # Create a new list
 resource "impart_list" "example" {
-  name = "list_example"
-  kind = "string"
+  name        = "list_example"
+  kind        = "string"
+  description = "list description"
   items = [
     {
       value = "item1",
@@ -38,6 +39,7 @@ resource "impart_list" "example" {
 
 ### Optional
 
+- `description` (String) The description for this list.
 - `functionality` (String) The list functionality. Allowed values are add, add/remove.
 - `items` (Attributes List) The list items. (see [below for nested schema](#nestedatt--items))
 - `labels` (List of String) The applied labels.
