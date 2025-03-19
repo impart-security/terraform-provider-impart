@@ -57,6 +57,7 @@ type APIClient struct {
 
 	EventMonitorsAPI EventMonitorsAPI
 
+	ExternalLinksAPI ExternalLinksAPI
 	LabelsAPI LabelsAPI
 	
 	ListsAPI ListsAPI
@@ -96,6 +97,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.ApiBindingsAPI = (*ApiBindingsAPIService)(&c.common)
 	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
 	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
+	c.ExternalLinksAPI = (*ExternalLinksAPIService)(&c.common)
 	c.LabelsAPI = (*LabelsAPIService)(&c.common)
 	c.ListsAPI = (*ListsAPIService)(&c.common)
 	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)

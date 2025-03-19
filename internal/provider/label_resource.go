@@ -149,7 +149,7 @@ func (r labelResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	ruleTestCaseResponse, httpResp, err := r.client.LabelsAPI.GetLabel(ctx, r.client.OrgID, data.Slug.ValueString()).
+	labelResponse, httpResp, err := r.client.LabelsAPI.GetLabel(ctx, r.client.OrgID, data.Slug.ValueString()).
 		Execute()
 
 	if err != nil {
@@ -171,7 +171,7 @@ func (r labelResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		return
 	}
 
-	state := toLabelModel(ruleTestCaseResponse, data)
+	state := toLabelModel(labelResponse, data)
 
 	diags = resp.State.Set(ctx, state)
 	resp.Diagnostics.Append(diags...)

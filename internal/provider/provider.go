@@ -193,5 +193,6 @@ func (p *impartProvider) Resources(_ context.Context) []func() resource.Resource
 		NewRuleTestcaseResource,
 		NewLabelResource,
 		NewTagMetadataResource,
+		NewExternalLinkResource,
 	}
 }

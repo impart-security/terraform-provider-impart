@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.11.0] - 2025-03-18
+
+### Added
+
+- impart_external_link resource.
+
 ## [0.10.1] - 2025-01-09
 
 ### Changed
