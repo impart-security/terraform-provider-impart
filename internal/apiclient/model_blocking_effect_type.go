@@ -21,8 +21,8 @@ type BlockingEffectType string
 
 // List of blocking_effect_type
 const (
-	BLOCK    BlockingEffectType = "block"
-	SIMULATE BlockingEffectType = "simulate"
+	BLOCKINGEFFECTTYPE_BLOCK    BlockingEffectType = "block"
+	BLOCKINGEFFECTTYPE_SIMULATE BlockingEffectType = "simulate"
 )
 
 // All allowed values of BlockingEffectType enum

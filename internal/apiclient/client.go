@@ -55,6 +55,7 @@ type APIClient struct {
 
 	ConnectorsAPI ConnectorsAPI
 
+	CoreRulesAPI CoreRulesAPI
 	EventMonitorsAPI EventMonitorsAPI
 
 	ExternalLinksAPI ExternalLinksAPI
@@ -65,6 +66,12 @@ type APIClient struct {
 	LogBindingsAPI LogBindingsAPI
 
 	NotificationTemplatesAPI NotificationTemplatesAPI
+
+	RuleClientIdentifierStoragesAPI RuleClientIdentifierStoragesAPI
+
+	RuleClientIdentifiersAPI RuleClientIdentifiersAPI
+
+	RuleRecipesAPI RuleRecipesAPI
 
 	RulesDependenciesAPI RulesDependenciesAPI
 
@@ -96,12 +103,16 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	// API Services
 	c.ApiBindingsAPI = (*ApiBindingsAPIService)(&c.common)
 	c.ConnectorsAPI = (*ConnectorsAPIService)(&c.common)
+	c.CoreRulesAPI = (*CoreRulesAPIService)(&c.common)
 	c.EventMonitorsAPI = (*EventMonitorsAPIService)(&c.common)
 	c.ExternalLinksAPI = (*ExternalLinksAPIService)(&c.common)
 	c.LabelsAPI = (*LabelsAPIService)(&c.common)
 	c.ListsAPI = (*ListsAPIService)(&c.common)
 	c.LogBindingsAPI = (*LogBindingsAPIService)(&c.common)
 	c.NotificationTemplatesAPI = (*NotificationTemplatesAPIService)(&c.common)
+	c.RuleClientIdentifierStoragesAPI = (*RuleClientIdentifierStoragesAPIService)(&c.common)
+	c.RuleClientIdentifiersAPI = (*RuleClientIdentifiersAPIService)(&c.common)
+	c.RuleRecipesAPI = (*RuleRecipesAPIService)(&c.common)
 	c.RulesDependenciesAPI = (*RulesDependenciesAPIService)(&c.common)
 	c.RulesScriptsAPI = (*RulesScriptsAPIService)(&c.common)
 	c.RulesTestCasesAPI = (*RulesTestCasesAPIService)(&c.common)

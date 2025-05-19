@@ -1,6 +1,20 @@
 
 # Changelog
 
+## [0.12.0] - 2025-05-19
+
+### Added
+
+- impart_rule resource which support recipe rule type.
+- impart_core_rule_config to manage core rules.
+- impart_rule_client_identifier to manage client identifiers.
+- impart_rule_client_identifier_storage to manage client identifier storages.
+
+### Changed
+
+- Deprecated impart_rule_script to migrate to impart_rule
+- Deprecated impart_rule_script_dependencies to migrate to impart_rule_dependencies
+
 ## [0.11.1] - 2025-04-22
 
 ### Changed

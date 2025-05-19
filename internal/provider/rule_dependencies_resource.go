@@ -15,32 +15,32 @@ import (
 
 // Ensure the implementation satisfies the expected interfaces.
 var (
-	_ resource.Resource              = &ruleScriptDependenciesResource{}
-	_ resource.ResourceWithConfigure = &ruleScriptDependenciesResource{}
+	_ resource.Resource              = &ruleDependenciesResource{}
+	_ resource.ResourceWithConfigure = &ruleDependenciesResource{}
 )
 
-// NewRuleScriptResource is a helper function to simplify the provider implementation.
-func NewRuleScriptDependenciesResource() resource.Resource {
-	return &ruleScriptDependenciesResource{}
+// NewRuleDependenciesResource is a helper function to simplify the provider implementation.
+func NewRuleDependenciesResource() resource.Resource {
+	return &ruleDependenciesResource{}
 }
 
-// ruleScriptDependenciesResource is the resource implementation.
-type ruleScriptDependenciesResource struct {
+// ruleDependenciesResource is the resource implementation.
+type ruleDependenciesResource struct {
 	client *impartAPIClient
 }
 
-// ruleScriptDependenciesResourceModel maps the resource schema data.
-type ruleScriptDependenciesResourceModel struct {
-	Dependencies []ruleScriptDependsOn `tfsdk:"dependencies"`
+// ruleDependenciesResourceModel maps the resource schema data.
+type ruleDependenciesResourceModel struct {
+	Dependencies []ruleDependsOn `tfsdk:"dependencies"`
 }
 
-type ruleScriptDependsOn struct {
-	RuleScriptID            types.String `tfsdk:"rule_script_id"`
-	DependsOnRulesScriptIDs []string     `tfsdk:"depends_on_rule_script_ids"`
+type ruleDependsOn struct {
+	RuleID    types.String `tfsdk:"rule_id"`
+	DependsOn []string     `tfsdk:"depends_on"`
 }
 
 // Configure adds the provider configured client to the resource.
-func (r *ruleScriptDependenciesResource) Configure(ctx context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
+func (r *ruleDependenciesResource) Configure(ctx context.Context, req resource.ConfigureRequest, _ *resource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -54,34 +54,33 @@ func (r *ruleScriptDependenciesResource) Configure(ctx context.Context, req reso
 }
 
 // Metadata returns the resource type name.
-func (r *ruleScriptDependenciesResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_rule_script_dependencies"
+func (r *ruleDependenciesResource) Metadata(_ context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_rule_dependencies"
 }
 
 // Schema defines the schema for the resource.
-func (r *ruleScriptDependenciesResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *ruleDependenciesResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description:        "Manage rule script dependencies. There should only ever be one instance of this resource in a workspace at once, because it manages rule script dependencies at an organization level.",
-		DeprecationMessage: "This resource is deprecated. Please migrate to `impart_rule_dependencies` instead.",
+		Description: "Manage rule dependencies. There should only ever be one instance of this resource in a workspace at once, because it manages rule dependencies at an organization level.",
 		Attributes: map[string]schema.Attribute{
 			"dependencies": schema.ListNestedAttribute{
-				Description: "An array of rule scripts and the other ids of the rules they depend on before executing.",
+				Description: "An array of rules and the other ids of the rules they depend on before executing.",
 				Required:    true,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
-						"rule_script_id": schema.StringAttribute{
+						"rule_id": schema.StringAttribute{
 							Required:    true,
-							Description: "The ID of the rule script",
+							Description: "The ID of the rule",
 						},
-						"depends_on_rule_script_ids": schema.ListAttribute{
+						"depends_on": schema.ListAttribute{
 							ElementType: types.StringType,
 							Required:    true,
-							Description: "IDs of the rule script this rule depends on.",
+							Description: "IDs of the rule this rule depends on.",
 						},
 					},
 				},
 				Validators: []validator.List{
-					uniqueValue("rule_script_id"),
+					uniqueValue("rule_id"),
 				},
 			},
 		},
@@ -89,10 +88,10 @@ func (r *ruleScriptDependenciesResource) Schema(_ context.Context, _ resource.Sc
 }
 
 // Create a new resource.
-func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
-	tflog.Debug(ctx, "Preparing to create the rule script dependencies resource")
+func (r *ruleDependenciesResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
+	tflog.Debug(ctx, "Preparing to create the rule dependencies resource")
 	// Retrieve values from plan
-	var plan ruleScriptDependenciesResourceModel
+	var plan ruleDependenciesResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -112,8 +111,8 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 	rulesScriptPutBody := make([]openapiclient.RulesDependenciesPutBodyInner, len(plan.Dependencies))
 	for i := range plan.Dependencies {
 		rulesScriptPutBody[i] = openapiclient.RulesDependenciesPutBodyInner{
-			RuleId:       plan.Dependencies[i].RuleScriptID.ValueString(),
-			Dependencies: plan.Dependencies[i].DependsOnRulesScriptIDs,
+			RuleId:       plan.Dependencies[i].RuleID.ValueString(),
+			Dependencies: plan.Dependencies[i].DependsOn,
 		}
 	}
 
@@ -129,7 +128,7 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to create the rule script dependencies",
+			"Unable to create the rule dependencies",
 			message,
 		)
 		return
@@ -145,7 +144,7 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 		responseMap[ruleDependenciesResponse[i].RuleId] = depsMap
 	}
 
-	applyDependencyResponseToState(responseMap, &plan)
+	applyRuleDependencyResponseToState(responseMap, &plan)
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -153,14 +152,14 @@ func (r *ruleScriptDependenciesResource) Create(ctx context.Context, req resourc
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Created the rule script dependencies resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Created the rule dependencies resource", map[string]any{"success": true})
 }
 
 // Read resource information.
-func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
-	tflog.Debug(ctx, "Preparing to read the rule script dependencies resource")
+func (r *ruleDependenciesResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
+	tflog.Debug(ctx, "Preparing to read the rule dependencies resource")
 	// Get current state
-	var state ruleScriptDependenciesResourceModel
+	var state ruleDependenciesResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -180,7 +179,7 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to read the rule script dependencies",
+			"Unable to read the rule dependencies",
 			message,
 		)
 		return
@@ -195,7 +194,7 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 		responseMap[ruleDependenciesResponse.Items[i].Id] = depsMap
 	}
 
-	applyDependencyResponseToState(responseMap, &state)
+	applyRuleDependencyResponseToState(responseMap, &state)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -203,20 +202,20 @@ func (r *ruleScriptDependenciesResource) Read(ctx context.Context, req resource.
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Finished reading the rule script dependencies resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Finished reading the rule dependencies resource", map[string]any{"success": true})
 }
 
-func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
-	tflog.Debug(ctx, "Preparing to update the rule script dependencies resource")
+func (r *ruleDependenciesResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
+	tflog.Debug(ctx, "Preparing to update the rule dependencies resource")
 	// Retrieve values from plan
-	var plan ruleScriptDependenciesResourceModel
+	var plan ruleDependenciesResourceModel
 	diags := req.Plan.Get(ctx, &plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	var state ruleScriptDependenciesResourceModel
+	var state ruleDependenciesResourceModel
 	diags = req.Plan.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -225,7 +224,7 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 
 	if len(plan.Dependencies) == 0 {
 		resp.Diagnostics.AddError(
-			"Unable to create the rule script dependencies",
+			"Unable to create the rule dependencies",
 			"Dependencies must be present and not empty",
 		)
 		return
@@ -234,8 +233,8 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 	rulesScriptPutBody := make([]openapiclient.RulesDependenciesPutBodyInner, len(plan.Dependencies))
 	for i := range plan.Dependencies {
 		rulesScriptPutBody[i] = openapiclient.RulesDependenciesPutBodyInner{
-			RuleId:       plan.Dependencies[i].RuleScriptID.ValueString(),
-			Dependencies: plan.Dependencies[i].DependsOnRulesScriptIDs,
+			RuleId:       plan.Dependencies[i].RuleID.ValueString(),
+			Dependencies: plan.Dependencies[i].DependsOn,
 		}
 	}
 
@@ -250,7 +249,7 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to update the rule script dependencies",
+			"Unable to update the rule dependencies",
 			message,
 		)
 		return
@@ -265,10 +264,10 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 		responseMap[ruleDependenciesResponse[i].RuleId] = depsMap
 	}
 
-	newState := ruleScriptDependenciesResourceModel{
+	newState := ruleDependenciesResourceModel{
 		Dependencies: plan.Dependencies,
 	}
-	applyDependencyResponseToState(responseMap, &newState)
+	applyRuleDependencyResponseToState(responseMap, &newState)
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, newState)
@@ -276,13 +275,13 @@ func (r *ruleScriptDependenciesResource) Update(ctx context.Context, req resourc
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	tflog.Debug(ctx, "Updated the rule script dependencies resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Updated the rule dependencies resource", map[string]any{"success": true})
 }
 
-func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
-	tflog.Debug(ctx, "Preparing to delete the rule script dependencies resource")
+func (r *ruleDependenciesResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
+	tflog.Debug(ctx, "Preparing to delete the rule dependencies resource")
 	// Retrieve values from the state
-	var state ruleScriptDependenciesResourceModel
+	var state ruleDependenciesResourceModel
 	diags := req.State.Get(ctx, &state)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -297,7 +296,7 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to read the rule script dependencies",
+			"Unable to read the rule dependencies",
 			message,
 		)
 		return
@@ -322,28 +321,28 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to delete the rule script dependencies",
+			"Unable to delete the rule dependencies",
 			message,
 		)
 		return
 	}
 
-	tflog.Debug(ctx, "Deleted the rule script dependencies resource", map[string]any{"success": true})
+	tflog.Debug(ctx, "Deleted the rule dependencies resource", map[string]any{"success": true})
 }
 
-func applyDependencyResponseToState(responseItemsMap map[string]map[string]bool,
-	state *ruleScriptDependenciesResourceModel) {
+func applyRuleDependencyResponseToState(responseItemsMap map[string]map[string]bool,
+	state *ruleDependenciesResourceModel) {
 
-	dependenciesState := []ruleScriptDependsOn{}
+	dependenciesState := []ruleDependsOn{}
 
 	for i := range state.Dependencies {
-		stateRuleID := state.Dependencies[i].RuleScriptID.ValueString()
+		stateRuleID := state.Dependencies[i].RuleID.ValueString()
 		if deps, ok := responseItemsMap[stateRuleID]; ok {
 			ruleIDs := []string{}
 			newRuleIDs := []string{}
 
-			for j := range state.Dependencies[i].DependsOnRulesScriptIDs {
-				ruleID := state.Dependencies[i].DependsOnRulesScriptIDs[j]
+			for j := range state.Dependencies[i].DependsOn {
+				ruleID := state.Dependencies[i].DependsOn[j]
 
 				if _, ok = deps[ruleID]; ok {
 					ruleIDs = append(ruleIDs, ruleID)
@@ -358,9 +357,9 @@ func applyDependencyResponseToState(responseItemsMap map[string]map[string]bool,
 				}
 			}
 
-			dependenciesState = append(dependenciesState, ruleScriptDependsOn{
-				RuleScriptID:            state.Dependencies[i].RuleScriptID,
-				DependsOnRulesScriptIDs: append(ruleIDs, newRuleIDs...),
+			dependenciesState = append(dependenciesState, ruleDependsOn{
+				RuleID:    state.Dependencies[i].RuleID,
+				DependsOn: append(ruleIDs, newRuleIDs...),
 			})
 			delete(responseItemsMap, stateRuleID)
 		}
@@ -376,9 +375,9 @@ func applyDependencyResponseToState(responseItemsMap map[string]map[string]bool,
 		for key := range depsMap {
 			deps = append(deps, key)
 		}
-		dependenciesState = append(dependenciesState, ruleScriptDependsOn{
-			RuleScriptID:            types.StringValue(ruleID),
-			DependsOnRulesScriptIDs: deps,
+		dependenciesState = append(dependenciesState, ruleDependsOn{
+			RuleID:    types.StringValue(ruleID),
+			DependsOn: deps,
 		})
 	}
 

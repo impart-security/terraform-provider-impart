@@ -42,7 +42,7 @@ func NewRulesScriptPostBody(name string, disabled bool, src string) *RulesScript
 	this := RulesScriptPostBody{}
 	this.Name = name
 	this.Disabled = disabled
-	var blockingEffect BlockingEffectType = BLOCK
+	var blockingEffect BlockingEffectType = BLOCKINGEFFECTTYPE_BLOCK
 	this.BlockingEffect = &blockingEffect
 	this.Src = src
 	var lang string = "assemblyscript"
@@ -55,7 +55,7 @@ func NewRulesScriptPostBody(name string, disabled bool, src string) *RulesScript
 // but it doesn't guarantee that properties required by API are set
 func NewRulesScriptPostBodyWithDefaults() *RulesScriptPostBody {
 	this := RulesScriptPostBody{}
-	var blockingEffect BlockingEffectType = BLOCK
+	var blockingEffect BlockingEffectType = BLOCKINGEFFECTTYPE_BLOCK
 	this.BlockingEffect = &blockingEffect
 	var lang string = "assemblyscript"
 	this.Lang = &lang

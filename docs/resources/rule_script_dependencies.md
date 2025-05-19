@@ -13,6 +13,7 @@ Manage rule script dependencies. There should only ever be one instance of this 
 ## Example Usage
 
 ```terraform
+# ⚠️ This resource is deprecated. Please migrate to `impart_rule_dependencies` instead.
 resource "impart_rule_script_dependencies" "example" {
   dependencies = [
     {

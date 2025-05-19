@@ -73,7 +73,8 @@ func (r *ruleScriptResource) Metadata(_ context.Context, req resource.MetadataRe
 // Schema defines the schema for the resource.
 func (r *ruleScriptResource) Schema(_ context.Context, _ resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		Description: "Manage a rule script.",
+		Description:        "Manage a rule script.",
+		DeprecationMessage: "This resource is deprecated. Please migrate to `impart_rule` instead.",
 		Attributes: map[string]schema.Attribute{
 			"id": schema.StringAttribute{
 				Description: "Identifier for the rule script.",
@@ -114,7 +115,7 @@ func (r *ruleScriptResource) Schema(_ context.Context, _ resource.SchemaRequest,
 
 			"blocking_effect": schema.StringAttribute{
 				Description: "The rule blocking effect. Allowed values: block, simulate. If not set effect will be block.",
-				Validators:  []validator.String{stringvalidator.OneOf(string(openapiclient.BLOCK), string(openapiclient.SIMULATE))},
+				Validators:  []validator.String{stringvalidator.OneOf(string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK), string(openapiclient.BLOCKINGEFFECTTYPE_SIMULATE))},
 				Optional:    true,
 			},
 
@@ -194,7 +195,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 		rulesScriptPostBody.Description = &description
 	}
 
-	blockingEffectVal := string(openapiclient.BLOCK)
+	blockingEffectVal := string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK)
 	if !plan.BlockingEffect.IsNull() {
 		blockingEffectVal = plan.BlockingEffect.ValueString()
 	}
@@ -240,7 +241,7 @@ func (r *ruleScriptResource) Create(ctx context.Context, req resource.CreateRequ
 	plan.Name = types.StringValue(ruleResponse.Name)
 	plan.Disabled = types.BoolValue(ruleResponse.Disabled)
 
-	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK)) {
 		plan.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
 	}
 
@@ -299,7 +300,7 @@ func (r *ruleScriptResource) Read(ctx context.Context, req resource.ReadRequest,
 	}
 
 	// ignore blocking effect value if it was not explicitly set
-	if !(state.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+	if !(state.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK)) {
 		newState.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
 	}
 	if !state.Description.IsNull() || ruleResponse.Description != "" {
@@ -388,7 +389,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		rulesScriptPostBody.Labels = labels
 	}
 
-	blockingEffectVal := string(openapiclient.BLOCK)
+	blockingEffectVal := string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK)
 	if !plan.BlockingEffect.IsNull() {
 		blockingEffectVal = plan.BlockingEffect.ValueString()
 	}
@@ -435,7 +436,7 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 		state.Description = types.StringValue(ruleResponse.Description)
 	}
 
-	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCK)) {
+	if !(plan.BlockingEffect.IsNull() && string(ruleResponse.BlockingEffect) == string(openapiclient.BLOCKINGEFFECTTYPE_BLOCK)) {
 		state.BlockingEffect = types.StringValue(string(ruleResponse.BlockingEffect))
 	}
 

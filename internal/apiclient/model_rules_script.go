@@ -78,7 +78,7 @@ func NewRulesScript(id string, name string, description string, type_ string, di
 // but it doesn't guarantee that properties required by API are set
 func NewRulesScriptWithDefaults() *RulesScript {
 	this := RulesScript{}
-	var blockingEffect BlockingEffectType = BLOCK
+	var blockingEffect BlockingEffectType = BLOCKINGEFFECTTYPE_BLOCK
 	this.BlockingEffect = blockingEffect
 	return &this
 }

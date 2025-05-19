@@ -33,7 +33,7 @@ type _RulesTestCaseRunPostBodyBlockingEffectOverridesInner RulesTestCaseRunPostB
 // will change when the set of required properties is changed
 func NewRulesTestCaseRunPostBodyBlockingEffectOverridesInner() *RulesTestCaseRunPostBodyBlockingEffectOverridesInner {
 	this := RulesTestCaseRunPostBodyBlockingEffectOverridesInner{}
-	var blockingEffect BlockingEffectType = BLOCK
+	var blockingEffect BlockingEffectType = BLOCKINGEFFECTTYPE_BLOCK
 	this.BlockingEffect = &blockingEffect
 	return &this
 }
@@ -43,7 +43,7 @@ func NewRulesTestCaseRunPostBodyBlockingEffectOverridesInner() *RulesTestCaseRun
 // but it doesn't guarantee that properties required by API are set
 func NewRulesTestCaseRunPostBodyBlockingEffectOverridesInnerWithDefaults() *RulesTestCaseRunPostBodyBlockingEffectOverridesInner {
 	this := RulesTestCaseRunPostBodyBlockingEffectOverridesInner{}
-	var blockingEffect BlockingEffectType = BLOCK
+	var blockingEffect BlockingEffectType = BLOCKINGEFFECTTYPE_BLOCK
 	this.BlockingEffect = &blockingEffect
 	return &this
 }
