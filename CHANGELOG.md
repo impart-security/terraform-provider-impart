@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.12.1] - 2025-06-25
+
+### Changed
+
+- Updated dependencies.
+
 ## [0.12.0] - 2025-05-19
 
 ### Added
@@ -12,8 +18,9 @@
 
 ### Changed
 
-- Deprecated impart_rule_script to migrate to impart_rule
-- Deprecated impart_rule_script_dependencies to migrate to impart_rule_dependencies
+- Deprecated impart_rule_script to migrate to impart_rule.
+- Deprecated impart_rule_script_dependencies to migrate to impart_rule_dependencies.
+- Updated dependencies.
 
 ## [0.11.1] - 2025-04-22
 
