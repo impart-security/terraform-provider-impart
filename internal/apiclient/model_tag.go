@@ -34,8 +34,6 @@ type Tag struct {
 	Remediations  []TagRemediation `json:"remediations"`
 	// An external URL for the tag.
 	ExternalUrl string `json:"external_url"`
-	// The category of the tag.
-	Category string `json:"category"`
 	// The applied labels.
 	Labels []string `json:"labels"`
 	// The unique identifier of the user who created the test case.
@@ -55,7 +53,7 @@ type _Tag Tag
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewTag(name string, displayName string, type_ string, description string, riskStatement string, remediations []TagRemediation, externalUrl string, category string, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *Tag {
+func NewTag(name string, displayName string, type_ string, description string, riskStatement string, remediations []TagRemediation, externalUrl string, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *Tag {
 	this := Tag{}
 	this.Name = name
 	this.DisplayName = displayName
@@ -64,7 +62,6 @@ func NewTag(name string, displayName string, type_ string, description string, r
 	this.RiskStatement = riskStatement
 	this.Remediations = remediations
 	this.ExternalUrl = externalUrl
-	this.Category = category
 	this.Labels = labels
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
@@ -249,30 +246,6 @@ func (o *Tag) SetExternalUrl(v string) {
 	o.ExternalUrl = v
 }
 
-// GetCategory returns the Category field value
-func (o *Tag) GetCategory() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Category
-}
-
-// GetCategoryOk returns a tuple with the Category field value
-// and a boolean to check if the value has been set.
-func (o *Tag) GetCategoryOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Category, true
-}
-
-// SetCategory sets field value
-func (o *Tag) SetCategory(v string) {
-	o.Category = v
-}
-
 // GetLabels returns the Labels field value
 func (o *Tag) GetLabels() []string {
 	if o == nil {
@@ -414,7 +387,6 @@ func (o Tag) ToMap() (map[string]interface{}, error) {
 	toSerialize["risk_statement"] = o.RiskStatement
 	toSerialize["remediations"] = o.Remediations
 	toSerialize["external_url"] = o.ExternalUrl
-	toSerialize["category"] = o.Category
 	toSerialize["labels"] = o.Labels
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
@@ -440,7 +412,6 @@ func (o *Tag) UnmarshalJSON(data []byte) (err error) {
 		"risk_statement",
 		"remediations",
 		"external_url",
-		"category",
 		"labels",
 		"created_by",
 		"created_at",
@@ -482,7 +453,6 @@ func (o *Tag) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "risk_statement")
 		delete(additionalProperties, "remediations")
 		delete(additionalProperties, "external_url")
-		delete(additionalProperties, "category")
 		delete(additionalProperties, "labels")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")

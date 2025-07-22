@@ -55,12 +55,12 @@ type APIClient struct {
 
 	ConnectorsAPI ConnectorsAPI
 
-	CoreRulesAPI CoreRulesAPI
+	CoreRulesAPI     CoreRulesAPI
 	EventMonitorsAPI EventMonitorsAPI
 
 	ExternalLinksAPI ExternalLinksAPI
-	LabelsAPI LabelsAPI
-	
+	LabelsAPI        LabelsAPI
+
 	ListsAPI ListsAPI
 
 	LogBindingsAPI LogBindingsAPI
@@ -80,7 +80,7 @@ type APIClient struct {
 	RulesTestCasesAPI RulesTestCasesAPI
 
 	SpecsAPI SpecsAPI
-	TagsAPI TagsAPI
+	TagsAPI  TagsAPI
 
 	UserAPI UserAPI
 }
@@ -700,12 +700,20 @@ func formatErrorMessage(status string, v interface{}) string {
 	if metaValue.Kind() == reflect.Struct {
 		field := metaValue.FieldByName("Title")
 		if field != (reflect.Value{}) {
-			str = fmt.Sprintf("%s", field.Interface())
+			fieldValue := field.Interface()
+			if field.Type().Kind() == reflect.Ptr && !field.IsNil() {
+				fieldValue = field.Elem().Interface()
+			}
+			str = fmt.Sprintf("%s", fieldValue)
 		}
 
 		field = metaValue.FieldByName("Detail")
 		if field != (reflect.Value{}) {
-			str = fmt.Sprintf("%s (%s)", str, field.Interface())
+			fieldValue := field.Interface()
+			if field.Type().Kind() == reflect.Ptr && !field.IsNil() {
+				fieldValue = field.Elem().Interface()
+			}
+			str = fmt.Sprintf("%s (%s)", str, fieldValue)
 		}
 	}
 

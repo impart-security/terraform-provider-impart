@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.12.2] - 2025-07-22
+
+### Fixed
+
+- Fixed tag metadata create/update.
+
 ## [0.12.1] - 2025-06-25
 
 ### Changed
