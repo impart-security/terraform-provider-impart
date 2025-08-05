@@ -34,6 +34,8 @@ type Spec struct {
 	Revisions []Revision `json:"revisions"`
 	// The analysis score for a spec.
 	Score NullableFloat32 `json:"score"`
+	// Configuration for spec learning.
+	LearningConfig NullableSpecLearningConfig `json:"learning_config,omitempty"`
 	// ID of the  member who created the spec.
 	CreatedBy string `json:"created_by"`
 	// The date the spec was created.
@@ -220,6 +222,49 @@ func (o *Spec) SetScore(v float32) {
 	o.Score.Set(&v)
 }
 
+// GetLearningConfig returns the LearningConfig field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *Spec) GetLearningConfig() SpecLearningConfig {
+	if o == nil || IsNil(o.LearningConfig.Get()) {
+		var ret SpecLearningConfig
+		return ret
+	}
+	return *o.LearningConfig.Get()
+}
+
+// GetLearningConfigOk returns a tuple with the LearningConfig field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *Spec) GetLearningConfigOk() (*SpecLearningConfig, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.LearningConfig.Get(), o.LearningConfig.IsSet()
+}
+
+// HasLearningConfig returns a boolean if a field has been set.
+func (o *Spec) HasLearningConfig() bool {
+	if o != nil && o.LearningConfig.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetLearningConfig gets a reference to the given NullableSpecLearningConfig and assigns it to the LearningConfig field.
+func (o *Spec) SetLearningConfig(v SpecLearningConfig) {
+	o.LearningConfig.Set(&v)
+}
+
+// SetLearningConfigNil sets the value for LearningConfig to be an explicit nil
+func (o *Spec) SetLearningConfigNil() {
+	o.LearningConfig.Set(nil)
+}
+
+// UnsetLearningConfig ensures that no value is present for LearningConfig, not even an explicit nil
+func (o *Spec) UnsetLearningConfig() {
+	o.LearningConfig.Unset()
+}
+
 // GetCreatedBy returns the CreatedBy field value
 func (o *Spec) GetCreatedBy() string {
 	if o == nil {
@@ -336,6 +381,9 @@ func (o Spec) ToMap() (map[string]interface{}, error) {
 	toSerialize["revision"] = o.Revision
 	toSerialize["revisions"] = o.Revisions
 	toSerialize["score"] = o.Score.Get()
+	if o.LearningConfig.IsSet() {
+		toSerialize["learning_config"] = o.LearningConfig.Get()
+	}
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
 	toSerialize["updated_by"] = o.UpdatedBy.Get()
@@ -398,6 +446,7 @@ func (o *Spec) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "revision")
 		delete(additionalProperties, "revisions")
 		delete(additionalProperties, "score")
+		delete(additionalProperties, "learning_config")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "updated_by")

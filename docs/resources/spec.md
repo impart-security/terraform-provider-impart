@@ -31,15 +31,33 @@ resource "impart_spec" "example" {
 
 ### Optional
 
+- `learning_config` (Attributes) Configuration for spec learning. (see [below for nested schema](#nestedatt--learning_config))
 - `source_hash` (String) The specification source hash.
 
 ### Read-Only
 
 - `id` (String) Identifier for this specification.
 
+<a id="nestedatt--learning_config"></a>
+### Nested Schema for `learning_config`
+
+Required:
+
+- `learning_mode` (String) Spec learning mode configuration options. Valid values: all, paths_only, paths_custom. Note: When using 'all' or 'paths_only' modes, the include_* flags will be preserved in state but are not applicable as the mode overrides these settings.
+
+Optional:
+
+- `include_query_params` (Boolean) Include query parameters during spec learning.
+- `include_request_body` (Boolean) Include request body during spec learning.
+- `include_request_headers` (Boolean) Include request headers during spec learning.
+- `include_response_body` (Boolean) Include response body during spec learning.
+- `include_response_headers` (Boolean) Include response headers during spec learning.
+
 ## Import
 
 Import is supported using the following syntax:
+
+The [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import) can be used, for example:
 
 ```shell
 #!/bin/bash

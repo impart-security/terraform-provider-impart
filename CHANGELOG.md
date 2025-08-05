@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.13.0] - 2025-08-05
+
+### Added
+
+- Added spec learning configuration.
+
 ## [0.12.2] - 2025-07-22
 
 ### Fixed

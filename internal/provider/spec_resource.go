@@ -37,10 +37,21 @@ type specResource struct {
 
 // specResourceModel maps the resource schema data.
 type specResourceModel struct {
-	ID         types.String `tfsdk:"id"`
-	Name       types.String `tfsdk:"name"`
-	SourceFile types.String `tfsdk:"source_file"`
-	SourceHash types.String `tfsdk:"source_hash"`
+	ID             types.String             `tfsdk:"id"`
+	Name           types.String             `tfsdk:"name"`
+	SourceFile     types.String             `tfsdk:"source_file"`
+	SourceHash     types.String             `tfsdk:"source_hash"`
+	LearningConfig *specLearningConfigModel `tfsdk:"learning_config"`
+}
+
+// specLearningConfigModel maps the learning config schema data.
+type specLearningConfigModel struct {
+	LearningMode           types.String `tfsdk:"learning_mode"`
+	IncludeRequestHeaders  types.Bool   `tfsdk:"include_request_headers"`
+	IncludeResponseHeaders types.Bool   `tfsdk:"include_response_headers"`
+	IncludeQueryParams     types.Bool   `tfsdk:"include_query_params"`
+	IncludeRequestBody     types.Bool   `tfsdk:"include_request_body"`
+	IncludeResponseBody    types.Bool   `tfsdk:"include_response_body"`
 }
 
 // Configure adds the provider configured client to the resource.
@@ -88,6 +99,36 @@ func (r *specResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				Description: "The specification source hash.",
 				Optional:    true,
 			},
+			"learning_config": schema.SingleNestedAttribute{
+				Description: "Configuration for spec learning.",
+				Optional:    true,
+				Attributes: map[string]schema.Attribute{
+					"learning_mode": schema.StringAttribute{
+						Description: "Spec learning mode configuration options. Valid values: all, paths_only, paths_custom. Note: When using 'all' or 'paths_only' modes, the include_* flags will be preserved in state but are not applicable as the mode overrides these settings.",
+						Required:    true,
+					},
+					"include_request_headers": schema.BoolAttribute{
+						Description: "Include request headers during spec learning.",
+						Optional:    true,
+					},
+					"include_response_headers": schema.BoolAttribute{
+						Description: "Include response headers during spec learning.",
+						Optional:    true,
+					},
+					"include_query_params": schema.BoolAttribute{
+						Description: "Include query parameters during spec learning.",
+						Optional:    true,
+					},
+					"include_request_body": schema.BoolAttribute{
+						Description: "Include request body during spec learning.",
+						Optional:    true,
+					},
+					"include_response_body": schema.BoolAttribute{
+						Description: "Include response body during spec learning.",
+						Optional:    true,
+					},
+				},
+			},
 		},
 	}
 }
@@ -120,11 +161,21 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	specb64 := base64.StdEncoding.EncodeToString(spec)
 
 	// Create new specification
+	specPostBody := openapiclient.SpecPostBody{
+		Name: name,
+		Spec: &specb64,
+	}
+
+	// Add learning config if provided
+	if plan.LearningConfig != nil {
+		apiLearningConfig := terraformToAPILearningConfig(plan.LearningConfig)
+		if apiLearningConfig != nil {
+			specPostBody.SetLearningConfig(*apiLearningConfig)
+		}
+	}
+
 	specRequest := r.client.SpecsAPI.CreateSpec(ctx, r.client.OrgID).
-		SpecPostBody(openapiclient.SpecPostBody{
-			Name: name,
-			Spec: &specb64,
-		})
+		SpecPostBody(specPostBody)
 
 	specResponse, _, err := specRequest.Execute()
 	if err != nil {
@@ -143,6 +194,14 @@ func (r *specResource) Create(ctx context.Context, req resource.CreateRequest, r
 	// Map response body to model
 	plan.ID = types.StringValue(specResponse.Id)
 	plan.Name = types.StringValue(specResponse.Name)
+
+	// Only track learning_config in state if user originally provided it
+	if plan.LearningConfig != nil {
+		if specResponse.HasLearningConfig() {
+			learningConfig := specResponse.GetLearningConfig()
+			plan.LearningConfig = apiToTerraformLearningConfig(&learningConfig, plan.LearningConfig)
+		}
+	}
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -166,6 +225,7 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	currentHash := state.SourceHash
+	currentLearningConfig := state.LearningConfig
 
 	specResponse, httpResp, err := r.client.SpecsAPI.GetSpec(ctx, r.client.OrgID, state.ID.ValueString()).Execute()
 	if err != nil {
@@ -193,6 +253,16 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 		Name:       types.StringValue(specResponse.Name),
 		SourceFile: state.SourceFile,
 		SourceHash: state.SourceHash,
+	}
+
+	// Track learning_config only if user originally set it
+	if currentLearningConfig != nil {
+		if specResponse.HasLearningConfig() {
+			learningConfig := specResponse.GetLearningConfig()
+			state.LearningConfig = apiToTerraformLearningConfig(&learningConfig, currentLearningConfig)
+		} else {
+			state.LearningConfig = nil
+		}
 	}
 
 	// track hash only if user originally set it
@@ -245,11 +315,22 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 	specb64 := base64.StdEncoding.EncodeToString(spec)
 
+	// Create update body
+	specPostBody := openapiclient.SpecPostBody{
+		Name: name,
+		Spec: &specb64,
+	}
+
+	// Add learning config if provided
+	if plan.LearningConfig != nil {
+		apiLearningConfig := terraformToAPILearningConfig(plan.LearningConfig)
+		if apiLearningConfig != nil {
+			specPostBody.SetLearningConfig(*apiLearningConfig)
+		}
+	}
+
 	specRequest := r.client.SpecsAPI.UpdateSpec(ctx, r.client.OrgID, plan.ID.ValueString()).
-		SpecPostBody(openapiclient.SpecPostBody{
-			Name: name,
-			Spec: &specb64,
-		})
+		SpecPostBody(specPostBody)
 
 	// update specification
 	specResponse, _, err := specRequest.Execute()
@@ -267,12 +348,25 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 		return
 	}
 
+	// Store current learning_config state before overwriting
+	currentLearningConfig := plan.LearningConfig
+
 	// Overwrite specifications with refreshed state
 	plan = specResourceModel{
 		ID:         types.StringValue(specResponse.Id),
 		Name:       types.StringValue(specResponse.Name),
 		SourceFile: types.StringValue(plan.SourceFile.ValueString()),
 		SourceHash: plan.SourceHash,
+	}
+
+	// Only track learning_config in state if user originally provided it
+	if currentLearningConfig != nil {
+		if specResponse.HasLearningConfig() {
+			learningConfig := specResponse.GetLearningConfig()
+			plan.LearningConfig = apiToTerraformLearningConfig(&learningConfig, currentLearningConfig)
+		} else {
+			plan.LearningConfig = nil
+		}
 	}
 
 	// Set refreshed state
@@ -310,4 +404,55 @@ func (r *specResource) Delete(ctx context.Context, req resource.DeleteRequest, r
 	}
 
 	tflog.Debug(ctx, "Deleted the specification resource", map[string]any{"success": true})
+}
+
+// Helper function to convert Terraform learning config model to API model
+func terraformToAPILearningConfig(tfModel *specLearningConfigModel) *openapiclient.SpecLearningConfig {
+	if tfModel == nil {
+		return nil
+	}
+
+	apiModel := openapiclient.NewSpecLearningConfig(
+		openapiclient.SpecLearningMode(tfModel.LearningMode.ValueString()),
+		tfModel.IncludeRequestHeaders.ValueBool(),
+		tfModel.IncludeResponseHeaders.ValueBool(),
+		tfModel.IncludeQueryParams.ValueBool(),
+		tfModel.IncludeRequestBody.ValueBool(),
+		tfModel.IncludeResponseBody.ValueBool(),
+	)
+
+	return apiModel
+}
+
+// Helper function to convert API learning config model to Terraform model
+// Only sets fields that were originally provided by the user in their plan
+func apiToTerraformLearningConfig(apiModel *openapiclient.SpecLearningConfig, currentPlan *specLearningConfigModel) *specLearningConfigModel {
+	if apiModel == nil {
+		return nil
+	}
+
+	result := &specLearningConfigModel{
+		LearningMode: types.StringValue(string(apiModel.LearningMode)), // Always set since it's required
+	}
+
+	// Only set optional fields if user originally provided them
+	if currentPlan != nil {
+		if !currentPlan.IncludeRequestHeaders.IsNull() {
+			result.IncludeRequestHeaders = types.BoolValue(apiModel.IncludeRequestHeaders)
+		}
+		if !currentPlan.IncludeResponseHeaders.IsNull() {
+			result.IncludeResponseHeaders = types.BoolValue(apiModel.IncludeResponseHeaders)
+		}
+		if !currentPlan.IncludeQueryParams.IsNull() {
+			result.IncludeQueryParams = types.BoolValue(apiModel.IncludeQueryParams)
+		}
+		if !currentPlan.IncludeRequestBody.IsNull() {
+			result.IncludeRequestBody = types.BoolValue(apiModel.IncludeRequestBody)
+		}
+		if !currentPlan.IncludeResponseBody.IsNull() {
+			result.IncludeResponseBody = types.BoolValue(apiModel.IncludeResponseBody)
+		}
+	}
+
+	return result
 }

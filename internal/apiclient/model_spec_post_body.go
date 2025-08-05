@@ -24,7 +24,9 @@ type SpecPostBody struct {
 	// The name of a spec.
 	Name string `json:"name"`
 	// A specification. Can be Swagger 2.0 or OAS 3.0. Must be base64 encoded.
-	Spec                 *string `json:"spec,omitempty"`
+	Spec *string `json:"spec,omitempty"`
+	// Configuration for spec learning.
+	LearningConfig       NullableSpecLearningConfig `json:"learning_config,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -104,6 +106,49 @@ func (o *SpecPostBody) SetSpec(v string) {
 	o.Spec = &v
 }
 
+// GetLearningConfig returns the LearningConfig field value if set, zero value otherwise (both if not set or set to explicit null).
+func (o *SpecPostBody) GetLearningConfig() SpecLearningConfig {
+	if o == nil || IsNil(o.LearningConfig.Get()) {
+		var ret SpecLearningConfig
+		return ret
+	}
+	return *o.LearningConfig.Get()
+}
+
+// GetLearningConfigOk returns a tuple with the LearningConfig field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+// NOTE: If the value is an explicit nil, `nil, true` will be returned
+func (o *SpecPostBody) GetLearningConfigOk() (*SpecLearningConfig, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return o.LearningConfig.Get(), o.LearningConfig.IsSet()
+}
+
+// HasLearningConfig returns a boolean if a field has been set.
+func (o *SpecPostBody) HasLearningConfig() bool {
+	if o != nil && o.LearningConfig.IsSet() {
+		return true
+	}
+
+	return false
+}
+
+// SetLearningConfig gets a reference to the given NullableSpecLearningConfig and assigns it to the LearningConfig field.
+func (o *SpecPostBody) SetLearningConfig(v SpecLearningConfig) {
+	o.LearningConfig.Set(&v)
+}
+
+// SetLearningConfigNil sets the value for LearningConfig to be an explicit nil
+func (o *SpecPostBody) SetLearningConfigNil() {
+	o.LearningConfig.Set(nil)
+}
+
+// UnsetLearningConfig ensures that no value is present for LearningConfig, not even an explicit nil
+func (o *SpecPostBody) UnsetLearningConfig() {
+	o.LearningConfig.Unset()
+}
+
 func (o SpecPostBody) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -117,6 +162,9 @@ func (o SpecPostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	if !IsNil(o.Spec) {
 		toSerialize["spec"] = o.Spec
+	}
+	if o.LearningConfig.IsSet() {
+		toSerialize["learning_config"] = o.LearningConfig.Get()
 	}
 
 	for key, value := range o.AdditionalProperties {
@@ -163,6 +211,7 @@ func (o *SpecPostBody) UnmarshalJSON(data []byte) (err error) {
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "spec")
+		delete(additionalProperties, "learning_config")
 		o.AdditionalProperties = additionalProperties
 	}
 
