@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.13.1] - 2025-08-13
+
+### Changed
+
+- Force replacement on rule script dependency update.
+
 ## [0.13.0] - 2025-08-05
 
 ### Added
