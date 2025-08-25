@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.13.3] - 2025-08-25
+
+### Fixed
+
+- Fixed `impart_core_rule_config` slug state issue.
+
 ## [0.13.2] - 2025-08-20
 
 ### Changed

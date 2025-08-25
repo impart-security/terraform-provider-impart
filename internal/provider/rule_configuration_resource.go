@@ -284,9 +284,13 @@ func (r *ruleConfigurationResource) Delete(ctx context.Context, req resource.Del
 
 	slug := strings.ToLower(state.Slug.ValueString())
 
+	config := openapiclient.CoreRuleConfig{
+		Slug: slug,
+	}
+
 	ruleConfigurationPostBody := openapiclient.CoreRulePostBody{
 		Disabled: true,
-		Config:   openapiclient.CoreRuleConfig(fmt.Sprintf(`{"app_slug": "%s"}`, slug)),
+		Config:   config,
 		Labels:   []string{},
 	}
 
@@ -327,7 +331,11 @@ func toRuleConfigurationPostBody(plan ruleConfigurationResourceModel) (apiclient
 	}
 
 	if !plan.Config.IsNull() {
-		postBody.Config = openapiclient.CoreRuleConfig(plan.Config.ValueString())
+		config, err := openapiclient.NewCoreRuleConfigFromString(plan.Config.ValueString())
+		if err != nil {
+			return postBody, fmt.Errorf("unable to parse core rule config: %w", err)
+		}
+		postBody.Config = config
 	}
 
 	// if len(plan.Labels) > 0 {
@@ -343,20 +351,24 @@ func toRuleConfigurationPostBody(plan ruleConfigurationResourceModel) (apiclient
 func toRuleConfigurationModel(coreRuleResponse *openapiclient.CoreRule, plan ruleConfigurationResourceModel) (ruleConfigurationResourceModel, error) {
 	ruleConfigurationModel := ruleConfigurationResourceModel{
 		ID:       types.StringValue(coreRuleResponse.Id),
-		Slug:     types.StringValue(coreRuleResponse.Name),
+		Slug:     types.StringValue(coreRuleResponse.Config.Slug),
 		Disabled: types.BoolValue(coreRuleResponse.Disabled),
 	}
 
 	//ruleConfigurationModel.Labels = buildStateList(plan.Labels, coreRuleResponse.Labels)
 
-	// normalize name to use plan
-	if strings.EqualFold(coreRuleResponse.Name, plan.Slug.ValueString()) {
+	// normalize slug to use plan
+	if strings.EqualFold(coreRuleResponse.Config.Slug, plan.Slug.ValueString()) {
 		ruleConfigurationModel.Slug = types.StringValue(plan.Slug.ValueString())
 	}
 
 	// track only if content was set
 	if !plan.Config.IsNull() {
-		ruleConfigurationModel.Config = types.StringValue(string(coreRuleResponse.Config))
+		configBytes, err := coreRuleResponse.Config.MarshalJSON()
+		if err != nil {
+			return ruleConfigurationModel, fmt.Errorf("unable to marshal core rule config: %w", err)
+		}
+		ruleConfigurationModel.Config = types.StringValue(string(configBytes))
 	}
 
 	return ruleConfigurationModel, nil

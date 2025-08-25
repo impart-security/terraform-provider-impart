@@ -17,13 +17,47 @@ func (r *RuleRecipeComponents) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-type CoreRuleConfig json.RawMessage
-
-func (r CoreRuleConfig) MarshalJSON() ([]byte, error) {
-	return json.RawMessage(r).MarshalJSON()
+type CoreRuleConfig struct {
+	// Slug is readable in Go, but not emitted (we emit Raw below).
+	Slug string `json:"-"`
+	// Raw holds the entire original config JSON.
+	Raw json.RawMessage `json:"-"`
 }
 
-func (r *CoreRuleConfig) UnmarshalJSON(data []byte) error {
-	*r = CoreRuleConfig(data)
+func NewCoreRuleConfigFromString(s string) (CoreRuleConfig, error) {
+	var c CoreRuleConfig
+	if err := c.UnmarshalJSON([]byte(s)); err != nil {
+		return CoreRuleConfig{}, err
+	}
+	return c, nil
+}
+
+func (c *CoreRuleConfig) UnmarshalJSON(data []byte) error {
+	// Keep a copy of the entire config as-is for lossless round-tripping.
+	c.Raw = append([]byte(nil), data...)
+
+	// Best-effort extract of slug.
+	var aux struct {
+		Slug string `json:"app_slug"`
+	}
+	if err := json.Unmarshal(data, &aux); err == nil {
+		c.Slug = aux.Slug
+	} else {
+		c.Slug = "" // not present or not an object
+	}
 	return nil
+}
+
+func (c CoreRuleConfig) MarshalJSON() ([]byte, error) {
+	// Always send the exact original bytes if we have them.
+	if c.Raw != nil {
+		return c.Raw, nil
+	}
+	// Fallback if built programmatically without Raw.
+	aux := struct {
+		Slug string `json:"app_slug"`
+	}{
+		Slug: c.Slug,
+	}
+	return json.Marshal(aux)
 }
