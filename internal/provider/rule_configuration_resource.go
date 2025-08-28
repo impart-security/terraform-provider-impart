@@ -282,23 +282,10 @@ func (r *ruleConfigurationResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	slug := strings.ToLower(state.Slug.ValueString())
-
-	config := openapiclient.CoreRuleConfig{
-		Slug: slug,
-	}
-
-	ruleConfigurationPostBody := openapiclient.CoreRulePostBody{
-		Disabled: true,
-		Config:   config,
-		Labels:   []string{},
-	}
-
-	ruleRequest := r.client.CoreRulesAPI.UpdateCoreRule(ctx, r.client.OrgID, state.ID.ValueString()).
-		CoreRulePostBody(ruleConfigurationPostBody)
+	ruleRequest := r.client.CoreRulesAPI.ResetCoreRule(ctx, r.client.OrgID, state.ID.ValueString())
 
 	// update rule
-	_, _, err := ruleRequest.Execute()
+	_, err := ruleRequest.Execute()
 
 	if err != nil {
 		message := err.Error()

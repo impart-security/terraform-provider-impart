@@ -1,6 +1,13 @@
 
 # Changelog
 
+## [0.13.4] - 2025-08-27
+
+### Fixed
+
+- Fixed `impart_core_rule_config` deletion.
+- Fixed `impart_list` not setting description attribute on create.
+
 ## [0.13.3] - 2025-08-25
 
 ### Fixed

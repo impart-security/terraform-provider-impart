@@ -211,6 +211,11 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 		postBody.Subkind = subkind
 	}
 
+	if !plan.Description.IsNull() {
+		description := plan.Description.ValueString()
+		postBody.Description = &description
+	}
+
 	if len(plan.Labels) > 0 {
 		labels := make([]string, len(plan.Labels))
 		for i, label := range plan.Labels {
@@ -265,6 +270,10 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	plan.Labels = buildStateList(plan.Labels, listResponse.Labels)
+
+	if !plan.Description.IsNull() || listResponse.Description != "" {
+		plan.Description = types.StringValue(listResponse.Description)
+	}
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)

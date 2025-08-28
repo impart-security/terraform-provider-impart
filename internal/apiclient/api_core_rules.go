@@ -54,6 +54,21 @@ type CoreRulesAPI interface {
 	GetCoreRulesExecute(r ApiGetCoreRulesRequest) (*CoreRules, *http.Response, error)
 
 	/*
+		ResetCoreRule Reset a core rule
+
+		Resets a core rule for an organization.
+
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param orgId Organization ID
+		@param coreRuleIdOrSlug Core rule ID or slug
+		@return ApiResetCoreRuleRequest
+	*/
+	ResetCoreRule(ctx context.Context, orgId string, coreRuleIdOrSlug string) ApiResetCoreRuleRequest
+
+	// ResetCoreRuleExecute executes the request
+	ResetCoreRuleExecute(r ApiResetCoreRuleRequest) (*http.Response, error)
+
+	/*
 		UpdateCoreRule Update a core rule
 
 		Updates a core rule for an organization.
@@ -392,6 +407,150 @@ func (a *CoreRulesAPIService) GetCoreRulesExecute(r ApiGetCoreRulesRequest) (*Co
 	}
 
 	return localVarReturnValue, localVarHTTPResponse, nil
+}
+
+type ApiResetCoreRuleRequest struct {
+	ctx              context.Context
+	ApiService       CoreRulesAPI
+	orgId            string
+	coreRuleIdOrSlug string
+	ifMatch          *string
+}
+
+// If Match for ETag lock checks.
+func (r ApiResetCoreRuleRequest) IfMatch(ifMatch string) ApiResetCoreRuleRequest {
+	r.ifMatch = &ifMatch
+	return r
+}
+
+func (r ApiResetCoreRuleRequest) Execute() (*http.Response, error) {
+	return r.ApiService.ResetCoreRuleExecute(r)
+}
+
+/*
+ResetCoreRule Reset a core rule
+
+Resets a core rule for an organization.
+
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param orgId Organization ID
+	@param coreRuleIdOrSlug Core rule ID or slug
+	@return ApiResetCoreRuleRequest
+*/
+func (a *CoreRulesAPIService) ResetCoreRule(ctx context.Context, orgId string, coreRuleIdOrSlug string) ApiResetCoreRuleRequest {
+	return ApiResetCoreRuleRequest{
+		ApiService:       a,
+		ctx:              ctx,
+		orgId:            orgId,
+		coreRuleIdOrSlug: coreRuleIdOrSlug,
+	}
+}
+
+// Execute executes the request
+func (a *CoreRulesAPIService) ResetCoreRuleExecute(r ApiResetCoreRuleRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CoreRulesAPIService.ResetCoreRule")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/orgs/{org_id}/core_rules/{core_rule_id_or_slug}"
+	localVarPath = strings.Replace(localVarPath, "{"+"org_id"+"}", url.PathEscape(parameterValueToString(r.orgId, "orgId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"core_rule_id_or_slug"+"}", url.PathEscape(parameterValueToString(r.coreRuleIdOrSlug, "coreRuleIdOrSlug")), -1)
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if strlen(r.orgId) > 36 {
+		return nil, reportError("orgId must have less than 36 elements")
+	}
+	if strlen(r.coreRuleIdOrSlug) > 36 {
+		return nil, reportError("coreRuleIdOrSlug must have less than 36 elements")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{"application/security.impart.api.v0+json"}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	if r.ifMatch != nil {
+		parameterAddToHeaderOrQuery(localVarHeaderParams, "If-Match", r.ifMatch, "", "")
+	}
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := io.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = io.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		if localVarHTTPResponse.StatusCode == 400 {
+			var v BasicError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 401 {
+			var v BasicError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 500 {
+			var v BasicError
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
 }
 
 type ApiUpdateCoreRuleRequest struct {
