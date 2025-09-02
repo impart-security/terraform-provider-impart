@@ -174,9 +174,9 @@ func (r *ruleDependenciesResource) Read(ctx context.Context, req resource.ReadRe
 	rulesScriptReq := r.client.RulesScriptsAPI.GetRulesScripts(ctx, r.client.OrgID).
 		ExcludeSrc(true).
 		ExcludeRevisions(true).
-		Type_("custom")
+		MaxResults(1000)
 
-	ruleDependenciesResponse, _, err := rulesScriptReq.Execute()
+	rulesResponse, _, err := rulesScriptReq.Execute()
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -190,13 +190,27 @@ func (r *ruleDependenciesResource) Read(ctx context.Context, req resource.ReadRe
 		return
 	}
 
+	// Build rule type map for filtering dependencies
+	ruleTypeMap := make(map[string]string)
+	for i := range rulesResponse.Items {
+		ruleTypeMap[rulesResponse.Items[i].Id] = rulesResponse.Items[i].Type
+	}
+
 	responseMap := make(map[string]map[string]bool)
-	for i := range ruleDependenciesResponse.Items {
+	for i := range rulesResponse.Items {
 		depsMap := make(map[string]bool)
-		for j := range ruleDependenciesResponse.Items[i].Dependencies {
-			depsMap[ruleDependenciesResponse.Items[i].Dependencies[j]] = false
+		for j := range rulesResponse.Items[i].Dependencies {
+			if r, ok := ruleTypeMap[rulesResponse.Items[i].Dependencies[j]]; ok {
+				if !shouldIncludeDependency(rulesResponse.Items[i].Type, r) {
+					continue
+				}
+			} else {
+				continue
+			}
+
+			depsMap[rulesResponse.Items[i].Dependencies[j]] = false
 		}
-		responseMap[ruleDependenciesResponse.Items[i].Id] = depsMap
+		responseMap[rulesResponse.Items[i].Id] = depsMap
 	}
 
 	applyRuleDependencyResponseToState(responseMap, &state)
@@ -387,4 +401,14 @@ func applyRuleDependencyResponseToState(responseItemsMap map[string]map[string]b
 	}
 
 	state.Dependencies = dependenciesState
+}
+
+// shouldIncludeDependency determines if a dependency should be included based on rule types
+// Returns false for invalid or predefined dependencies: config->config, core->core, config->core, core->config
+func shouldIncludeDependency(sourceType, targetType string) bool {
+	// Filter out dependencies between core and config rule types
+	if (sourceType == "core" || sourceType == "config") && (targetType == "core" || targetType == "config") {
+		return false
+	}
+	return true
 }

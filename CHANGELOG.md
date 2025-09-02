@@ -1,6 +1,12 @@
 
 # Changelog
 
+## [0.13.5] - 2025-09-02
+
+### Fixed
+
+- Fixed `impart_rule_dependencies` to manage rule recipes state.
+
 ## [0.13.4] - 2025-08-27
 
 ### Fixed
