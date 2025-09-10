@@ -53,7 +53,7 @@ func NewListsItemsInner(id string, name string, createdBy string, createdAt time
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.Kind = kind
-	var functionality ListFunctionality = ADD_REMOVE
+	var functionality ListFunctionality = LISTFUNCTIONALITY_ADD_REMOVE
 	this.Functionality = &functionality
 	this.Labels = labels
 	return &this
@@ -64,7 +64,7 @@ func NewListsItemsInner(id string, name string, createdBy string, createdAt time
 // but it doesn't guarantee that properties required by API are set
 func NewListsItemsInnerWithDefaults() *ListsItemsInner {
 	this := ListsItemsInner{}
-	var functionality ListFunctionality = ADD_REMOVE
+	var functionality ListFunctionality = LISTFUNCTIONALITY_ADD_REMOVE
 	this.Functionality = &functionality
 	return &this
 }

@@ -45,7 +45,7 @@ func NewListPostBody(name string, kind ListKind) *ListPostBody {
 	this := ListPostBody{}
 	this.Name = name
 	this.Kind = kind
-	var functionality ListFunctionality = ADD_REMOVE
+	var functionality ListFunctionality = LISTFUNCTIONALITY_ADD_REMOVE
 	this.Functionality = &functionality
 	return &this
 }
@@ -55,7 +55,7 @@ func NewListPostBody(name string, kind ListKind) *ListPostBody {
 // but it doesn't guarantee that properties required by API are set
 func NewListPostBodyWithDefaults() *ListPostBody {
 	this := ListPostBody{}
-	var functionality ListFunctionality = ADD_REMOVE
+	var functionality ListFunctionality = LISTFUNCTIONALITY_ADD_REMOVE
 	this.Functionality = &functionality
 	return &this
 }

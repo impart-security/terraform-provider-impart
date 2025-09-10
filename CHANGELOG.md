@@ -1,5 +1,14 @@
-
 # Changelog
+
+## [0.14.0] - 2025-09-09
+
+### Fixed
+
+- Fixed list state for IP range of single IP.
+
+### Added
+
+- Added support for static lists (functionality = `none`).
 
 ## [0.13.5] - 2025-09-02
 
@@ -222,4 +231,3 @@
 ### Added
 
 - Initial release
-

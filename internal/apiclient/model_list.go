@@ -67,7 +67,7 @@ func NewList(id string, name string, description string, labels []string, create
 // but it doesn't guarantee that properties required by API are set
 func NewListWithDefaults() *List {
 	this := List{}
-	var functionality ListFunctionality = ADD_REMOVE
+	var functionality ListFunctionality = LISTFUNCTIONALITY_ADD_REMOVE
 	this.Functionality = functionality
 	return &this
 }

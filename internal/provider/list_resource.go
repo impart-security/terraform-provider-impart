@@ -110,7 +110,7 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"functionality": schema.StringAttribute{
-				Description: "The list functionality. Allowed values are add, add/remove.",
+				Description: "The list functionality. Allowed values are add, add/remove, and none.",
 				Optional:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -235,7 +235,7 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 		}
 		postBody.Functionality = functionality
 	} else {
-		postBody.Functionality = openapiclient.ADD_REMOVE.Ptr()
+		postBody.Functionality = openapiclient.LISTFUNCTIONALITY_ADD_REMOVE.Ptr()
 	}
 
 	listResponse, _, err := r.client.ListsAPI.CreateList(ctx, r.client.OrgID).ListPostBody(postBody).Execute()
@@ -507,7 +507,7 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 		_, err := openapiclient.NewListKindFromValue(plan.Kind.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Configuration Error: Ivalid value",
+				"Configuration Error: Invalid value",
 				err.Error(),
 			)
 		}
@@ -517,15 +517,15 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 		functionality, err := openapiclient.NewListFunctionalityFromValue(plan.Functionality.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"Configuration Error: Ivalid value",
+				"Configuration Error: Invalid value",
 				err.Error(),
 			)
 		}
 
-		if plan.Items != nil && (*functionality != openapiclient.ADD_REMOVE) {
+		if plan.Items != nil && (*functionality != openapiclient.LISTFUNCTIONALITY_ADD_REMOVE && *functionality != openapiclient.LISTFUNCTIONALITY_NONE) {
 			resp.Diagnostics.AddError(
-				"Configuration Error: Ivalid value",
-				"List items can only be set with add/remove functionality",
+				"Configuration Error: Invalid value",
+				"List items can only be set with add/remove or none functionality",
 			)
 		}
 	}
@@ -534,7 +534,7 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 		_, err := openapiclient.NewListSubkindFromValue(plan.Subkind.ValueString())
 		if err != nil {
 			resp.Diagnostics.AddError(
-				"List Configuration Error: Ivalid value",
+				"List Configuration Error: Invalid value",
 				err.Error(),
 			)
 		}
@@ -663,6 +663,10 @@ func parsePrefixRangeOrAddr(s string) (string, bool) {
 			return "", false
 		}
 
+		// if the range is a single IP, return just the IP
+		if ipRange.From().Compare(ipRange.To()) == 0 {
+			return ipRange.From().String(), true
+		}
 		return ipRange.String(), true
 	case strings.LastIndexByte(s, '/') > 0:
 		prefix, err := netip.ParsePrefix(s)

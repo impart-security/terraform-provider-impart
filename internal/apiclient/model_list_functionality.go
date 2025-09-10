@@ -21,14 +21,16 @@ type ListFunctionality string
 
 // List of list_functionality
 const (
-	ADD        ListFunctionality = "add"
-	ADD_REMOVE ListFunctionality = "add/remove"
+	LISTFUNCTIONALITY_ADD        ListFunctionality = "add"
+	LISTFUNCTIONALITY_ADD_REMOVE ListFunctionality = "add/remove"
+	LISTFUNCTIONALITY_NONE       ListFunctionality = "none"
 )
 
 // All allowed values of ListFunctionality enum
 var AllowedListFunctionalityEnumValues = []ListFunctionality{
 	"add",
 	"add/remove",
+	"none",
 }
 
 func (v *ListFunctionality) UnmarshalJSON(src []byte) error {
