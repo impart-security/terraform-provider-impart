@@ -522,7 +522,7 @@ func (r *ListResource) ValidateConfig(ctx context.Context, req resource.Validate
 			)
 		}
 
-		if plan.Items != nil && (*functionality != openapiclient.LISTFUNCTIONALITY_ADD_REMOVE && *functionality != openapiclient.LISTFUNCTIONALITY_NONE) {
+		if len(plan.Items) > 0 && (*functionality != openapiclient.LISTFUNCTIONALITY_ADD_REMOVE && *functionality != openapiclient.LISTFUNCTIONALITY_NONE) {
 			resp.Diagnostics.AddError(
 				"Configuration Error: Invalid value",
 				"List items can only be set with add/remove or none functionality",

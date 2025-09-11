@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.14.1] - 2025-09-11
+
+### Changed
+
+- Allow creation of `add` lists with empty `items`.
+
 ## [0.14.0] - 2025-09-09
 
 ### Fixed
