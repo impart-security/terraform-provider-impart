@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -337,8 +336,8 @@ func (r *ruleScriptDependenciesResource) Delete(ctx context.Context, req resourc
 }
 
 func applyDependencyResponseToState(responseItemsMap map[string]map[string]bool,
-	state *ruleScriptDependenciesResourceModel) {
-
+	state *ruleScriptDependenciesResourceModel,
+) {
 	dependenciesState := []ruleScriptDependsOn{}
 
 	for i := range state.Dependencies {

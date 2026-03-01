@@ -9,7 +9,6 @@ import (
 )
 
 func TestAccLogBindingResource(t *testing.T) {
-
 	grokPattern := `%{HTTPDATE:timestamp} "(?:%{WORD:http_method}|-) (?:%{GREEDYDATA:request}|-) (?:HTTP/%{NUMBER:httpversion}|-( )?)" (?:%{NUMBER:response_code}|-)`
 	updatedGrokPattern := grokPattern + " (?:%{WORD:variable}|-)"
 

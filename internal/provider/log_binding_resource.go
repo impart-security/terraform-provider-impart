@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -123,7 +122,6 @@ func (r *logBindingResource) Create(ctx context.Context, req resource.CreateRequ
 		PatternType: plan.PatternType.ValueString(),
 		LogstreamId: &logstreamID,
 	}).Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -254,7 +252,6 @@ func (r *logBindingResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// update the log binding
 	logBindingResponse, _, err := specRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

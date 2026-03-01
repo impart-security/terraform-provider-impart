@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -152,7 +151,6 @@ func (r ruleClientIdentifierStorageResource) Read(ctx context.Context, req resou
 	clientIdentifierStorageResponse, httpResp, err := r.client.RuleClientIdentifierStoragesAPI.
 		GetRuleClientIdentifierStorage(ctx, r.client.OrgID, data.ID.ValueString()).
 		Execute()
-
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {

@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -267,7 +266,7 @@ func (r *specResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	// track hash only if user originally set it
 	if !currentHash.IsNull() {
-		//state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
+		// state.SourceHash = types.StringValue(httpResp.Header.Get("ETag"))
 		bytes, err := base64.StdEncoding.DecodeString(specResponse.Spec)
 		if err != nil {
 			resp.Diagnostics.AddError(
@@ -334,7 +333,6 @@ func (r *specResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 	// update specification
 	specResponse, _, err := specRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.15.0] - 2026-02-28
+
+### Added
+
+- Added support for Aho-Corasick (kind = aho_corasick), Regular Expression (kind = regex), and Glob (kind = glob) lists.
+
+### Changed
+
+- Updated dependencies.
+
 ## [0.14.2] - 2025-12-02
 
 ### Changed

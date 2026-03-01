@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -192,7 +191,6 @@ func (r *ruleResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	ruleResponse, err := r.createRule(ctx, plan.Type.ValueString(), rulesScriptPostBody, &resp.Diagnostics)
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -242,7 +240,6 @@ func (r *ruleResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 	}
 
 	ruleResponse, httpResp, err := r.readRule(ctx, state.Type.ValueString(), state.ID.ValueString())
-
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp != nil && httpResp.StatusCode == http.StatusNotFound {
@@ -301,7 +298,6 @@ func (r *ruleResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	}
 
 	ruleResponse, err := r.updateRule(ctx, plan.Type.ValueString(), plan.ID.ValueString(), rulesScriptPostBody)
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

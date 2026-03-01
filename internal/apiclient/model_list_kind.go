@@ -21,12 +21,15 @@ type ListKind string
 
 // List of list_kind
 const (
-	STRING  ListKind = "string"
-	UUID    ListKind = "uuid"
-	IP      ListKind = "ip"
-	COUNTRY ListKind = "country"
-	PATH    ListKind = "path"
-	ASN     ListKind = "asn"
+	STRING      ListKind = "string"
+	UUID        ListKind = "uuid"
+	IP          ListKind = "ip"
+	COUNTRY     ListKind = "country"
+	PATH        ListKind = "path"
+	ASN         ListKind = "asn"
+	AHO_CORASICK ListKind = "aho_corasick"
+	REGEX        ListKind = "regex"
+	GLOB         ListKind = "glob"
 )
 
 // All allowed values of ListKind enum
@@ -37,6 +40,9 @@ var AllowedListKindEnumValues = []ListKind{
 	"country",
 	"path",
 	"asn",
+	"aho_corasick",
+	"regex",
+	"glob",
 }
 
 func (v *ListKind) UnmarshalJSON(src []byte) error {

@@ -20,7 +20,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -401,7 +400,6 @@ func (r ruleTestcaseResource) Read(ctx context.Context, req resource.ReadRequest
 
 	ruleTestCaseResponse, httpResp, err := r.client.RulesTestCasesAPI.GetRulesTestCase(ctx, r.client.OrgID, data.ID.ValueString()).
 		Execute()
-
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {
@@ -686,7 +684,7 @@ func toRulesTestCasePostBody(plan ruleTestCaseModel) (openapiclient.RulesTestCas
 			intValues := make([]int32, len(stringValues))
 			for i, v := range stringValues {
 				value, err := strconv.Atoi(v)
-				if err != nil { //this should not happened as we are validating the resource
+				if err != nil { // this should not happened as we are validating the resource
 					return postBody, fmt.Errorf("unable to convert string to int: %w", err)
 				}
 				intValues[i] = int32(value)

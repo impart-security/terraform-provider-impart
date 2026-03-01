@@ -17,9 +17,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-	"go4.org/netipx"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
+	"go4.org/netipx"
 )
 
 // Ensure the implementation satisfies the expected interfaces.
@@ -110,7 +109,7 @@ func (r *ListResource) Schema(_ context.Context, _ resource.SchemaRequest, resp 
 				},
 			},
 			"functionality": schema.StringAttribute{
-				Description: "The list functionality. Allowed values are add, add/remove, and none.",
+				Description: "The list functionality. Allowed values are add, add/remove, and none (cloud managed).",
 				Optional:    true,
 				PlanModifiers: []planmodifier.String{
 					stringplanmodifier.RequiresReplace(),
@@ -239,7 +238,6 @@ func (r *ListResource) Create(ctx context.Context, req resource.CreateRequest, r
 	}
 
 	listResponse, _, err := r.client.ListsAPI.CreateList(ctx, r.client.OrgID).ListPostBody(postBody).Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -395,7 +393,6 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 	listPutRequest := r.client.ListsAPI.PutList(ctx, r.client.OrgID, state.ID.ValueString()).ListPutBody(putBody)
 
 	listPutResponse, _, err := listPutRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -425,7 +422,6 @@ func (r *ListResource) Update(ctx context.Context, req resource.UpdateRequest, r
 
 		// update a list items
 		listPatchItemsResponse, _, err := listPatchItemsRequest.Execute()
-
 		if err != nil {
 			message := err.Error()
 			if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

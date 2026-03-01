@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -151,7 +150,6 @@ func (r labelResource) Read(ctx context.Context, req resource.ReadRequest, resp 
 
 	labelResponse, httpResp, err := r.client.LabelsAPI.GetLabel(ctx, r.client.OrgID, data.Slug.ValueString()).
 		Execute()
-
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {

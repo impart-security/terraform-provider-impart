@@ -15,11 +15,9 @@ import (
 
 //go:generate go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name impart
 
-var (
-	// these will be set by the release configuration
-	// to appropriate values for the compiled binary.
-	version string = "dev"
-)
+// these will be set by the release configuration
+// to appropriate values for the compiled binary.
+var version string = "dev"
 
 func main() {
 	var debug bool
@@ -33,7 +31,6 @@ func main() {
 	}
 
 	err := providerserver.Serve(context.Background(), provider.New(version), opts)
-
 	if err != nil {
 		log.Fatal(err.Error())
 	}

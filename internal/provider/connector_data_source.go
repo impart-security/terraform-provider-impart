@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 

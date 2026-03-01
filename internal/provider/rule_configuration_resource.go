@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	"github.com/impart-security/terraform-provider-impart/internal/apiclient"
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
@@ -42,7 +41,7 @@ type ruleConfigurationResourceModel struct {
 	Slug     types.String `tfsdk:"slug"`
 	Config   types.String `tfsdk:"config"`
 	Disabled types.Bool   `tfsdk:"disabled"`
-	//Labels   []types.String `tfsdk:"labels"` // will be added once the API supports it
+	// Labels   []types.String `tfsdk:"labels"` // will be added once the API supports it
 }
 
 // Configure adds the provider configured client to the resource.
@@ -238,7 +237,6 @@ func (r *ruleConfigurationResource) Update(ctx context.Context, req resource.Upd
 
 	// update rule
 	ruleResponse, _, err := ruleRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -286,7 +284,6 @@ func (r *ruleConfigurationResource) Delete(ctx context.Context, req resource.Del
 
 	// update rule
 	_, err := ruleRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -342,7 +339,7 @@ func toRuleConfigurationModel(coreRuleResponse *openapiclient.CoreRule, plan rul
 		Disabled: types.BoolValue(coreRuleResponse.Disabled),
 	}
 
-	//ruleConfigurationModel.Labels = buildStateList(plan.Labels, coreRuleResponse.Labels)
+	// ruleConfigurationModel.Labels = buildStateList(plan.Labels, coreRuleResponse.Labels)
 
 	// normalize slug to use plan
 	if strings.EqualFold(coreRuleResponse.Config.Slug, plan.Slug.ValueString()) {

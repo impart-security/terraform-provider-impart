@@ -13,7 +13,7 @@ Manage a list.
 ## Example Usage
 
 ```terraform
-# Create a new list
+# Create a new string list
 resource "impart_list" "example" {
   name        = "list_example"
   kind        = "string"
@@ -24,6 +24,36 @@ resource "impart_list" "example" {
     },
     {
       value = "item2",
+    }
+  ]
+}
+
+# Create a regex pattern list
+resource "impart_list" "regex_example" {
+  name        = "regex_list_example"
+  kind        = "regex"
+  description = "A list of regex patterns for matching"
+  items = [
+    {
+      value = "^/api/v[0-9]+/users/.*$",
+    },
+    {
+      value = "\\.(php|asp|aspx)$",
+    }
+  ]
+}
+
+# Create an Aho-Corasick pattern list
+resource "impart_list" "aho_corasick_example" {
+  name        = "aho_corasick_list_example"
+  kind        = "aho_corasick"
+  description = "A list of patterns for Aho-Corasick matching"
+  items = [
+    {
+      value = "SELECT * FROM",
+    },
+    {
+      value = "DROP TABLE",
     }
   ]
 }
@@ -40,7 +70,7 @@ resource "impart_list" "example" {
 ### Optional
 
 - `description` (String) The description for this list.
-- `functionality` (String) The list functionality. Allowed values are add, add/remove.
+- `functionality` (String) The list functionality. Allowed values are add, add/remove, and none (cloud managed).
 - `items` (Attributes List) The list items. (see [below for nested schema](#nestedatt--items))
 - `labels` (List of String) The applied labels.
 - `subkind` (String) The list subkind.

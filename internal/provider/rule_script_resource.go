@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -409,7 +408,6 @@ func (r *ruleScriptResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// update rule
 	ruleResponse, _, err := ruleRequest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

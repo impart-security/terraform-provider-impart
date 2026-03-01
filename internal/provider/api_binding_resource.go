@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -188,7 +187,6 @@ func (r *apiBindingResource) Create(ctx context.Context, req resource.CreateRequ
 	}
 
 	bindingResponse, _, err := r.client.ApiBindingsAPI.CreateAPIBinding(ctx, r.client.OrgID).ApiBindingPostBody(postBody).Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
@@ -346,7 +344,6 @@ func (r *apiBindingResource) Update(ctx context.Context, req resource.UpdateRequ
 
 	// Update the api binding
 	bindingResponse, _, err := bindingReauest.Execute()
-
 	if err != nil {
 		message := err.Error()
 		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {

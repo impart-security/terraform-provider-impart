@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
-
 	openapiclient "github.com/impart-security/terraform-provider-impart/internal/apiclient"
 )
 
@@ -57,7 +56,7 @@ type tagMetadataModel struct {
 	RiskStatement types.String   `tfsdk:"risk_statement"`
 	ExternalURL   types.String   `tfsdk:"external_url"`
 	Labels        []types.String `tfsdk:"labels"`
-	//Remediations  []remediationModel `tfsdk:"remediations"`
+	// Remediations  []remediationModel `tfsdk:"remediations"`
 }
 
 // type remediationModel struct {
@@ -179,7 +178,6 @@ func (r tagMetadataResource) Read(ctx context.Context, req resource.ReadRequest,
 
 	tagMetadataResponse, httpResp, err := r.client.TagsAPI.GetTag(ctx, r.client.OrgID, data.Name.ValueString()).
 		Execute()
-
 	if err != nil {
 		// Treat HTTP 404 Not Found status as a signal to remove/recreate resource
 		if httpResp.StatusCode == http.StatusNotFound {
