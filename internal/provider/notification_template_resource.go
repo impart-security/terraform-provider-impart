@@ -33,13 +33,15 @@ type notificationTemplateResource struct {
 }
 
 // notificationTemplateResourceModel maps the resource schema data.
+//
+// A notification template is message-only: it carries just the message (name, subject,
+// payload). The connector and destinations it sends to live on a monitor's notifications,
+// not on the template.
 type notificationTemplateResourceModel struct {
-	ID          types.String `tfsdk:"id"`
-	Name        types.String `tfsdk:"name"`
-	Payload     types.String `tfsdk:"payload"`
-	Subject     types.String `tfsdk:"subject"`
-	Destination []string     `tfsdk:"destination"`
-	ConnectorID types.String `tfsdk:"connector_id"`
+	ID      types.String `tfsdk:"id"`
+	Name    types.String `tfsdk:"name"`
+	Payload types.String `tfsdk:"payload"`
+	Subject types.String `tfsdk:"subject"`
 }
 
 // Configure adds the provider configured client to the resource.
@@ -85,15 +87,6 @@ func (r *notificationTemplateResource) Schema(_ context.Context, _ resource.Sche
 				Description: "The subject message that will be sent to the Third Party API.",
 				Required:    true,
 			},
-			"destination": schema.ListAttribute{
-				ElementType: types.StringType,
-				Description: "An array of destination ids to which the payloads will be sent.",
-				Required:    true,
-			},
-			"connector_id": schema.StringAttribute{
-				Description: "The connector id.",
-				Required:    true,
-			},
 		},
 	}
 }
@@ -115,10 +108,8 @@ func (r *notificationTemplateResource) Create(ctx context.Context, req resource.
 	}
 
 	postBody := openapiclient.NotificationTemplatePostBody{
-		ConnectorId: plan.ConnectorID.ValueString(),
-		Name:        plan.Name.ValueString(),
-		Payload:     plan.Payload.ValueString(),
-		Destination: plan.Destination,
+		Name:    plan.Name.ValueString(),
+		Payload: plan.Payload.ValueString(),
 	}
 
 	if !plan.Subject.IsNull() {
@@ -145,7 +136,6 @@ func (r *notificationTemplateResource) Create(ctx context.Context, req resource.
 	plan.Name = types.StringValue(notificationTemplateResponse.Name)
 	plan.Payload = types.StringValue(notificationTemplateResponse.Payload)
 	plan.Subject = types.StringValue(notificationTemplateResponse.Subject)
-	plan.Destination = notificationTemplateResponse.Destination
 
 	// Set state to fully populated data
 	diags = resp.State.Set(ctx, plan)
@@ -192,7 +182,6 @@ func (r *notificationTemplateResource) Read(ctx context.Context, req resource.Re
 	state.Name = types.StringValue(notificationTemplateResponse.Name)
 	state.Payload = types.StringValue(notificationTemplateResponse.Payload)
 	state.Subject = types.StringValue(notificationTemplateResponse.Subject)
-	state.Destination = notificationTemplateResponse.Destination
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -216,10 +205,8 @@ func (r *notificationTemplateResource) Update(ctx context.Context, req resource.
 	}
 
 	postBody := openapiclient.NotificationTemplatePostBody{
-		ConnectorId: plan.ConnectorID.ValueString(),
-		Name:        plan.Name.ValueString(),
-		Payload:     plan.Payload.ValueString(),
-		Destination: plan.Destination,
+		Name:    plan.Name.ValueString(),
+		Payload: plan.Payload.ValueString(),
 	}
 
 	if !plan.Subject.IsNull() {
@@ -247,11 +234,10 @@ func (r *notificationTemplateResource) Update(ctx context.Context, req resource.
 
 	// Overwrite the notification template with refreshed state
 	state := notificationTemplateResourceModel{
-		ID:          types.StringValue(notificationTemplateResponse.Id),
-		Name:        types.StringValue(notificationTemplateResponse.Name),
-		Payload:     types.StringValue(notificationTemplateResponse.Payload),
-		Subject:     types.StringValue(notificationTemplateResponse.Subject),
-		Destination: notificationTemplateResponse.Destination,
+		ID:      types.StringValue(notificationTemplateResponse.Id),
+		Name:    types.StringValue(notificationTemplateResponse.Name),
+		Payload: types.StringValue(notificationTemplateResponse.Payload),
+		Subject: types.StringValue(notificationTemplateResponse.Subject),
 	}
 
 	// Set refreshed state

@@ -34,12 +34,20 @@ type monitorResource struct {
 
 // monitorResourceModel maps the resource schema data.
 type monitorResourceModel struct {
-	ID                      types.String     `tfsdk:"id"`
-	Name                    types.String     `tfsdk:"name"`
-	Description             types.String     `tfsdk:"description"`
-	Conditions              []conditionModel `tfsdk:"conditions"`
-	NotificationTemplateIDs []string         `tfsdk:"notification_template_ids"`
-	Labels                  []types.String   `tfsdk:"labels"`
+	ID            types.String        `tfsdk:"id"`
+	Name          types.String        `tfsdk:"name"`
+	Description   types.String        `tfsdk:"description"`
+	Conditions    []conditionModel    `tfsdk:"conditions"`
+	Notifications []notificationModel `tfsdk:"notifications"`
+	Labels        []types.String      `tfsdk:"labels"`
+}
+
+// notificationModel is one message the monitor sends when it fires: the template to send,
+// the connector to send it through, and (optionally) the destination it's delivered to.
+type notificationModel struct {
+	NotificationTemplateID types.String `tfsdk:"notification_template_id"`
+	ConnectorID            types.String `tfsdk:"connector_id"`
+	Destination            types.String `tfsdk:"destination"`
 }
 
 type conditionModel struct {
@@ -56,6 +64,55 @@ type conditionDetailsModel struct {
 	SubjectType *string      `tfsdk:"subject_type"`
 	ActorType   *string      `tfsdk:"actor_type"`
 	Tag         *string      `tfsdk:"tag"`
+}
+
+// buildNotifications maps the resource's notifications to the API request shape.
+// A nil input (attribute omitted) stays nil so it is dropped from the request; an
+// explicitly empty list is preserved so null and [] don't collapse into each other.
+func buildNotifications(models []notificationModel) []openapiclient.EventMonitorNotification {
+	if models == nil {
+		return nil
+	}
+
+	notifications := make([]openapiclient.EventMonitorNotification, len(models))
+	for i, n := range models {
+		notification := openapiclient.EventMonitorNotification{
+			NotificationTemplateId: n.NotificationTemplateID.ValueString(),
+			ConnectorId:            n.ConnectorID.ValueString(),
+		}
+		if !n.Destination.IsNull() {
+			destination := n.Destination.ValueString()
+			notification.Destination = &destination
+		}
+		notifications[i] = notification
+	}
+
+	return notifications
+}
+
+// buildNotificationModels maps the API response notifications back to the resource shape.
+// When both the prior list (plan or state) and the response are empty, the prior list is
+// returned unchanged so a null-vs-[] difference doesn't produce a perpetual diff — the same
+// convention buildStateList uses for labels.
+func buildNotificationModels(priorList []notificationModel, notifications []openapiclient.EventMonitorNotification) []notificationModel {
+	if len(priorList) == 0 && len(notifications) == 0 {
+		return priorList
+	}
+
+	models := make([]notificationModel, len(notifications))
+	for i, n := range notifications {
+		destination := types.StringNull()
+		if n.Destination != nil {
+			destination = types.StringValue(*n.Destination)
+		}
+		models[i] = notificationModel{
+			NotificationTemplateID: types.StringValue(n.NotificationTemplateId),
+			ConnectorID:            types.StringValue(n.ConnectorId),
+			Destination:            destination,
+		}
+	}
+
+	return models
 }
 
 // Configure adds the provider configured client to the resource.
@@ -150,10 +207,25 @@ func (r *monitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 					},
 				},
 			},
-			"notification_template_ids": schema.ListAttribute{
-				ElementType: types.StringType,
-				Description: "An array of notification template ids for the templates that will send notifications to their respective connectors.",
-				Required:    true,
+			"notifications": schema.ListNestedAttribute{
+				Description: "Each message this monitor sends when it fires, and its destination.",
+				Optional:    true,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"notification_template_id": schema.StringAttribute{
+							Required:    true,
+							Description: "The id of the notification template to send.",
+						},
+						"connector_id": schema.StringAttribute{
+							Required:    true,
+							Description: "The id of the connector to send the notification through.",
+						},
+						"destination": schema.StringAttribute{
+							Optional:    true,
+							Description: "Where the notification is delivered (for example, a channel or address). Interpreted by the connector.",
+						},
+					},
+				},
 			},
 			"labels": schema.ListAttribute{
 				Description: "The applied labels.",
@@ -243,10 +315,10 @@ func (r *monitorResource) Create(ctx context.Context, req resource.CreateRequest
 	}
 
 	postBody := openapiclient.EventMonitorPostBody{
-		Name:                    plan.Name.ValueString(),
-		Description:             plan.Description.ValueString(),
-		Conditions:              conditions,
-		NotificationTemplateIds: plan.NotificationTemplateIDs,
+		Name:          plan.Name.ValueString(),
+		Description:   plan.Description.ValueString(),
+		Conditions:    conditions,
+		Notifications: buildNotifications(plan.Notifications),
 	}
 
 	if len(plan.Labels) > 0 {
@@ -306,7 +378,7 @@ func (r *monitorResource) Create(ctx context.Context, req resource.CreateRequest
 	plan.ID = types.StringValue(monitorResponse.Id)
 	plan.Name = types.StringValue(monitorResponse.Name)
 	plan.Conditions = responseConditions
-	plan.NotificationTemplateIDs = monitorResponse.NotificationTemplateIds
+	plan.Notifications = buildNotificationModels(plan.Notifications, monitorResponse.Notifications)
 
 	plan.Labels = buildStateList(plan.Labels, monitorResponse.Labels)
 
@@ -386,7 +458,7 @@ func (r *monitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 	state.ID = types.StringValue(monitorResponse.Id)
 	state.Name = types.StringValue(monitorResponse.Name)
 	state.Conditions = responseConditions
-	state.NotificationTemplateIDs = monitorResponse.NotificationTemplateIds
+	state.Notifications = buildNotificationModels(state.Notifications, monitorResponse.Notifications)
 	state.Labels = buildStateList(state.Labels, monitorResponse.Labels)
 
 	// Set refreshed state
@@ -442,10 +514,10 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 	}
 
 	postBody := openapiclient.EventMonitorPostBody{
-		Name:                    plan.Name.ValueString(),
-		Description:             plan.Description.ValueString(),
-		Conditions:              conditions,
-		NotificationTemplateIds: plan.NotificationTemplateIDs,
+		Name:          plan.Name.ValueString(),
+		Description:   plan.Description.ValueString(),
+		Conditions:    conditions,
+		Notifications: buildNotifications(plan.Notifications),
 	}
 
 	if len(plan.Labels) > 0 {
@@ -508,11 +580,11 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	// Overwrite the monitor with refreshed state
 	state := monitorResourceModel{
-		ID:                      types.StringValue(monitorResponse.Id),
-		Name:                    types.StringValue(monitorResponse.Name),
-		Description:             types.StringValue(monitorResponse.Description),
-		NotificationTemplateIDs: monitorResponse.NotificationTemplateIds,
-		Conditions:              responseConditions,
+		ID:            types.StringValue(monitorResponse.Id),
+		Name:          types.StringValue(monitorResponse.Name),
+		Description:   types.StringValue(monitorResponse.Description),
+		Notifications: buildNotificationModels(plan.Notifications, monitorResponse.Notifications),
+		Conditions:    responseConditions,
 	}
 	state.Labels = buildStateList(plan.Labels, monitorResponse.Labels)
 

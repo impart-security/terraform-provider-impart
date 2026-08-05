@@ -54,18 +54,22 @@ let list = new List("${resource.impart_list.example.id}");
 
 # Create a new notification template
 resource "impart_notification_template" "test" {
-  name         = "terraform_notification_template"
-  connector_id = data.local.example_connector.id
-  payload      = "This is notification template made from terraform"
-  subject      = "Terraform Subject"
-  destination  = ["C060E7NGB61"]
+  name    = "terraform_notification_template"
+  payload = "This is notification template made from terraform"
+  subject = "Terraform Subject"
 }
 
 #Create a new event monitor
 resource "impart_monitor" "test_event" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = [resource.impart_notification_template.test.id]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.test.id
+      connector_id             = data.local.example_connector.id
+      destination              = "C060E7NGB61"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,
@@ -83,9 +87,15 @@ resource "impart_monitor" "test_event" {
 }
 
 resource "impart_monitor" "test_metric" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = [resource.impart_notification_template.test.id]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.test.id
+      connector_id             = data.local.example_connector.id
+      destination              = "C060E7NGB61"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,

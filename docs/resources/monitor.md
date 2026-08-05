@@ -15,9 +15,15 @@ Manage a monitor.
 ```terraform
 # Create a new event monitor
 resource "impart_monitor" "test_event" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = ["<notification_template_id>"]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.example.id
+      connector_id             = "<example_connector.id>"
+      destination              = "<example_destination>"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,
@@ -36,9 +42,15 @@ resource "impart_monitor" "test_event" {
 
 # Create a new metric monitor
 resource "impart_monitor" "test_metric" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = ["<notification_template_id>"]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.example.id
+      connector_id             = "<example_connector.id>"
+      destination              = "<example_destination>"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,
@@ -62,11 +74,11 @@ resource "impart_monitor" "test_metric" {
 - `conditions` (Attributes List) An array of conditions for which the monitor will trigger. (see [below for nested schema](#nestedatt--conditions))
 - `description` (String) The description for this monitor.
 - `name` (String) The name for this monitor.
-- `notification_template_ids` (List of String) An array of notification template ids for the templates that will send notifications to their respective connectors.
 
 ### Optional
 
 - `labels` (List of String) The applied labels.
+- `notifications` (Attributes List) Each message this monitor sends when it fires, and its destination. (see [below for nested schema](#nestedatt--notifications))
 
 ### Read-Only
 
@@ -96,3 +108,17 @@ Optional:
 - `actor_type` (String) Strictly for event type monitors. A slug of the actor type the monitor is tracking.
 - `subject_type` (String) Strictly for event type monitors. A slug of the subject type the monitor is tracking.
 - `tag` (String) Strictly for metric type monitors. The tag the monitor is tracking.
+
+
+
+<a id="nestedatt--notifications"></a>
+### Nested Schema for `notifications`
+
+Required:
+
+- `connector_id` (String) The id of the connector to send the notification through.
+- `notification_template_id` (String) The id of the notification template to send.
+
+Optional:
+
+- `destination` (String) Where the notification is delivered (for example, a channel or address). Interpreted by the connector.

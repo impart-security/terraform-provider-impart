@@ -1,8 +1,14 @@
 # Create a new event monitor
 resource "impart_monitor" "test_event" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = ["<notification_template_id>"]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.example.id
+      connector_id             = "<example_connector.id>"
+      destination              = "<example_destination>"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,
@@ -21,9 +27,15 @@ resource "impart_monitor" "test_event" {
 
 # Create a new metric monitor
 resource "impart_monitor" "test_metric" {
-  name                      = "terraform_event_monitor"
-  description               = "test event monitor"
-  notification_template_ids = ["<notification_template_id>"]
+  name        = "terraform_event_monitor"
+  description = "test event monitor"
+  notifications = [
+    {
+      notification_template_id = resource.impart_notification_template.example.id
+      connector_id             = "<example_connector.id>"
+      destination              = "<example_destination>"
+    }
+  ]
   conditions = [
     {
       threshold   = 1,

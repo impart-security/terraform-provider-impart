@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0] - 2026-07-30
+
+### Changed
+
+- **Breaking:** `impart_monitor` now sends its notifications through a `notifications` block — each entry has `notification_template_id`, `connector_id`, and an optional `destination` — replacing the removed `notification_template_ids` attribute. This matches the normalized routing model where the monitor owns the connector/destination binding.
+- **Breaking:** notification templates are now message-only. `impart_notification_template` no longer accepts (or exports) `connector_id` or `destination`; a template carries just `name`, `subject`, and `payload`. Point a monitor's `notifications` block at the template instead.
+
 ## [0.15.1] - 2026-04-26
 
 ### Changed

@@ -27,8 +27,8 @@ type EventMonitorPostBody struct {
 	Description string `json:"description"`
 	// Array of condition objects that (if all are true) will trigger the monitor.
 	Conditions []EventMonitorConditionPostBody `json:"conditions"`
-	// The ids of the notification templates that the monitor is associated with.
-	NotificationTemplateIds []string `json:"notification_template_ids"`
+	// Each message this monitor sends when it fires, and its destination.
+	Notifications []EventMonitorNotification `json:"notifications,omitempty"`
 	// The applied labels.
 	Labels               []string `json:"labels,omitempty"`
 	AdditionalProperties map[string]interface{}
@@ -40,12 +40,11 @@ type _EventMonitorPostBody EventMonitorPostBody
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEventMonitorPostBody(name string, description string, conditions []EventMonitorConditionPostBody, notificationTemplateIds []string) *EventMonitorPostBody {
+func NewEventMonitorPostBody(name string, description string, conditions []EventMonitorConditionPostBody) *EventMonitorPostBody {
 	this := EventMonitorPostBody{}
 	this.Name = name
 	this.Description = description
 	this.Conditions = conditions
-	this.NotificationTemplateIds = notificationTemplateIds
 	return &this
 }
 
@@ -129,28 +128,36 @@ func (o *EventMonitorPostBody) SetConditions(v []EventMonitorConditionPostBody) 
 	o.Conditions = v
 }
 
-// GetNotificationTemplateIds returns the NotificationTemplateIds field value
-func (o *EventMonitorPostBody) GetNotificationTemplateIds() []string {
-	if o == nil {
-		var ret []string
+// GetNotifications returns the Notifications field value if set, zero value otherwise.
+func (o *EventMonitorPostBody) GetNotifications() []EventMonitorNotification {
+	if o == nil || IsNil(o.Notifications) {
+		var ret []EventMonitorNotification
 		return ret
 	}
-
-	return o.NotificationTemplateIds
+	return o.Notifications
 }
 
-// GetNotificationTemplateIdsOk returns a tuple with the NotificationTemplateIds field value
+// GetNotificationsOk returns a tuple with the Notifications field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *EventMonitorPostBody) GetNotificationTemplateIdsOk() ([]string, bool) {
-	if o == nil {
+func (o *EventMonitorPostBody) GetNotificationsOk() ([]EventMonitorNotification, bool) {
+	if o == nil || IsNil(o.Notifications) {
 		return nil, false
 	}
-	return o.NotificationTemplateIds, true
+	return o.Notifications, true
 }
 
-// SetNotificationTemplateIds sets field value
-func (o *EventMonitorPostBody) SetNotificationTemplateIds(v []string) {
-	o.NotificationTemplateIds = v
+// HasNotifications returns a boolean if a field has been set.
+func (o *EventMonitorPostBody) HasNotifications() bool {
+	if o != nil && !IsNil(o.Notifications) {
+		return true
+	}
+
+	return false
+}
+
+// SetNotifications gets a reference to the given []EventMonitorNotification and assigns it to the Notifications field.
+func (o *EventMonitorPostBody) SetNotifications(v []EventMonitorNotification) {
+	o.Notifications = v
 }
 
 // GetLabels returns the Labels field value if set, zero value otherwise.
@@ -198,7 +205,9 @@ func (o EventMonitorPostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	toSerialize["description"] = o.Description
 	toSerialize["conditions"] = o.Conditions
-	toSerialize["notification_template_ids"] = o.NotificationTemplateIds
+	if !IsNil(o.Notifications) {
+		toSerialize["notifications"] = o.Notifications
+	}
 	if !IsNil(o.Labels) {
 		toSerialize["labels"] = o.Labels
 	}
@@ -218,13 +227,11 @@ func (o *EventMonitorPostBody) UnmarshalJSON(data []byte) (err error) {
 		"name",
 		"description",
 		"conditions",
-		"notification_template_ids",
 	}
 
 	allProperties := make(map[string]interface{})
 
 	err = json.Unmarshal(data, &allProperties)
-
 	if err != nil {
 		return err
 	}
@@ -238,7 +245,6 @@ func (o *EventMonitorPostBody) UnmarshalJSON(data []byte) (err error) {
 	varEventMonitorPostBody := _EventMonitorPostBody{}
 
 	err = json.Unmarshal(data, &varEventMonitorPostBody)
-
 	if err != nil {
 		return err
 	}
@@ -251,7 +257,7 @@ func (o *EventMonitorPostBody) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "conditions")
-		delete(additionalProperties, "notification_template_ids")
+		delete(additionalProperties, "notifications")
 		delete(additionalProperties, "labels")
 		o.AdditionalProperties = additionalProperties
 	}

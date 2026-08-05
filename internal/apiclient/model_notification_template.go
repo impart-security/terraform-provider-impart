@@ -24,16 +24,12 @@ var _ MappedNullable = &NotificationTemplate{}
 type NotificationTemplate struct {
 	// The ID of the notification template.
 	Id string `json:"id"`
-	// The ID of the connector.
-	ConnectorId string `json:"connector_id"`
 	// The name of the notification template.
 	Name string `json:"name"`
 	// The text payload to be sent in a notification.
 	Payload string `json:"payload"`
 	// The text for the subject of the message payload.
 	Subject string `json:"subject"`
-	// An array of ids for where the notification should be sent.
-	Destination []string `json:"destination"`
 	// ID of the  member who created the notification template.
 	CreatedBy string `json:"created_by"`
 	// The date the notification template was created.
@@ -51,14 +47,12 @@ type _NotificationTemplate NotificationTemplate
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewNotificationTemplate(id string, connectorId string, name string, payload string, subject string, destination []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *NotificationTemplate {
+func NewNotificationTemplate(id string, name string, payload string, subject string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *NotificationTemplate {
 	this := NotificationTemplate{}
 	this.Id = id
-	this.ConnectorId = connectorId
 	this.Name = name
 	this.Payload = payload
 	this.Subject = subject
-	this.Destination = destination
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
 	this.UpdatedBy = updatedBy
@@ -96,30 +90,6 @@ func (o *NotificationTemplate) GetIdOk() (*string, bool) {
 // SetId sets field value
 func (o *NotificationTemplate) SetId(v string) {
 	o.Id = v
-}
-
-// GetConnectorId returns the ConnectorId field value
-func (o *NotificationTemplate) GetConnectorId() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.ConnectorId
-}
-
-// GetConnectorIdOk returns a tuple with the ConnectorId field value
-// and a boolean to check if the value has been set.
-func (o *NotificationTemplate) GetConnectorIdOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.ConnectorId, true
-}
-
-// SetConnectorId sets field value
-func (o *NotificationTemplate) SetConnectorId(v string) {
-	o.ConnectorId = v
 }
 
 // GetName returns the Name field value
@@ -192,30 +162,6 @@ func (o *NotificationTemplate) GetSubjectOk() (*string, bool) {
 // SetSubject sets field value
 func (o *NotificationTemplate) SetSubject(v string) {
 	o.Subject = v
-}
-
-// GetDestination returns the Destination field value
-func (o *NotificationTemplate) GetDestination() []string {
-	if o == nil {
-		var ret []string
-		return ret
-	}
-
-	return o.Destination
-}
-
-// GetDestinationOk returns a tuple with the Destination field value
-// and a boolean to check if the value has been set.
-func (o *NotificationTemplate) GetDestinationOk() ([]string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return o.Destination, true
-}
-
-// SetDestination sets field value
-func (o *NotificationTemplate) SetDestination(v []string) {
-	o.Destination = v
 }
 
 // GetCreatedBy returns the CreatedBy field value
@@ -329,11 +275,9 @@ func (o NotificationTemplate) MarshalJSON() ([]byte, error) {
 func (o NotificationTemplate) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["id"] = o.Id
-	toSerialize["connector_id"] = o.ConnectorId
 	toSerialize["name"] = o.Name
 	toSerialize["payload"] = o.Payload
 	toSerialize["subject"] = o.Subject
-	toSerialize["destination"] = o.Destination
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
 	toSerialize["updated_by"] = o.UpdatedBy.Get()
@@ -352,11 +296,9 @@ func (o *NotificationTemplate) UnmarshalJSON(data []byte) (err error) {
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"id",
-		"connector_id",
 		"name",
 		"payload",
 		"subject",
-		"destination",
 		"created_by",
 		"created_at",
 		"updated_by",
@@ -366,7 +308,6 @@ func (o *NotificationTemplate) UnmarshalJSON(data []byte) (err error) {
 	allProperties := make(map[string]interface{})
 
 	err = json.Unmarshal(data, &allProperties)
-
 	if err != nil {
 		return err
 	}
@@ -380,7 +321,6 @@ func (o *NotificationTemplate) UnmarshalJSON(data []byte) (err error) {
 	varNotificationTemplate := _NotificationTemplate{}
 
 	err = json.Unmarshal(data, &varNotificationTemplate)
-
 	if err != nil {
 		return err
 	}
@@ -391,11 +331,9 @@ func (o *NotificationTemplate) UnmarshalJSON(data []byte) (err error) {
 
 	if err = json.Unmarshal(data, &additionalProperties); err == nil {
 		delete(additionalProperties, "id")
-		delete(additionalProperties, "connector_id")
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "payload")
 		delete(additionalProperties, "subject")
-		delete(additionalProperties, "destination")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
 		delete(additionalProperties, "updated_by")

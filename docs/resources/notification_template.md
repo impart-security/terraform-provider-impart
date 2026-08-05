@@ -14,12 +14,13 @@ Manage an notification template.
 
 ```terraform
 # Create a new notification template
+#
+# A notification template is message-only: name, subject, and payload. The connector
+# and destination it is delivered through are set on a monitor's notifications, not here.
 resource "impart_notification_template" "example" {
-  name         = "notification_template_example"
-  connector_id = "<example_connector.id>"
-  payload      = "This is a test message payload"
-  subject      = "Test subject"
-  destination  = ["test-destination-id"]
+  name    = "notification_template_example"
+  payload = "This is a test message payload"
+  subject = "Test subject"
 }
 ```
 
@@ -28,8 +29,6 @@ resource "impart_notification_template" "example" {
 
 ### Required
 
-- `connector_id` (String) The connector id.
-- `destination` (List of String) An array of destination ids to which the payloads will be sent.
 - `name` (String) The name for this notification template.
 - `payload` (String) The payload message that will be sent to the Third Party API.
 - `subject` (String) The subject message that will be sent to the Third Party API.

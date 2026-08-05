@@ -20,17 +20,21 @@ data "impart_connector" "test" {
 }
 
 resource "impart_notification_template" "test" {
-  name         = "terraform_notification_template"
-  connector_id      = data.impart_connector.test.id
+  name    = "terraform_notification_template"
   payload = "This is notification template made from terraform"
   subject = "Terraform Subject"
-  destination = ["C060E7NGB6X"]
 }
 
 resource "impart_monitor" "test_metric" {
-  name                      = "terraform_metric_monitor"
-  description               = "test metric monitor"
-  notification_template_ids = [impart_notification_template.test.id]
+  name        = "terraform_metric_monitor"
+  description = "test metric monitor"
+  notifications = [
+    {
+      notification_template_id = impart_notification_template.test.id
+      connector_id             = data.impart_connector.test.id
+      destination              = "C060E7NGB6X"
+    }
+  ]
   conditions = [
     {
       threshold   = 5,

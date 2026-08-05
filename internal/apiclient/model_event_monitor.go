@@ -30,8 +30,8 @@ type EventMonitor struct {
 	Description string `json:"description"`
 	// Array of condition objects that (if all are true) will trigger the monitor.
 	Conditions []EventMonitorCondition `json:"conditions"`
-	// The ids of the notification templates that the monitor is associated with.
-	NotificationTemplateIds []string `json:"notification_template_ids"`
+	// Each message this monitor sends when it fires, and its destination.
+	Notifications []EventMonitorNotification `json:"notifications,omitempty"`
 	// The applied labels.
 	Labels []string `json:"labels"`
 	// ID of the member who created the monitor.
@@ -51,13 +51,12 @@ type _EventMonitor EventMonitor
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEventMonitor(id string, name string, description string, conditions []EventMonitorCondition, notificationTemplateIds []string, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *EventMonitor {
+func NewEventMonitor(id string, name string, description string, conditions []EventMonitorCondition, labels []string, createdBy string, createdAt time.Time, updatedBy NullableString, updatedAt NullableTime) *EventMonitor {
 	this := EventMonitor{}
 	this.Id = id
 	this.Name = name
 	this.Description = description
 	this.Conditions = conditions
-	this.NotificationTemplateIds = notificationTemplateIds
 	this.Labels = labels
 	this.CreatedBy = createdBy
 	this.CreatedAt = createdAt
@@ -170,28 +169,36 @@ func (o *EventMonitor) SetConditions(v []EventMonitorCondition) {
 	o.Conditions = v
 }
 
-// GetNotificationTemplateIds returns the NotificationTemplateIds field value
-func (o *EventMonitor) GetNotificationTemplateIds() []string {
-	if o == nil {
-		var ret []string
+// GetNotifications returns the Notifications field value if set, zero value otherwise.
+func (o *EventMonitor) GetNotifications() []EventMonitorNotification {
+	if o == nil || IsNil(o.Notifications) {
+		var ret []EventMonitorNotification
 		return ret
 	}
-
-	return o.NotificationTemplateIds
+	return o.Notifications
 }
 
-// GetNotificationTemplateIdsOk returns a tuple with the NotificationTemplateIds field value
+// GetNotificationsOk returns a tuple with the Notifications field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *EventMonitor) GetNotificationTemplateIdsOk() ([]string, bool) {
-	if o == nil {
+func (o *EventMonitor) GetNotificationsOk() ([]EventMonitorNotification, bool) {
+	if o == nil || IsNil(o.Notifications) {
 		return nil, false
 	}
-	return o.NotificationTemplateIds, true
+	return o.Notifications, true
 }
 
-// SetNotificationTemplateIds sets field value
-func (o *EventMonitor) SetNotificationTemplateIds(v []string) {
-	o.NotificationTemplateIds = v
+// HasNotifications returns a boolean if a field has been set.
+func (o *EventMonitor) HasNotifications() bool {
+	if o != nil && !IsNil(o.Notifications) {
+		return true
+	}
+
+	return false
+}
+
+// SetNotifications gets a reference to the given []EventMonitorNotification and assigns it to the Notifications field.
+func (o *EventMonitor) SetNotifications(v []EventMonitorNotification) {
+	o.Notifications = v
 }
 
 // GetLabels returns the Labels field value
@@ -332,7 +339,9 @@ func (o EventMonitor) ToMap() (map[string]interface{}, error) {
 	toSerialize["name"] = o.Name
 	toSerialize["description"] = o.Description
 	toSerialize["conditions"] = o.Conditions
-	toSerialize["notification_template_ids"] = o.NotificationTemplateIds
+	if !IsNil(o.Notifications) {
+		toSerialize["notifications"] = o.Notifications
+	}
 	toSerialize["labels"] = o.Labels
 	toSerialize["created_by"] = o.CreatedBy
 	toSerialize["created_at"] = o.CreatedAt
@@ -355,7 +364,6 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 		"name",
 		"description",
 		"conditions",
-		"notification_template_ids",
 		"labels",
 		"created_by",
 		"created_at",
@@ -366,7 +374,6 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 	allProperties := make(map[string]interface{})
 
 	err = json.Unmarshal(data, &allProperties)
-
 	if err != nil {
 		return err
 	}
@@ -380,7 +387,6 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 	varEventMonitor := _EventMonitor{}
 
 	err = json.Unmarshal(data, &varEventMonitor)
-
 	if err != nil {
 		return err
 	}
@@ -394,7 +400,7 @@ func (o *EventMonitor) UnmarshalJSON(data []byte) (err error) {
 		delete(additionalProperties, "name")
 		delete(additionalProperties, "description")
 		delete(additionalProperties, "conditions")
-		delete(additionalProperties, "notification_template_ids")
+		delete(additionalProperties, "notifications")
 		delete(additionalProperties, "labels")
 		delete(additionalProperties, "created_by")
 		delete(additionalProperties, "created_at")
