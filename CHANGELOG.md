@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.16.1] - 2026-08-09
+
+### Changed
+
+- Updated dependencies.
+
 ## [0.16.0] - 2026-07-30
 
 ### Changed
