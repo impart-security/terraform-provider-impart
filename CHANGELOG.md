@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.17.0] - 2026-08-19
+
+### Added
+
+- `impart_core_rule_config` now installs the rule on create and uninstalls it on destroy, so Terraform can manage a core rule the organization hasn't installed yet. Previously the resource could only configure an already-installed rule. Changing `slug` now forces replacement (uninstall the old rule, install the new one).
+
 ## [0.16.1] - 2026-08-09
 
 ### Changed

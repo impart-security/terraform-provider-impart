@@ -78,6 +78,12 @@ func (r *ruleConfigurationResource) Schema(_ context.Context, _ resource.SchemaR
 			"slug": schema.StringAttribute{
 				Description: "The slug for the core rule.",
 				Required:    true,
+				PlanModifiers: []planmodifier.String{
+					// The slug identifies which core rule this resource installs.
+					// Changing it is a different rule, so replace (uninstall the
+					// old, install the new) instead of an in-place config update.
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
 			"config": schema.StringAttribute{
 				Description: "the core rule configuration.",
@@ -121,6 +127,22 @@ func (r *ruleConfigurationResource) Create(ctx context.Context, req resource.Cre
 		resp.Diagnostics.AddError(
 			"Unable to create the core rule configuration",
 			err.Error(),
+		)
+		return
+	}
+
+	// Install the core rule so its per-org row exists before we configure it
+	// below. A gated rule the org isn't entitled to is refused here
+	// (feature_gated), surfaced below.
+	if _, err = r.client.CoreRulesAPI.InstallCoreRule(ctx, r.client.OrgID, plan.Slug.ValueString()).Execute(); err != nil {
+		message := err.Error()
+		if apiErr, ok := err.(*openapiclient.GenericOpenAPIError); ok {
+			message = fmt.Sprintf("%s %s", apiErr.Error(), string(apiErr.Body()))
+		}
+
+		resp.Diagnostics.AddError(
+			"Unable to install the core rule",
+			message,
 		)
 		return
 	}
@@ -280,9 +302,9 @@ func (r *ruleConfigurationResource) Delete(ctx context.Context, req resource.Del
 		return
 	}
 
-	ruleRequest := r.client.CoreRulesAPI.ResetCoreRule(ctx, r.client.OrgID, state.ID.ValueString())
+	ruleRequest := r.client.CoreRulesAPI.UninstallCoreRule(ctx, r.client.OrgID, state.ID.ValueString())
 
-	// update rule
+	// uninstall the rule
 	_, err := ruleRequest.Execute()
 	if err != nil {
 		message := err.Error()
@@ -291,7 +313,7 @@ func (r *ruleConfigurationResource) Delete(ctx context.Context, req resource.Del
 		}
 
 		resp.Diagnostics.AddError(
-			"Unable to delete the core rule configuration",
+			"Unable to uninstall the core rule",
 			message,
 		)
 		return
