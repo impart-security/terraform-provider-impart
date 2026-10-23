@@ -2,21 +2,25 @@ package provider
 
 import (
 	"encoding/base64"
+	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestRuleTestCaseResource(t *testing.T) {
+	name := acctest.RandomWithPrefix("tfacc-testcase")
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: providerConfig + `
+				Config: providerConfig + fmt.Sprintf(`
 resource "impart_rule_test_case" "test" {
-  name        = "example"
+  name        = %q
   description = "test case description"
   messages = [
     {
@@ -47,9 +51,9 @@ resource "impart_rule_test_case" "test" {
       expected        = "test"
     }
   ]
-}`,
+}`, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", "example"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", name),
 					resource.TestCheckResourceAttrSet("impart_rule_test_case.test", "id"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "description", "test case description"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.#", "1"),
@@ -77,9 +81,9 @@ resource "impart_rule_test_case" "test" {
 			},
 			// Update
 			{
-				Config: providerConfig + `
+				Config: providerConfig + fmt.Sprintf(`
 resource "impart_rule_test_case" "test" {
-  name        = "example"
+  name        = %q
   description = "test case description"
   messages = [
     {
@@ -113,9 +117,9 @@ resource "impart_rule_test_case" "test" {
       expected        = "201,200"
     }
   ]
-}`,
+}`, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", "example"),
+					resource.TestCheckResourceAttr("impart_rule_test_case.test", "name", name),
 					resource.TestCheckResourceAttrSet("impart_rule_test_case.test", "id"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "description", "test case description"),
 					resource.TestCheckResourceAttr("impart_rule_test_case.test", "messages.#", "1"),

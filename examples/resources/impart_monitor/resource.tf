@@ -1,3 +1,10 @@
+# Create a notification template for the monitors to send
+resource "impart_notification_template" "example" {
+  name    = "notification_template_example"
+  payload = "This is a test message payload"
+  subject = "Test subject"
+}
+
 # Create a new event monitor
 resource "impart_monitor" "test_event" {
   name        = "terraform_event_monitor"
@@ -27,8 +34,8 @@ resource "impart_monitor" "test_event" {
 
 # Create a new metric monitor
 resource "impart_monitor" "test_metric" {
-  name        = "terraform_event_monitor"
-  description = "test event monitor"
+  name        = "terraform_metric_monitor"
+  description = "test metric monitor"
   notifications = [
     {
       notification_template_id = resource.impart_notification_template.example.id

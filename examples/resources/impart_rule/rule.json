@@ -1,0 +1,46 @@
+{
+  "rate_limit": { "clauses": [] },
+  "inspect_request": {
+    "clauses": [
+      {
+        "description": "Tag POSTs to /admin",
+        "conditionsOperator": "and",
+        "condition_groups": [
+          {
+            "conditionsOperator": "and",
+            "conditions": [
+              {
+                "field": "request.method",
+                "operator": "equals",
+                "value": "POST"
+              },
+              {
+                "field": "request.urlPath",
+                "operator": "starts_with",
+                "value": "/admin"
+              }
+            ]
+          }
+        ],
+        "actions": [{ "operation": "add_tag", "value": "admin-write-attempt" }]
+      }
+    ]
+  },
+  "enforce": {
+    "clauses": [
+      {
+        "description": "Block tagged admin writes",
+        "conditionsOperator": "and",
+        "conditions": [
+          {
+            "field": "tags",
+            "operator": "contains",
+            "value": "admin-write-attempt"
+          }
+        ],
+        "actions": [{ "operation": "block", "status_code": 403 }]
+      }
+    ]
+  },
+  "inspect_response": { "clauses": [] }
+}

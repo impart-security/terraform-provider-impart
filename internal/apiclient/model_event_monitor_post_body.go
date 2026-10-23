@@ -24,7 +24,7 @@ type EventMonitorPostBody struct {
 	// The name of the event monitor and what it represents.
 	Name string `json:"name"`
 	// A human readable string describing what this monitor is for.
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
 	// Array of condition objects that (if all are true) will trigger the monitor.
 	Conditions []EventMonitorConditionPostBody `json:"conditions"`
 	// Each message this monitor sends when it fires, and its destination.
@@ -40,10 +40,9 @@ type _EventMonitorPostBody EventMonitorPostBody
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewEventMonitorPostBody(name string, description string, conditions []EventMonitorConditionPostBody) *EventMonitorPostBody {
+func NewEventMonitorPostBody(name string, conditions []EventMonitorConditionPostBody) *EventMonitorPostBody {
 	this := EventMonitorPostBody{}
 	this.Name = name
-	this.Description = description
 	this.Conditions = conditions
 	return &this
 }
@@ -80,28 +79,36 @@ func (o *EventMonitorPostBody) SetName(v string) {
 	o.Name = v
 }
 
-// GetDescription returns the Description field value
+// GetDescription returns the Description field value if set, zero value otherwise.
 func (o *EventMonitorPostBody) GetDescription() string {
-	if o == nil {
+	if o == nil || IsNil(o.Description) {
 		var ret string
 		return ret
 	}
-
-	return o.Description
+	return *o.Description
 }
 
-// GetDescriptionOk returns a tuple with the Description field value
+// GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *EventMonitorPostBody) GetDescriptionOk() (*string, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.Description) {
 		return nil, false
 	}
-	return &o.Description, true
+	return o.Description, true
 }
 
-// SetDescription sets field value
+// HasDescription returns a boolean if a field has been set.
+func (o *EventMonitorPostBody) HasDescription() bool {
+	if o != nil && !IsNil(o.Description) {
+		return true
+	}
+
+	return false
+}
+
+// SetDescription gets a reference to the given string and assigns it to the Description field.
 func (o *EventMonitorPostBody) SetDescription(v string) {
-	o.Description = v
+	o.Description = &v
 }
 
 // GetConditions returns the Conditions field value
@@ -203,7 +210,9 @@ func (o EventMonitorPostBody) MarshalJSON() ([]byte, error) {
 func (o EventMonitorPostBody) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["name"] = o.Name
-	toSerialize["description"] = o.Description
+	if !IsNil(o.Description) {
+		toSerialize["description"] = o.Description
+	}
 	toSerialize["conditions"] = o.Conditions
 	if !IsNil(o.Notifications) {
 		toSerialize["notifications"] = o.Notifications
@@ -225,13 +234,13 @@ func (o *EventMonitorPostBody) UnmarshalJSON(data []byte) (err error) {
 	// that every required field exists as a key in the generic map.
 	requiredProperties := []string{
 		"name",
-		"description",
 		"conditions",
 	}
 
 	allProperties := make(map[string]interface{})
 
 	err = json.Unmarshal(data, &allProperties)
+
 	if err != nil {
 		return err
 	}
@@ -245,6 +254,7 @@ func (o *EventMonitorPostBody) UnmarshalJSON(data []byte) (err error) {
 	varEventMonitorPostBody := _EventMonitorPostBody{}
 
 	err = json.Unmarshal(data, &varEventMonitorPostBody)
+
 	if err != nil {
 		return err
 	}

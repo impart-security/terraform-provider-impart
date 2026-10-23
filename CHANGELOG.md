@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.18.0] - 2026-10-23
+
+### Added
+
+- Documented support for OpenTofu 1.6 and later, alongside Terraform 1.5 and later. The provider is unchanged; the same binary serves both CLIs. See the new "Using the provider with OpenTofu" guide.
+- `-address` flag for `-debug` sessions, so a debugger can attach under OpenTofu (`-address=registry.opentofu.org/impart-security/impart`). The default address is unchanged.
+
+### Changed
+
+- `impart_monitor`: `description` is now optional and may be empty.
+
+### Fixed
+
+- Documentation examples now validate as written: the registry front page no longer references an undeclared connector data source, resource examples declare the resources they reference and ship the files they load, and the `impart_rule_client_identifier_storage` example no longer uses `storage_id` (an attribute of `impart_rule_client_identifier`).
+
 ## [0.17.0] - 2026-08-19
 
 ### Added

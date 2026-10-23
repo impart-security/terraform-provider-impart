@@ -1,32 +1,36 @@
 package provider
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestMonitorResource(t *testing.T) {
 	t.Skip()
+	name := acctest.RandomWithPrefix("tfacc-monitor")
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: providerConfig + `
+				Config: providerConfig + fmt.Sprintf(`
 data "impart_connector" "test" {
 	id = ""
 }
 
 resource "impart_notification_template" "test" {
-  name    = "terraform_notification_template"
+  name    = %[1]q
   payload = "This is notification template made from terraform"
   subject = "Terraform Subject"
 }
 
 resource "impart_monitor" "test_metric" {
-  name        = "terraform_metric_monitor"
+  name        = %[2]q
   description = "test metric monitor"
   notifications = [
     {
@@ -48,7 +52,7 @@ resource "impart_monitor" "test_metric" {
     }
   ]
 }
-`,
+`, name+"-template", name),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("impart_monitor.test", "name", "terraform_monitor"),
 					resource.TestCheckResourceAttr("impart_monitor.test", "description", "test monitor"),

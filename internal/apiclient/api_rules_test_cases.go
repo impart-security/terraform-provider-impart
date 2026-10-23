@@ -730,7 +730,6 @@ func (a *RulesTestCasesAPIService) GetRulesTestCasesExecute(r ApiGetRulesTestCas
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-
 type ApiUpdateRulesTestCaseRequest struct {
 	ctx                   context.Context
 	ApiService            RulesTestCasesAPI

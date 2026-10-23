@@ -1,26 +1,30 @@
 package provider
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
 func TestAccListResource(t *testing.T) {
+	name := acctest.RandomWithPrefix("tfacc-list")
+
 	resource.Test(t, resource.TestCase{
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			// Create and Read testing
 			{
-				Config: providerConfig + `
+				Config: providerConfig + fmt.Sprintf(`
 resource "impart_list" "test" {
-  name = "list_example"
+  name = %q
   kind = "string"
 }
-`,
+`, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("impart_list.test", "name", "list_example"),
+					resource.TestCheckResourceAttr("impart_list.test", "name", name),
 					resource.TestCheckResourceAttr("impart_list.test", "kind", "string"),
 				),
 			},
@@ -32,9 +36,9 @@ resource "impart_list" "test" {
 			},
 			// Update and Read testing
 			{
-				Config: providerConfig + `
+				Config: providerConfig + fmt.Sprintf(`
 resource "impart_list" "test" {
-  name = "list_example_updated"
+  name = "%s-updated"
   kind = "string"
   items = [
 	{
@@ -45,9 +49,9 @@ resource "impart_list" "test" {
 	}
   ]
 }
-									`,
+`, name),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("impart_list.test", "name", "list_example_updated"),
+					resource.TestCheckResourceAttr("impart_list.test", "name", name+"-updated"),
 					resource.TestCheckResourceAttr("impart_list.test", "kind", "string"),
 					resource.TestCheckResourceAttr("impart_list.test", "items.0.value", "item1"),
 					resource.TestCheckResourceAttr("impart_list.test", "items.1.value", "item2"),

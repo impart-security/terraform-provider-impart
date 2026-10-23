@@ -21,7 +21,6 @@ import (
 
 type UserAPI interface {
 
-
 	/*
 		GetTokenInfo Get token info
 
@@ -35,12 +34,10 @@ type UserAPI interface {
 	// GetTokenInfoExecute executes the request
 	//  @return TokenInfo
 	GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenInfo, *http.Response, error)
-
 }
 
 // UserAPIService UserAPI service
 type UserAPIService service
-
 
 type ApiGetTokenInfoRequest struct {
 	ctx        context.Context
@@ -173,4 +170,3 @@ func (a *UserAPIService) GetTokenInfoExecute(r ApiGetTokenInfoRequest) (*TokenIn
 
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
-

@@ -13,6 +13,13 @@ Manage a monitor.
 ## Example Usage
 
 ```terraform
+# Create a notification template for the monitors to send
+resource "impart_notification_template" "example" {
+  name    = "notification_template_example"
+  payload = "This is a test message payload"
+  subject = "Test subject"
+}
+
 # Create a new event monitor
 resource "impart_monitor" "test_event" {
   name        = "terraform_event_monitor"
@@ -42,8 +49,8 @@ resource "impart_monitor" "test_event" {
 
 # Create a new metric monitor
 resource "impart_monitor" "test_metric" {
-  name        = "terraform_event_monitor"
-  description = "test event monitor"
+  name        = "terraform_metric_monitor"
+  description = "test metric monitor"
   notifications = [
     {
       notification_template_id = resource.impart_notification_template.example.id
@@ -72,11 +79,11 @@ resource "impart_monitor" "test_metric" {
 ### Required
 
 - `conditions` (Attributes List) An array of conditions for which the monitor will trigger. (see [below for nested schema](#nestedatt--conditions))
-- `description` (String) The description for this monitor.
 - `name` (String) The name for this monitor.
 
 ### Optional
 
+- `description` (String) The description for this monitor.
 - `labels` (List of String) The applied labels.
 - `notifications` (Attributes List) Each message this monitor sends when it fires, and its destination. (see [below for nested schema](#nestedatt--notifications))
 

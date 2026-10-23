@@ -1,0 +1,22 @@
+{
+  "name": "providers/terraform-provider-impart",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "providers/terraform-provider-impart",
+  "tags": ["scope:go"],
+  "targets": {
+    "build": {
+      "executor": "@nx-go/nx-go:build",
+      "options": {
+        "main": "."
+      }
+    },
+    "test": {
+      "executor": "@nx-go/nx-go:test",
+      "options": {
+        "cover": true,
+        "race": true
+      }
+    }
+  }
+}

@@ -2,6 +2,8 @@ package provider
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
@@ -38,4 +40,13 @@ func testAccPreCheck(t *testing.T) {
 	if v := os.Getenv("IMPART_TOKEN"); v == "" {
 		t.Fatal("IMPART_TOKEN must be set for acceptance tests")
 	}
+	t.Logf("acceptance CLI: %q (opentofu=%t)", os.Getenv("TF_ACC_TERRAFORM_PATH"), usingOpenTofu())
+}
+
+// usingOpenTofu reports whether acceptance tests are driving the OpenTofu CLI.
+// tofu reports its version as "terraform_version", so tfversion checks can't tell
+// the CLIs apart; gate CLI-specific test steps on this instead (for example
+// ExpectNonEmptyPlan: usingOpenTofu() for ephemeral resources, opentofu/opentofu#3781).
+func usingOpenTofu() bool {
+	return strings.HasPrefix(filepath.Base(os.Getenv("TF_ACC_TERRAFORM_PATH")), "tofu")
 }

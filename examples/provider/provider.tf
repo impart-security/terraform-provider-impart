@@ -25,7 +25,7 @@ data "local_file" "example" {
 resource "impart_spec" "example" {
   name        = "terraform_test"
   source_file = data.local_file.example.filename
-  source_hash = data.local_file.example.content_sha256 # set hash if spec changes tracking is disirable
+  source_hash = data.local_file.example.content_sha256 # set hash if spec changes tracking is desirable
 
   # lifecycle {
   #   ignore_changes = all
@@ -38,18 +38,39 @@ resource "impart_list" "example" {
   kind = "string"
 }
 
-# Create a new rule script
-resource "impart_rule_script" "example" {
+# Create a new script rule
+resource "impart_rule" "example" {
   name        = "example"
+  type        = "script"
   disabled    = false
   description = "Rule description"
   content     = <<EOF
 import { List } from "asruleslib";
 
 // Reference the list
-let list = new List("${resource.impart_list.example.id}");
-...
+const blockedAgents = new List("${resource.impart_list.example.id}");
+
+class BlockListedAgents extends BaseProcessorV2 {
+  inspectRequestV2(metaInfo: MetaInfo, request: Request, tags: Set<string>): InspectResultV2 {
+    if (request.header.has("user-agent") && blockedAgents.contains(request.header.get("user-agent"))) {
+      tags.add("BLOCKED_AGENT");
+    }
+
+    return InspectResultV2.from(tags);
+  }
+
+  enforceRequestV2(metaInfo: MetaInfo, request: Request, tags: Set<string>): EnforceResultV2 {
+    return tags.has("BLOCKED_AGENT") ? EnforceResultV2.BLOCK : EnforceResultV2.ALLOW;
+  }
+}
+
+registerV2(new BlockListedAgents());
   EOF
+}
+
+# Read in an existing connector to deliver monitor notifications through
+data "impart_connector" "example" {
+  id = "<id>"
 }
 
 # Create a new notification template
@@ -59,14 +80,14 @@ resource "impart_notification_template" "test" {
   subject = "Terraform Subject"
 }
 
-#Create a new event monitor
+# Create a new event monitor
 resource "impart_monitor" "test_event" {
   name        = "terraform_event_monitor"
   description = "test event monitor"
   notifications = [
     {
       notification_template_id = resource.impart_notification_template.test.id
-      connector_id             = data.local.example_connector.id
+      connector_id             = data.impart_connector.example.id
       destination              = "C060E7NGB61"
     }
   ]
@@ -86,13 +107,14 @@ resource "impart_monitor" "test_event" {
   ]
 }
 
+# Create a new metric monitor
 resource "impart_monitor" "test_metric" {
-  name        = "terraform_event_monitor"
-  description = "test event monitor"
+  name        = "terraform_metric_monitor"
+  description = "test metric monitor"
   notifications = [
     {
       notification_template_id = resource.impart_notification_template.test.id
-      connector_id             = data.local.example_connector.id
+      connector_id             = data.impart_connector.example.id
       destination              = "C060E7NGB61"
     }
   ]

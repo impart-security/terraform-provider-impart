@@ -13,7 +13,7 @@ Manage a rule.
 ## Example Usage
 
 ```terraform
-# Create a new rule script
+# Create a new script rule
 resource "impart_rule" "example" {
   name            = "example"
   disabled        = false
@@ -26,7 +26,7 @@ resource "impart_rule" "example" {
 
 # Create a new rule recipe with content
 resource "impart_rule" "example_rule_recipe" {
-  name            = "example"
+  name            = "example_recipe"
   disabled        = false
   description     = "Rule description"
   content         = file("${path.module}/rule.json")

@@ -21,12 +21,15 @@ var version string = "dev"
 
 func main() {
 	var debug bool
+	var address string
 
 	flag.BoolVar(&debug, "debug", false, "set to true to run the provider with support for debuggers like delve")
+	flag.StringVar(&address, "address", "registry.terraform.io/impart-security/impart",
+		"provider address used for -debug reattach; use registry.opentofu.org/impart-security/impart with OpenTofu")
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/impart-security/impart",
+		Address: address,
 		Debug:   debug,
 	}
 

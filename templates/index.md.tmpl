@@ -1,0 +1,28 @@
+---
+page_title: "{{.ProviderShortName}} Provider"
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.ProviderShortName}} Provider
+
+{{ .Description | trimspace }}
+
+## Compatibility
+
+The provider works with both **Terraform** and **OpenTofu**: Terraform 1.5 and later, and
+OpenTofu 1.6 and later. It is the same binary for both. The same configuration works with either
+CLI; `source = "impart-security/impart"` resolves to the Terraform Registry under `terraform` and
+to the OpenTofu Registry under `tofu`. The "Using the provider with OpenTofu" guide covers installation,
+signature verification and moving existing Terraform state to OpenTofu.
+
+{{ if .HasExamples -}}
+## Example Usage
+
+{{- range .ExampleFiles }}
+
+{{ tffile . }}
+{{- end }}
+{{- end }}
+
+{{ .SchemaMarkdown | trimspace }}

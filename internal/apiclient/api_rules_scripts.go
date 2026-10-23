@@ -806,7 +806,6 @@ func (r ApiGetRulesScriptsSearchRequest) MaxResults(maxResults int32) ApiGetRule
 	return r
 }
 
-
 type ApiUpdateRulesScriptRequest struct {
 	ctx                 context.Context
 	ApiService          RulesScriptsAPI

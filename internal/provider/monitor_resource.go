@@ -152,7 +152,7 @@ func (r *monitorResource) Schema(_ context.Context, _ resource.SchemaRequest, re
 			},
 			"description": schema.StringAttribute{
 				Description: "The description for this monitor.",
-				Required:    true,
+				Optional:    true,
 			},
 			"conditions": schema.ListNestedAttribute{
 				Description: "An array of conditions for which the monitor will trigger.",
@@ -316,9 +316,13 @@ func (r *monitorResource) Create(ctx context.Context, req resource.CreateRequest
 
 	postBody := openapiclient.EventMonitorPostBody{
 		Name:          plan.Name.ValueString(),
-		Description:   plan.Description.ValueString(),
 		Conditions:    conditions,
 		Notifications: buildNotifications(plan.Notifications),
+	}
+
+	if !plan.Description.IsNull() {
+		description := plan.Description.ValueString()
+		postBody.Description = &description
 	}
 
 	if len(plan.Labels) > 0 {
@@ -460,6 +464,9 @@ func (r *monitorResource) Read(ctx context.Context, req resource.ReadRequest, re
 	state.Conditions = responseConditions
 	state.Notifications = buildNotificationModels(state.Notifications, monitorResponse.Notifications)
 	state.Labels = buildStateList(state.Labels, monitorResponse.Labels)
+	if !state.Description.IsNull() || monitorResponse.Description != "" {
+		state.Description = types.StringValue(monitorResponse.Description)
+	}
 
 	// Set refreshed state
 	diags = resp.State.Set(ctx, &state)
@@ -515,9 +522,13 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 
 	postBody := openapiclient.EventMonitorPostBody{
 		Name:          plan.Name.ValueString(),
-		Description:   plan.Description.ValueString(),
 		Conditions:    conditions,
 		Notifications: buildNotifications(plan.Notifications),
+	}
+
+	if !plan.Description.IsNull() {
+		description := plan.Description.ValueString()
+		postBody.Description = &description
 	}
 
 	if len(plan.Labels) > 0 {
@@ -582,9 +593,11 @@ func (r *monitorResource) Update(ctx context.Context, req resource.UpdateRequest
 	state := monitorResourceModel{
 		ID:            types.StringValue(monitorResponse.Id),
 		Name:          types.StringValue(monitorResponse.Name),
-		Description:   types.StringValue(monitorResponse.Description),
 		Notifications: buildNotificationModels(plan.Notifications, monitorResponse.Notifications),
 		Conditions:    responseConditions,
+	}
+	if !plan.Description.IsNull() || monitorResponse.Description != "" {
+		state.Description = types.StringValue(monitorResponse.Description)
 	}
 	state.Labels = buildStateList(plan.Labels, monitorResponse.Labels)
 

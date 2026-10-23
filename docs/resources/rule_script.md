@@ -26,7 +26,7 @@ resource "impart_rule_script" "example" {
 
 # Create a new rule script with content
 resource "impart_rule_script" "example_content" {
-  name            = "example"
+  name            = "example_content"
   disabled        = false
   description     = "Rule description"
   content         = file("${path.module}/rule.js")
